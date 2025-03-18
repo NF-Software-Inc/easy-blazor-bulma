@@ -28,7 +28,13 @@
 			<div class="field">
 				<Label For="() => InputModel.DateOnlyTest" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left has-icons-right">
-					<InputDateTime @bind-Value=InputModel.DateOnlyTest Options="Options" />
+					<InputDateTime @bind-Value=InputModel.DateOnlyTest Options="DateOnlyOptions" />
+				</div>
+			</div>
+			<div class="field">
+				<Label For="() => InputModel.FullDateTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left has-icons-right">
+					<InputDateTime @bind-Value=InputModel.FullDateTest Options="DateBelowOptions" />
 				</div>
 			</div>
 		</EditForm>
@@ -38,7 +44,25 @@
 @code {
 	private readonly PageModel InputModel = new();
 
-	private readonly InputDateTimeOptions Options = InputDateTimeOptions.HoverPopout | InputDateTimeOptions.ShowResetButton | InputDateTimeOptions.ShowDate | InputDateTimeOptions.CloseOnDateClicked;
+	private readonly InputDateTimeOptions DateOnlyOptions = InputDateTimeOptions.HoverPopout |
+		InputDateTimeOptions.ShowResetButton |
+		InputDateTimeOptions.ShowDate |
+		InputDateTimeOptions.CloseOnDateClicked;
+
+	private readonly InputDateTimeOptions DateBelowOptions = InputDateTimeOptions.ClickPopout |
+		InputDateTimeOptions.PopoutBottom |
+		InputDateTimeOptions.PopoutLeft |
+		InputDateTimeOptions.ShowNowButton |
+		InputDateTimeOptions.ShowResetButton |
+		InputDateTimeOptions.UpdateOnPopoutChange |
+		InputDateTimeOptions.UseAutomaticStatusColors |
+		InputDateTimeOptions.ShowDate |
+		InputDateTimeOptions.ShowHours |
+		InputDateTimeOptions.ShowMinutes |
+		InputDateTimeOptions.CloseOnDateClicked |
+		InputDateTimeOptions.ValidateTextInput |
+		InputDateTimeOptions.ShowFullValueBelow;
+
 	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
 
 	private class PageModel
@@ -48,5 +72,8 @@
 
 		[Display(Name = "Date Only Test", Description = "Input to test a nullable DateOnly value.")]
 		public DateOnly? DateOnlyTest { get; set; }
+
+		[Display(Name = "Full Date Test", Description = "Input to display the full DateTime below the input.")]
+		public DateTime? FullDateTest { get; set; }
 	}
 }

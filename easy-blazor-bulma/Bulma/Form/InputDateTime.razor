@@ -224,4 +224,9 @@
             }
         </div>
     </div>
+
+    @if (Options.HasFlag(InputDateTimeOptions.ShowFullValueBelow) && Value != null)
+    {
+        <div class="tag is-success mt-1">@GetFullDisplayValue()</div>
+    }
 </div>
