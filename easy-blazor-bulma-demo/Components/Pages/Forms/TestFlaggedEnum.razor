@@ -31,6 +31,12 @@
 					<InputFlaggedEnum @bind-Value=InputModel.NullableEnumFlagTest HideZeroOption=false />
 				</div>
 			</div>
+			<div class="field">
+				<Label For="() => InputModel.MultiEnumFlagTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left has-icons-right">
+					<InputFlaggedEnum @bind-Value=InputModel.MultiEnumFlagTest HideZeroOption=false />
+				</div>
+			</div>
 		</EditForm>
 	</div>
 </div>
@@ -47,6 +53,9 @@
 
 		[Display(Name = "Nullable Flagged Enum Test", Description = "Input to test modifying a nullable flagged enum value.")]
 		public TestFlags? NullableEnumFlagTest { get; set; }
+
+		[Display(Name = "Multi-Flag Enum Test", Description = "Input to test modifying a multi-flagged enum value.")]
+		public TestMultiFlags? MultiEnumFlagTest { get; set; }
 	}
 
 	[Flags]
@@ -61,5 +70,23 @@
 		Six = 0b_00000000_00000000_00000000_00100000,
 		Seven = 0b_00000000_00000000_00000000_01000000,
 		Eight = 0b_00000000_00000000_00000000_10000000
+	}
+
+	[Flags]
+	private enum TestMultiFlags
+	{
+		None = 0b_00000000_00000000_00000000_00000000,
+		One = 0b_00000000_00000000_00000000_00000001,
+		Two = 0b_00000000_00000000_00000000_00000010,
+		Three = 0b_00000000_00000000_00000000_00000100,
+		Four = 0b_00000000_00000000_00000000_00001000,
+		Five = 0b_00000000_00000000_00000000_00010000,
+		Six = 0b_00000000_00000000_00000000_00100000,
+		Seven = 0b_00000000_00000000_00000000_01000000,
+		Eight = 0b_00000000_00000000_00000000_10000000,
+		OneAndTwo = 0b_00000000_00000000_00000000_00000011,
+		ThreeAndFour = 0b_00000000_00000000_00000000_00001100,
+		FiveAndSix = 0b_00000000_00000000_00000000_00110000,
+		SevenAndEight = 0b_00000000_00000000_00000000_11000000
 	}
 }
