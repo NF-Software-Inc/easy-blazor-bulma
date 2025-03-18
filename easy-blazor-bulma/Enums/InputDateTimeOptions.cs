@@ -109,5 +109,10 @@ public enum InputDateTimeOptions
 	/// <summary>
 	/// Parses decimal values as minutes or seconds. The portion after the decimal will become a percentage of 60 minutes or 60 seconds based on the input string.
 	/// </summary>
-    ConvertDecimals = 0b_00000000_00001000_00000000_00000000
+    ConvertDecimals = 0b_00000000_00001000_00000000_00000000,
+
+	/// <summary>
+	/// Indicates whether to display the full date and time of the selected value below the input.
+	/// </summary>
+	ShowFullValueBelow = 0b_00000000_00010000_00000000_00000000
 }

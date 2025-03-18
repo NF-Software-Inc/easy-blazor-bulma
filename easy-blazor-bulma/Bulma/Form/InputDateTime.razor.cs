@@ -350,11 +350,25 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
         return formatted.TrimEnd(' ');
     }
 
-	private string FormatDateOnly(DateOnly value) => FormatDateTime(value.ToDateTime(TimeOnly.MinValue));
+	private string FormatDateOnly(DateOnly value) => FormatDateTime(value.ToDateTime());
 
 	private string FormatTimeSpan(TimeSpan value) => FormatDateTime(DateTime.Today.Add(value));
 
 	private string FormatTimeOnly(TimeOnly value) => FormatTimeSpan(value.ToTimeSpan());
+
+	private string? GetFullDisplayValue()
+    {
+        if (Options.HasFlag(InputDateTimeOptions.ShowFullValueBelow) == false || Value == null)
+            return null;
+        else if (UnderlyingType == typeof(DateTime))
+            return ((DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime))).ToString("F");
+        else if (UnderlyingType == typeof(DateOnly))
+            return ((DateOnly)Convert.ChangeType(CurrentValue!, typeof(DateOnly))).ToString("D");
+        else if (UnderlyingType == typeof(TimeSpan))
+            return ((TimeSpan)Convert.ChangeType(CurrentValue!, typeof(TimeSpan))).ToString("G");
+        else
+            return DateTime.Today.Add(((TimeOnly)Convert.ChangeType(CurrentValue!, typeof(TimeOnly))).ToTimeSpan()).ToString("T");
+    }
 
 	private void CheckKeyPress(KeyboardEventArgs args)
 	{
