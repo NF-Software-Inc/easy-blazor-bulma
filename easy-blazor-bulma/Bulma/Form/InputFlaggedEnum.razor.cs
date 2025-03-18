@@ -103,7 +103,7 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 		if (AdditionalAttributes.IsDisabled())
 			return;
 
-		if ((current & update) != 0)
+		if ((current & update) == update)
             current &= ~update;
         else
             current |= update;
@@ -113,7 +113,7 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 
     private bool IsFlagChecked(TEnum flag)
     {
-        return CurrentValue != null && (Convert.ToInt64(CurrentValue) & Convert.ToInt64(flag)) != 0;
+        return CurrentValue != null && (Convert.ToInt64(CurrentValue) & Convert.ToInt64(flag)) == Convert.ToInt64(flag);
     }
 
     private string GetEnumSwitchId(TEnum value) => $"switch-InputFlaggedEnum-{PropertyName}-{value}";

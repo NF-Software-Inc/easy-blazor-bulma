@@ -484,7 +484,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 
     private IEnumerable<DateTime> GetCalendarDates()
 	{
-        var first = PopoutValue > DateTime.MinValue ? new DateTime(PopoutValue.Year, PopoutValue.Month, 1).AddDays(-1) : DateTime.MinValue;
+        var first = PopoutValue > DateTime.MinValue ? new DateTime(PopoutValue.Year, PopoutValue.Month, 1).AddDays(-1) : DateTime.MinValue.AddDays(7);
 
         if (first.DayOfWeek != StartOfWeek)
             first = first.GetPreviousWeekday(StartOfWeek);
