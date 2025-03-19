@@ -42,41 +42,6 @@ jobs:
         if-no-files-found: error
         retention-days: 7
         path: ${{ env.NuGetDirectory }}/*.nupkg
-  deploy-ubuntu:
-    if: github.event_name == 'release'
-    runs-on: ubuntu-24.04
-    needs: [ package ]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: nuget
-          path: ${{ env.NuGetDirectory }}
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-      - name: Install Intermediate Certificates
-        run: |
-          apt update && apt install -y sudo
-          echo "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}" | openssl x509 -outform der -out /usr/local/share/ca-certificates/intermediate-1.crt
-          echo "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}" | openssl x509 -outform der -out /usr/local/share/ca-certificates/intermediate-2.crt
-          sudo chmod 644 /usr/local/share/ca-certificates/intermediate-1.crt
-          sudo chmod 644 /usr/local/share/ca-certificates/intermediate-2.crt
-          sudo update-ca-certificates
-      - name: Sign Package
-        run: |
-          dotnet tool install --global NuGetKeyVaultSignTool
-          NuGetKeyVaultSignTool sign ${{ env.NuGetDirectory }}/Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg --file-digest sha256 --timestamp-rfc3161 http://timestamp.sectigo.com --timestamp-digest sha256 --azure-key-vault-url ${{ vars.AZURE_KEY_VAULT }} --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} --azure-key-vault-client-secret "${{ secrets.AZURE_CLIENT_SECRET }}" --azure-key-vault-certificate ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }}
-      - name: Verify Signed Package
-        run: NuGetKeyVaultSignTool verify ${{ env.NuGetDirectory }}/Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg
-      - uses: actions/upload-artifact@v4
-        with:
-          name: signed-ubuntu
-          if-no-files-found: error
-          retention-days: 7
-          path: ${{ env.NuGetDirectory }}/*.nupkg
-      - name: Publish NuGet package
-        run: dotnet nuget push ${{ env.NuGetDirectory }}/Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
   deploy-windows:
     if: github.event_name == 'release'
     runs-on: windows-2022
