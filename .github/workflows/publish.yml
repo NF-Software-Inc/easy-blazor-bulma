@@ -92,8 +92,8 @@ jobs:
           dotnet-version: 8.0.x
       - name: Install Intermediate Certificates
         run: |
-          New-Item -Type File -Name intermediate-1.cer -Value ${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
-          New-Item -Type File -Name intermediate-2.cer -Value ${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
+          New-Item -Type File -Name intermediate-1.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
+          New-Item -Type File -Name intermediate-2.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
           Import-Certificate -FilePath .\intermediate-1.cer -CertStoreLocation Cert:\LocalMachine\CA
           Import-Certificate -FilePath .\intermediate-2.cer -CertStoreLocation Cert:\LocalMachine\CA
       - name: Sign Package
