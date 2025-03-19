@@ -58,10 +58,9 @@ jobs:
       - name: Sign Package
         run: |
           dotnet tool install --global NuGetKeyVaultSignTool
-          NuGetKeyVaultSignTool sign ${{ env.NuGetDirectory }}/Easy-Blazor-Bulma.${{ github.event.release.tag_name }}.nupkg --file-digest sha256 --timestamp-rfc3161 http://timestamp.sectigo.com --timestamp-digest sha256 --azure-key-vault-url ${{ vars.AZURE_KEY_VAULT }} --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} --azure-key-vault-client-secret "${{ secrets.AZURE_CLIENT_SECRET }}" --azure-key-vault-certificate ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }}
+          NuGetKeyVaultSignTool sign ${{ env.NuGetDirectory }}/Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg --file-digest sha256 --timestamp-rfc3161 http://timestamp.sectigo.com --timestamp-digest sha256 --azure-key-vault-url ${{ vars.AZURE_KEY_VAULT }} --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} --azure-key-vault-client-secret "${{ secrets.AZURE_CLIENT_SECRET }}" --azure-key-vault-certificate ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }}
       - name: Verify Signed Package
-        run: |
-          NuGetKeyVaultSignTool verify ${{ env.NuGetDirectory }}/Easy-Blazor-Bulma.${{ github.event.release.tag_name }}.nupkg
+        run: NuGetKeyVaultSignTool verify ${{ env.NuGetDirectory }}/Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg
       - uses: actions/upload-artifact@v4
         with:
           name: signed
@@ -69,4 +68,4 @@ jobs:
           retention-days: 7
           path: ${{ env.NuGetDirectory }}/*.nupkg
       - name: Publish NuGet package
-        run: dotnet nuget push ${{ env.NuGetDirectory }}/Easy-Blazor-Bulma.${{ github.event.release.tag_name }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ${{ env.NuGetDirectory }}/Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json
