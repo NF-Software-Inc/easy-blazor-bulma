@@ -55,6 +55,11 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+      - name: Install Intermediate Certificates
+        run: |
+          echo "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}" | openssl x509 -outform der -out /usr/local/share/ca-certificates/intermediate-1.crt
+          echo "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}" | openssl x509 -outform der -out /usr/local/share/ca-certificates/intermediate-2.crt
+          update-ca-certificates
       - name: Sign Package
         run: |
           dotnet tool install --global NuGetKeyVaultSignTool
