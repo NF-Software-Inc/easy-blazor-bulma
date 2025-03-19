@@ -62,5 +62,11 @@ jobs:
       - name: Verify Signed Package
         run: |
           NuGetKeyVaultSignTool verify ${{ env.NuGetDirectory }}/Easy-Blazor-Bulma.${{ github.event.release.tag_name }}.nupkg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signed
+          if-no-files-found: error
+          retention-days: 7
+          path: ${{ env.NuGetDirectory }}/*.nupkg
       - name: Publish NuGet package
-        run: dotnet nuget push ${{ env.NuGetDirectory }}/*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ${{ env.NuGetDirectory }}/Easy-Blazor-Bulma.${{ github.event.release.tag_name }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json
