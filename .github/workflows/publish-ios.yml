@@ -9,23 +9,33 @@ env:
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
   PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
-
-defaults:
-  run:
-    shell: pwsh
+  TempDirectory: ${{ github.workspace }}/Temp-iOS
 
 jobs:
   publish:
+    name: Publish Easy Blazor Bulma iOS
     runs-on: macos-15
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v4.3.1
       with:
         dotnet-version: |
           9.0.x
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: dotnet workload install maui-android
-      working-directory: .\easy-blazor-bulma-demo
+      run: dotnet workload install maui-ios
+      working-directory: ./easy-blazor-bulma-demo
+    - run: mkdir ${{ env.TempDirectory }}
+    - name: Publish
+      run: dotnet publish -c Release -f net9.0-ios -p:ArchiveOnBuild=true -p:RuntimeIdentifier=ios-arm64 -p:EnableAssemblyILStripping=false -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }}
+      working-directory: ./easy-blazor-bulma-demo
+    - name: Add to Release
+      run: gh release upload ${{ github.event.release.tag_name }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-ios/ios-arm64/publish/Easy-Blazor-Bulma-Demo.ipa
+    - uses: actions/upload-artifact@v4.6.2
+      with:
+        name: easy-blazor-bulma-demo-ios
+        if-no-files-found: error
+        retention-days: 7
+        path: ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-ios/ios-arm64/publish/*.ipa

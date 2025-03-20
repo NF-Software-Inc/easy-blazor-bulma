@@ -9,19 +9,19 @@ env:
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
   PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
-  TempDirectory: ${{ github.workspace }}\Temp
-
-defaults:
-  run:
-    shell: pwsh
+  TempDirectory: ${{ github.workspace }}\Temp-Android
 
 jobs:
   publish:
+    name: Publish Easy Blazor Bulma Android
     runs-on: windows-2022
+    defaults:
+      run:
+        shell: pwsh
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v4.3.1
       with:
         dotnet-version: |
           9.0.x
@@ -30,17 +30,21 @@ jobs:
     - name: Install MAUI
       run: dotnet workload install maui-android
       working-directory: .\easy-blazor-bulma-demo
+    - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Get KeyStore
       run: |
-        New-Item -Type Directory -Path ${{ env.TempDirectory }}
         $keystore = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}))
         New-Item -Type File -Path ${{ env.TempDirectory }}\opensource.keystore -Value $keystore
-    - name: Build & Publish
-      run: |
-        dotnet build -c Release -f net9.0-android
-        dotnet publish -c Release -f net9.0-android -p:AndroidKeyStore=true -p:AndroidSigningKeyStore='${{ env.TempDirectory }}\opensource.keystore' -p:AndroidSigningKeyAlias='${{ secrets.ANDROID_ALIAS_OPENSOURCE }}' -p:AndroidSigningKeyPass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AndroidSigningStorePass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}'
+    - name: Publish
+      run: dotnet publish -c Release -f net9.0-android -p:AndroidKeyStore=true -p:AndroidSigningKeyStore='${{ env.TempDirectory }}\opensource.keystore' -p:AndroidSigningKeyAlias='${{ secrets.ANDROID_ALIAS_OPENSOURCE }}' -p:AndroidSigningKeyPass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AndroidSigningStorePass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }}
       working-directory: .\easy-blazor-bulma-demo
-    - name: Zip & Upload
-      run: |
-        Get-ChildItem "${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net8.0-android\*Signed.apk", "${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net8.0-android\*.aab" | Compress-Archive -DestinationPath ${{ env.TempDirectory }}\easy-blazor-bulma-demo-android.zip
-        gh release upload ${{ github.event.release.tag_name }} ${{ env.TempDirectory }}\easy-blazor-bulma-demo-android.zip
+    - name: Add to Release
+      run: gh release upload ${{ github.event.release.tag_name }} ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\com.nfsoftwareinc.easyblazorbulma-Signed.apk
+    - uses: actions/upload-artifact@v4.6.2
+      with:
+        name: easy-blazor-bulma-demo-android
+        if-no-files-found: error
+        retention-days: 7
+        path: |
+          ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\*Signed.apk
+          ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\*.aab
