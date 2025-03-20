@@ -42,32 +42,32 @@ jobs:
     if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'Android')
     uses: ./.github/workflows/publish-android.yml
     with:
-      build: ${{ env.Build }}
-      version: ${{ env.Version }}
+      build: env.Build
+      version: env.Version
     secrets: inherit
   ios:
     needs: [ prepare ]
     if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'iOS')
     uses: ./.github/workflows/publish-ios.yml
     with:
-      build: ${{ env.Build }}
-      version: ${{ env.Version }}
+      build: env.Build
+      version: env.Version
     secrets: inherit
   nuget:
     needs: [ prepare ]
     if: contains(env.Targets, 'All') || contains(env.Targets, 'NuGet')
     uses: ./.github/workflows/publish-nuget.yml
     with:
-      build: ${{ env.Build }}
-      version: ${{ env.Version }}
+      build: env.Build
+      version: env.Version
     secrets: inherit
   mac-catalyst:
     needs: [ prepare ]
     if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'Mac Catalyst')
     uses: ./.github/workflows/publish-mac-catalyst.yml
     with:
-      build: ${{ env.Build }}
-      version: ${{ env.Version }}
+      build: env.Build
+      version: env.Version
     secrets: inherit
   windows-arm64:
     needs: [ prepare ]
@@ -75,8 +75,8 @@ jobs:
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: arm64
-      build: ${{ env.Build }}
-      version: ${{ env.Version }}
+      build: env.Build
+      version: env.Version
     secrets: inherit
   windows-x64:
     needs: [ prepare ]
@@ -84,6 +84,6 @@ jobs:
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: x64
-      build: ${{ env.Build }}
-      version: ${{ env.Version }}
+      build: env.Build
+      version: env.Version
     secrets: inherit
