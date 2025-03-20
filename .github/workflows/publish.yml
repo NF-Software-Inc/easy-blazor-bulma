@@ -24,13 +24,13 @@ jobs:
     uses: ./.github/workflows/publish-mac-catalyst.yml
     secrets: inherit
   windows-arm64:
-    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Mac Catalyst') }}
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Windows') }}
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: arm64
     secrets: inherit
   windows-x64:
-    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Mac Catalyst') }}
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Windows') }}
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: x64
