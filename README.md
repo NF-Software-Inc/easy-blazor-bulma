@@ -3,7 +3,7 @@
 [![MIT](https://img.shields.io/github/license/NF-Software-Inc/Easy-Blazor-Bulma)](https://github.com/NF-Software-Inc/Easy-Blazor-Bulma/blob/master/LICENSE)
 [![NuGet](https://img.shields.io/nuget/v/Easy.Blazor.Bulma.svg)](https://www.nuget.org/packages/Easy.Blazor.Bulma/)
 [![Build](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/build.yml)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/build.yml)
-[![Publish](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/publish.yml)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/publish.yml)
+[![Publish](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/publish.yml?label=publish)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/publish.yml)
 
 ## Getting Started
 
