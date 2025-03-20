@@ -7,12 +7,18 @@ on:
       architecture:
         required: true
         type: string
+      build:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
-  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
+  PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
   TempDirectory: ${{ github.workspace }}\Temp-Windows-${{ inputs.architecture }}
 
 jobs:
@@ -37,13 +43,13 @@ jobs:
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Set Environment Variables
       run: |
-        if [ "${{ inputs.architecture }}" == "arm64" ]; then
-          echo "BUILD_ARGUMENTS=-p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }} -p:UseMonoRuntime=false -p:Platform=Arm64" >> "$GITHUB_ENV"
-          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Arm64\Release\net9.0-windows10.0.19041.0\win-arm64\AppPackages\Easy-Blazor-Bulma-Demo_${{ github.event.release.tag_name }}.0_Test" >> "$GITHUB_ENV"
-        else
-          echo "BUILD_ARGUMENTS=-p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
-          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-windows10.0.19041.0\win-x64\AppPackages\Easy-Blazor-Bulma-Demo_${{ github.event.release.tag_name }}.0_Test" >> "$GITHUB_ENV"
-        fi
+        if ("${{ inputs.architecture }}" -eq "arm64") {
+          echo "BUILD_ARGUMENTS=-p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }} -p:UseMonoRuntime=false -p:Platform=Arm64" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Arm64\Release\net9.0-windows10.0.19041.0\win-arm64\AppPackages\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_Test" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        } else {
+          echo "BUILD_ARGUMENTS=-p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-windows10.0.19041.0\win-x64\AppPackages\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_Test" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        }
     - name: Save Certificates
       run: |
         New-Item -Type File -Name ${{ env.TempDirectory }}\public.cer -Value "${{ vars.GLOBALSIGN_PUBLIC }}"
@@ -54,7 +60,7 @@ jobs:
         $certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 '${{ env.TempDirectory }}\public.cer'
         $xml = [Xml] (Get-Content '${{ github.workspace }}\easy-blazor-bulma-demo\Platforms\Windows\Package.appxmanifest')
         $xml.Package.Identity.Publisher = $certificate.Subject
-        $xml.Package.Identity.Version = '${{ github.event.release.tag_name }}.0'
+        $xml.Package.Identity.Version = '${{ inputs.version }}.0'
         $xml.Package.Properties.PublisherDisplayName = $certificate.Subject -replace "(CN=)(.*?),.*", '$2'
         $xml.Save('${{ github.workspace }}\easy-blazor-bulma-demo\Platforms\Windows\Package.appxmanifest')
     - name: Publish
@@ -64,9 +70,9 @@ jobs:
       run: |
         dotnet tool install --global --version 6.0.1 AzureSignTool
         AzureSignTool.exe sign -fd sha256 -td sha256 -tr http://timestamp.sectigo.com -kvu ${{ vars.AZURE_KEY_VAULT }} -kvt ${{ secrets.AZURE_TENANT_ID }} -kvi ${{ secrets.AZURE_CLIENT_ID }} -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }} -ac ${{ env.TempDirectory }}\intermediate-1.cer -ac ${{ env.TempDirectory }}\intermediate-2.cer -ifl ${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ github.event.release.tag_name }}.0_${{ inputs.architecture }}.msix
-        Copy-Item '${{ env.TempDirectory }}\public.cer' -Destination '${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ github.event.release.tag_name }}.0_${{ inputs.architecture }}.cer'
+        Copy-Item '${{ env.TempDirectory }}\public.cer' -Destination '${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_${{ inputs.architecture }}.cer'
     - name: Add to Release
-      run: gh release upload ${{ github.event.release.tag_name }} ${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ github.event.release.tag_name }}.0_${{ inputs.architecture }}.msix
+      run: gh release upload ${{ inputs.version }} ${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_${{ inputs.architecture }}.msix
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-windows-${{ inputs.architecture }}

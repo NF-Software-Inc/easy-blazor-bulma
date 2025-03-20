@@ -3,12 +3,19 @@
 name: publish-android
 on:
   workflow_call:
+    inputs:
+      build:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
-  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
+  PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
   TempDirectory: ${{ github.workspace }}\Temp-Android
 
 jobs:
@@ -33,13 +40,13 @@ jobs:
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Get KeyStore
       run: |
-        $keystore = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}))
+        $keystore = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}'))
         New-Item -Type File -Path ${{ env.TempDirectory }}\opensource.keystore -Value $keystore
     - name: Publish
-      run: dotnet publish -c Release -f net9.0-android -p:AndroidKeyStore=true -p:AndroidSigningKeyStore='${{ env.TempDirectory }}\opensource.keystore' -p:AndroidSigningKeyAlias='${{ secrets.ANDROID_ALIAS_OPENSOURCE }}' -p:AndroidSigningKeyPass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AndroidSigningStorePass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }}
+      run: dotnet publish -c Release -f net9.0-android -p:AndroidKeyStore=true -p:AndroidSigningKeyStore='${{ env.TempDirectory }}\opensource.keystore' -p:AndroidSigningKeyAlias='${{ secrets.ANDROID_ALIAS_OPENSOURCE }}' -p:AndroidSigningKeyPass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AndroidSigningStorePass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: .\easy-blazor-bulma-demo
     - name: Add to Release
-      run: gh release upload ${{ github.event.release.tag_name }} ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\com.nfsoftwareinc.easyblazorbulma-Signed.apk
+      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\com.nfsoftwareinc.easyblazorbulma-Signed.apk
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-android

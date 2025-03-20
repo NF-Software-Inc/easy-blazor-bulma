@@ -3,12 +3,19 @@
 name: publish-mac-catalyst
 on:
   workflow_call:
+    inputs:
+      build:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
-  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
+  PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
   TempDirectory: ${{ github.workspace }}/Temp-Mac-Catalyst
 
 jobs:
@@ -25,14 +32,14 @@ jobs:
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: dotnet workload install maui-maccatalyst
+      run: dotnet workload install maui-android maui-maccatalyst
       working-directory: ./easy-blazor-bulma-demo
     - run: mkdir ${{ env.TempDirectory }}
     - name: Publish
-      run: dotnet publish -c Release -f net9.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }}
+      run: dotnet publish -c Release -f net9.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: ./easy-blazor-bulma-demo
     - name: Add to Release
-      run: gh release upload ${{ github.event.release.tag_name }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/Easy-Blazor-Bulma-Demo.pkg
+      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/Easy-Blazor-Bulma-Demo.pkg
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-maccatalyst

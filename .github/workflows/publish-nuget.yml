@@ -3,13 +3,20 @@
 name: publish-nuget
 on:
   workflow_call:
+    inputs:
+      build:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
-  PackageName: ${{ github.workspace }}\NuGet\Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg
-  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
+  PackageName: ${{ github.workspace }}\NuGet\Easy.Blazor.Bulma.${{ inputs.version }}.nupkg
+  PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
   TempDirectory: ${{ github.workspace }}/Temp-NuGet
 
 jobs:
@@ -31,7 +38,7 @@ jobs:
     - name: Build & Pack
       run: |
         dotnet build --configuration Release
-        dotnet pack --configuration Release --output ${{ env.TempDirectory }} /p:AssemblyVersion=${{ env.PublishVersion }} /p:Version=${{ github.event.release.tag_name }} /p:FileVersion=${{ env.PublishVersion }}
+        dotnet pack --configuration Release --output ${{ env.TempDirectory }} /p:AssemblyVersion=${{ env.PublishVersion }} /p:Version=${{ inputs.version }} /p:FileVersion=${{ env.PublishVersion }}
       working-directory: ./easy-blazor-bulma
     - uses: actions/upload-artifact@v4.6.2
       with:
@@ -70,6 +77,6 @@ jobs:
       - name: Verify Signed Package
         run: NuGetKeyVaultSignTool verify ${{ env.PackageName }}
       - name: Add to Release
-        run: gh release upload ${{ github.event.release.tag_name }} ${{ env.PackageName }}
+        run: gh release upload ${{ inputs.version }} ${{ env.PackageName }}
       - name: Deploy NuGet package
         run: dotnet nuget push ${{ env.PackageName }} --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
