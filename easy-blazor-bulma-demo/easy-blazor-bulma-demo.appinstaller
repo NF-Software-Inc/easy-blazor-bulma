@@ -2,14 +2,14 @@
 <AppInstaller
     xmlns="http://schemas.microsoft.com/appx/appinstaller/2021"
     Version="1.0.0.0"
-    Uri="https://github.com/thirstyape/easy-blazor-bulma/easy-blazor-bulma-demo/easy-blazor-bulma-demo.appinstaller" >
+    Uri="https://github.com/NF-Software-Inc/easy-blazor-bulma/easy-blazor-bulma-demo/easy-blazor-bulma-demo.appinstaller" >
 
     <MainPackage
         Name="6F9296F4-8B2E-4C2B-883E-EF6C933AE2F6"
-        Publisher="CN=NF Software Inc, O=NF Software Inc, S=Ontario, C=CA, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Ontario, OID.1.3.6.1.4.1.311.60.2.1.3=CA, SERIALNUMBER=1000368489"
-        Version="1.0.13.0"
+        Publisher="CN=NF Software Inc, O=NF Software Inc, L=New Hamburg, S=Ontario, C=CA, OID.1.3.6.1.4.1.311.60.2.1.2=Ontario, OID.1.3.6.1.4.1.311.60.2.1.3=CA, SERIALNUMBER=1000368489, OID.2.5.4.15=Private Organization"
+        Version="1.2.0.0"
         ProcessorArchitecture="x64"
-        Uri="https://github.com/thirstyape/easy-blazor-bulma/releases/download/v1.0.13/easy-blazor-bulma-demo_1.0.13.0_x64.msix" />
+        Uri="https://github.com/NF-Software-Inc/easy-blazor-bulma/releases/download/1.2.0/easy-blazor-bulma-demo_1.2.0.0_x64.msix" />
 
     <UpdateSettings>
         <OnLaunch HoursBetweenUpdateChecks="3" ShowPrompt="false" />
@@ -17,10 +17,10 @@
     </UpdateSettings>
 
     <UpdateURIs>
-        <UpdateURI>https://github.com/thirstyape/easy-blazor-bulma/easy-blazor-bulma-demo/easy-blazor-bulma-demo.appinstaller</UpdateURI>
+        <UpdateURI>https://github.com/NF-Software-Inc/easy-blazor-bulma/easy-blazor-bulma-demo/easy-blazor-bulma-demo.appinstaller</UpdateURI>
     </UpdateURIs>
 
     <RepairURIs>
-        <RepairURI>https://github.com/thirstyape/easy-blazor-bulma/easy-blazor-bulma-demo/easy-blazor-bulma-demo.appinstaller</RepairURI>
+        <RepairURI>https://github.com/NF-Software-Inc/easy-blazor-bulma/easy-blazor-bulma-demo/easy-blazor-bulma-demo.appinstaller</RepairURI>
     </RepairURIs>
 </AppInstaller>
