@@ -79,8 +79,8 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		InputDateTimeOptions.ShowDate |
 		InputDateTimeOptions.ShowHours |
 		InputDateTimeOptions.ShowMinutes |
-        InputDateTimeOptions.CloseOnDateClicked |
-        InputDateTimeOptions.ValidateTextInput;
+		InputDateTimeOptions.CloseOnDateClicked |
+		InputDateTimeOptions.ValidateTextInput;
 
 	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
@@ -105,7 +105,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private readonly Type UnderlyingType;
 	private ILogger<InputDateTime<TValue>>? Logger;
 
-    private string MainCssClass
+	private string MainCssClass
 	{
 		get
 		{
@@ -169,23 +169,23 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	}
 
 	private DateTime ValueAsDateTime
-    {
-        get
-        {
-            if (IsNullable && CurrentValue == null)
-                return DateTime.Now;
-            else if (UnderlyingType == typeof(DateTime))
-                return (DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime));
-            else if (UnderlyingType == typeof(DateOnly))
-                return ((DateOnly)(object)CurrentValue!).ToDateTime(TimeOnly.MinValue);
-            else if (UnderlyingType == typeof(TimeSpan))
-                return DateTime.Today.Add((TimeSpan)(object)CurrentValue!);
-            else
-                return DateOnly.FromDateTime(DateTime.Today).ToDateTime((TimeOnly)(object)CurrentValue!);
-        }
-    }
+	{
+		get
+		{
+			if (IsNullable && CurrentValue == null)
+				return DateTime.Now;
+			else if (UnderlyingType == typeof(DateTime))
+				return (DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime));
+			else if (UnderlyingType == typeof(DateOnly))
+				return ((DateOnly)(object)CurrentValue!).ToDateTime(TimeOnly.MinValue);
+			else if (UnderlyingType == typeof(TimeSpan))
+				return DateTime.Today.Add((TimeSpan)(object)CurrentValue!);
+			else
+				return DateOnly.FromDateTime(DateTime.Today).ToDateTime((TimeOnly)(object)CurrentValue!);
+		}
+	}
 
-    public InputDateTime()
+	public InputDateTime()
 	{
 		var nullable = Nullable.GetUnderlyingType(typeof(TValue));
 
@@ -205,71 +205,71 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		// Validation
 		if ((UnderlyingType == typeof(TimeSpan) || UnderlyingType == typeof(TimeOnly)) && Options.HasAnyFlag(InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds) == false)
 		{
-            Options |= InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds;
-            Logger?.LogWarning("Must set at least one of ShowHours, ShowMinutes, or ShowSeconds flags when using {type} for InputDateTime to work correctly.", UnderlyingType.Name);
-        }
+			Options |= InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds;
+			Logger?.LogWarning("Must set at least one of ShowHours, ShowMinutes, or ShowSeconds flags when using {type} for InputDateTime to work correctly.", UnderlyingType.Name);
+		}
 
-        // Set required options
-        if (UnderlyingType == typeof(DateOnly) && Options.HasFlag(InputDateTimeOptions.ShowDate) == false)
+		// Set required options
+		if (UnderlyingType == typeof(DateOnly) && Options.HasFlag(InputDateTimeOptions.ShowDate) == false)
 		{
-            Options |= InputDateTimeOptions.ShowDate;
-            Logger?.LogWarning("Must set ShowDate flag when using {type} for InputDateTime to work correctly.", nameof(DateOnly));
-        }
+			Options |= InputDateTimeOptions.ShowDate;
+			Logger?.LogWarning("Must set ShowDate flag when using {type} for InputDateTime to work correctly.", nameof(DateOnly));
+		}
 
-        // Unset invalid options
-        if (UnderlyingType == typeof(DateOnly) && Options.HasAnyFlag(InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds))
-        {
+		// Unset invalid options
+		if (UnderlyingType == typeof(DateOnly) && Options.HasAnyFlag(InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds))
+		{
 			Options &= ~(InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds);
-            Logger?.LogWarning("Cannot set ShowHours, ShowMinutes, or ShowSeconds flags when using {type} with InputDateTime.", nameof(DateOnly));
-        }
+			Logger?.LogWarning("Cannot set ShowHours, ShowMinutes, or ShowSeconds flags when using {type} with InputDateTime.", nameof(DateOnly));
+		}
 
-        if ((UnderlyingType == typeof(TimeSpan) || UnderlyingType == typeof(TimeOnly)) && Options.HasFlag(InputDateTimeOptions.ShowDate))
+		if ((UnderlyingType == typeof(TimeSpan) || UnderlyingType == typeof(TimeOnly)) && Options.HasFlag(InputDateTimeOptions.ShowDate))
 		{
-            Options &= ~InputDateTimeOptions.ShowDate;
-            Logger?.LogWarning("Cannot set ShowDate flag when using {type} with InputDateTime.", UnderlyingType.Name);
-        }
+			Options &= ~InputDateTimeOptions.ShowDate;
+			Logger?.LogWarning("Cannot set ShowDate flag when using {type} with InputDateTime.", UnderlyingType.Name);
+		}
 
 		// Set starting values
 		InitialValue = ValueAsDateTime;
-        PopoutValue = ValueAsDateTime;
+		PopoutValue = ValueAsDateTime;
 	}
 
-    /// <inheritdoc />
-    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+	/// <inheritdoc />
+	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
-        // Validate
-        if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
-            ResetStatus();
+		// Validate
+		if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
+			ResetStatus();
 
-        if (string.IsNullOrWhiteSpace(value) == false && Options.HasFlag(InputDateTimeOptions.ValidateTextInput))
+		if (string.IsNullOrWhiteSpace(value) == false && Options.HasFlag(InputDateTimeOptions.ValidateTextInput))
 		{
-            if (value.Count(x => x == '-') > 2 || value.Count(x => x == '/') > 2 || value.Count(x => x == ':') > 2)
-            {
-                result = default;
+			if (value.Count(x => x == '-') > 2 || value.Count(x => x == '/') > 2 || value.Count(x => x == ':') > 2)
+			{
+				result = default;
 
-                if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
-                    DisplayStatus |= InputStatus.BackgroundDanger;
+				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
+					DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The '-', '/' and ':' characters may only appear twice in the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
-                return false;
-            }
-        }
+				validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The '-', '/' and ':' characters may only appear twice in the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
+				return false;
+			}
+		}
 
 		// Fix formatting
 		if (string.IsNullOrWhiteSpace(value) == false)
 		{
 			if (Options.HasFlag(InputDateTimeOptions.ShowDate) == false && value.All(char.IsDigit))
-                value = $"{value}:00:00";
+				value = $"{value}:00:00";
 
-            if (value.StartsWith(':'))
-                value = $"0{value}";
+			if (value.StartsWith(':'))
+				value = $"0{value}";
 
-            if (value.EndsWith(':'))
-                value = $"{value}00";
-        }
+			if (value.EndsWith(':'))
+				value = $"{value}00";
+		}
 
-        // Try parse
-        try
+		// Try parse
+		try
 		{
 			if (string.IsNullOrWhiteSpace(value) == false && Options.HasFlag(InputDateTimeOptions.ConvertDecimals) && value.Count(x => x == '.') == 1)
 			{
@@ -279,47 +279,47 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 					value = $"{parts[0]}:{((int)Math.Round(parsed * 60.0)).ToString().PadLeft(2, '0')}";
 				else
 					throw new FormatException("Failed converting decimal to minutes or seconds.");
-            }
+			}
 
-            if (IsNullable == false && string.IsNullOrWhiteSpace(value))
-            {
-                result = default!;
-
-                if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
-                    DisplayStatus |= InputStatus.BackgroundSuccess;
-
-                validationErrorMessage = null;
-                return true;
-            }
-            else if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+			if (IsNullable == false && string.IsNullOrWhiteSpace(value))
 			{
-                if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
-                    DisplayStatus |= InputStatus.BackgroundSuccess;
+				result = default!;
 
-                validationErrorMessage = null;
-                return true;
-            }
+				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
+					DisplayStatus |= InputStatus.BackgroundSuccess;
+
+				validationErrorMessage = null;
+				return true;
+			}
+			else if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+			{
+				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
+					DisplayStatus |= InputStatus.BackgroundSuccess;
+
+				validationErrorMessage = null;
+				return true;
+			}
 			else
 			{
-                result = default;
+				result = default;
 
-                if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
-                    DisplayStatus |= InputStatus.BackgroundDanger;
+				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
+					DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a date or time.", DisplayName ?? FieldIdentifier.FieldName);
-                return false;
-            }
-        }
-        catch (Exception e) when (e is FormatException || e is OverflowException)
+				validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a date or time.", DisplayName ?? FieldIdentifier.FieldName);
+				return false;
+			}
+		}
+		catch (Exception e) when (e is FormatException || e is OverflowException)
 		{
-            result = default;
+			result = default;
 
-            if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
-                DisplayStatus |= InputStatus.BackgroundDanger;
+			if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
+				DisplayStatus |= InputStatus.BackgroundDanger;
 
-            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} could not be parsed as a date or time. Example: 2024-02-08 03:15:43", DisplayName ?? FieldIdentifier.FieldName);
-            return false;
-        }
+			validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} could not be parsed as a date or time. Example: 2024-02-08 03:15:43", DisplayName ?? FieldIdentifier.FieldName);
+			return false;
+		}
 	}
 
 	/// <inheritdoc />
@@ -334,7 +334,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 
 	private string FormatDateTime(DateTime value)
 	{
-        var formatted = "";
+		var formatted = "";
 
 		if (Options.HasFlag(InputDateTimeOptions.ShowDate))
 			formatted += value.ToString("d") + ' ';
@@ -347,8 +347,8 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			_ => ""
 		};
 
-        return formatted.TrimEnd(' ');
-    }
+		return formatted.TrimEnd(' ');
+	}
 
 	private string FormatDateOnly(DateOnly value) => FormatDateTime(value.ToDateTime());
 
@@ -357,18 +357,18 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private string FormatTimeOnly(TimeOnly value) => FormatTimeSpan(value.ToTimeSpan());
 
 	private string? GetFullDisplayValue()
-    {
-        if (Options.HasFlag(InputDateTimeOptions.ShowFullValueBelow) == false || Value == null)
-            return null;
-        else if (UnderlyingType == typeof(DateTime))
-            return ((DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime))).ToString("F");
-        else if (UnderlyingType == typeof(DateOnly))
-            return ((DateOnly)Convert.ChangeType(CurrentValue!, typeof(DateOnly))).ToString("D");
-        else if (UnderlyingType == typeof(TimeSpan))
-            return ((TimeSpan)Convert.ChangeType(CurrentValue!, typeof(TimeSpan))).ToString("G");
-        else
-            return DateTime.Today.Add(((TimeOnly)Convert.ChangeType(CurrentValue!, typeof(TimeOnly))).ToTimeSpan()).ToString("T");
-    }
+	{
+		if (Options.HasFlag(InputDateTimeOptions.ShowFullValueBelow) == false || Value == null)
+			return null;
+		else if (UnderlyingType == typeof(DateTime))
+			return ((DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime))).ToString("F");
+		else if (UnderlyingType == typeof(DateOnly))
+			return ((DateOnly)Convert.ChangeType(CurrentValue!, typeof(DateOnly))).ToString("D");
+		else if (UnderlyingType == typeof(TimeSpan))
+			return ((TimeSpan)Convert.ChangeType(CurrentValue!, typeof(TimeSpan))).ToString("G");
+		else
+			return DateTime.Today.Add(((TimeOnly)Convert.ChangeType(CurrentValue!, typeof(TimeOnly))).ToTimeSpan()).ToString("T");
+	}
 
 	private void CheckKeyPress(KeyboardEventArgs args)
 	{
@@ -411,43 +411,43 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private void OnChange(ChangeEventArgs args)
 	{
 		CurrentValueAsString = args.Value?.ToString();
-        PopoutValue = ValueAsDateTime;
-    }
+		PopoutValue = ValueAsDateTime;
+	}
 
-    private void OnYearSelected(int year)
-    {
+	private void OnYearSelected(int year)
+	{
 		UpdateDisplayMode(PopoutDisplayMode.Calendar);
 		UpdatePopoutValue(year, PopoutValue.Month, PopoutValue.Day);
-    }
+	}
 
-    private void OnMonthSelected(int month)
-    {
-        UpdateDisplayMode(PopoutDisplayMode.Calendar);
-        UpdatePopoutValue(PopoutValue.Year, month, PopoutValue.Day);
-    }
+	private void OnMonthSelected(int month)
+	{
+		UpdateDisplayMode(PopoutDisplayMode.Calendar);
+		UpdatePopoutValue(PopoutValue.Year, month, PopoutValue.Day);
+	}
 
-    private void UpdateDisplayMode(PopoutDisplayMode displayMode)
+	private void UpdateDisplayMode(PopoutDisplayMode displayMode)
 	{
 		IsPopoutDisplayed = true;
 		DisplayMode = displayMode;
 	}
 
-    private void UpdatePopoutValue(TimeSpan adjustment)
+	private void UpdatePopoutValue(TimeSpan adjustment)
 	{
-        PopoutValue = PopoutValue.Add(adjustment);
+		PopoutValue = PopoutValue.Add(adjustment);
 
-        if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
+		if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
 		{
-            if (UnderlyingType == typeof(DateTime))
-                CurrentValueAsString = FormatDateTime(PopoutValue);
-            else if (UnderlyingType == typeof(DateOnly))
-                CurrentValueAsString = FormatDateOnly(DateOnly.FromDateTime(PopoutValue));
-            else if (UnderlyingType == typeof(TimeSpan))
-                CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
-            else
-                CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
-        }
-    }
+			if (UnderlyingType == typeof(DateTime))
+				CurrentValueAsString = FormatDateTime(PopoutValue);
+			else if (UnderlyingType == typeof(DateOnly))
+				CurrentValueAsString = FormatDateOnly(DateOnly.FromDateTime(PopoutValue));
+			else if (UnderlyingType == typeof(TimeSpan))
+				CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
+			else
+				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
+		}
+	}
 
 	private void UpdatePopoutValue(int year, int month, int day)
 	{
@@ -456,38 +456,38 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		else
 			PopoutValue = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Add(PopoutValue.TimeOfDay);
 
-        if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
-        {
-            if (UnderlyingType == typeof(DateTime))
-                CurrentValueAsString = FormatDateTime(PopoutValue);
-            else if (UnderlyingType == typeof(DateOnly))
-                CurrentValueAsString = FormatDateOnly(DateOnly.FromDateTime(PopoutValue));
-            else if (UnderlyingType == typeof(TimeSpan))
-                CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
-            else
-                CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
-        }
-    }
+		if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
+		{
+			if (UnderlyingType == typeof(DateTime))
+				CurrentValueAsString = FormatDateTime(PopoutValue);
+			else if (UnderlyingType == typeof(DateOnly))
+				CurrentValueAsString = FormatDateOnly(DateOnly.FromDateTime(PopoutValue));
+			else if (UnderlyingType == typeof(TimeSpan))
+				CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
+			else
+				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
+		}
+	}
 
 	private void UpdatePopoutValue(bool incrementMonth)
 	{
 		if (incrementMonth)
 			PopoutValue = PopoutValue.AddMonths(1);
 		else
-            PopoutValue = PopoutValue.AddMonths(-1);
+			PopoutValue = PopoutValue.AddMonths(-1);
 
-        if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
-        {
-            if (UnderlyingType == typeof(DateTime))
-                CurrentValueAsString = FormatDateTime(PopoutValue);
-            else if (UnderlyingType == typeof(DateOnly))
-                CurrentValueAsString = FormatDateOnly(DateOnly.FromDateTime(PopoutValue));
-            else if (UnderlyingType == typeof(TimeSpan))
-                CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
-            else
-                CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
-        }
-    }
+		if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
+		{
+			if (UnderlyingType == typeof(DateTime))
+				CurrentValueAsString = FormatDateTime(PopoutValue);
+			else if (UnderlyingType == typeof(DateOnly))
+				CurrentValueAsString = FormatDateOnly(DateOnly.FromDateTime(PopoutValue));
+			else if (UnderlyingType == typeof(TimeSpan))
+				CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
+			else
+				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
+		}
+	}
 
 	private void ResetStatus()
 	{
@@ -496,26 +496,33 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		DisplayStatus &= ~InputStatus.BackgroundSuccess;
 	}
 
-    private IEnumerable<DateTime> GetCalendarDates()
+	private IEnumerable<DateTime> GetCalendarDates()
 	{
-        var first = PopoutValue > DateTime.MinValue ? new DateTime(PopoutValue.Year, PopoutValue.Month, 1).AddDays(-1) : DateTime.MinValue.AddDays(7);
+		DateTime first;
 
-        if (first.DayOfWeek != StartOfWeek)
-            first = first.GetPreviousWeekday(StartOfWeek);
+		if (PopoutValue >= DateTime.MinValue.AddYears(1) && PopoutValue <= DateTime.MaxValue.AddYears(-1))
+			first = new DateTime(PopoutValue.Year, PopoutValue.Month, 1).AddDays(-1);
+		else if (PopoutValue >= DateTime.MinValue.AddYears(1))
+			first = DateTime.MaxValue.AddYears(-1);
+		else
+			first = DateTime.MinValue.AddYears(1);
 
-        for (var day = first.Date; day.Date <= first.AddDays(41); day = day.AddDays(1))
-            yield return day;
-    }
+		if (first.DayOfWeek != StartOfWeek)
+			first = first.GetPreviousWeekday(StartOfWeek);
 
-    private IEnumerable<DateTime> GetCalendarMonths()
+		for (var day = first.Date; day.Date <= first.AddDays(41); day = day.AddDays(1))
+			yield return day;
+	}
+
+	private IEnumerable<DateTime> GetCalendarMonths()
 	{
-        var first = new DateTime(DateTime.Today.Year, 1, 1);
+		var first = new DateTime(DateTime.Today.Year, 1, 1);
 
-        for (var day = first.Date; day.Date < first.AddYears(1); day = day.AddMonths(1))
-            yield return day;
-    }
+		for (var day = first.Date; day.Date < first.AddYears(1); day = day.AddMonths(1))
+			yield return day;
+	}
 
-    private enum PopoutDisplayMode
+	private enum PopoutDisplayMode
 	{
 		Calendar,
 		Months,
