@@ -2,76 +2,40 @@
 
 name: publish
 on:
-  workflow_dispatch:
-  release:
-    types: [ published ]
-
-env:
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  DOTNET_NOLOGO: true
-  NuGetDirectory: ${{ github.workspace }}/nuget
-  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
-  GitHubUsername: NF-Software-Inc
+    workflow_dispatch:
+    release:
+      types: [ published ]
 
 defaults:
   run:
     shell: pwsh
 
 jobs:
-  package:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Install dependencies
-      run: dotnet restore
-      working-directory: ./easy-blazor-bulma
-    - name: Build
-      run: |
-        dotnet build --configuration Release
-        dotnet pack --configuration Release --output ${{ env.NuGetDirectory }} /p:AssemblyVersion=${{ env.PublishVersion }} /p:Version=${{ github.event.release.tag_name }} /p:FileVersion=${{ env.PublishVersion }}
-      working-directory: ./easy-blazor-bulma
-    - uses: actions/upload-artifact@v4
-      with:
-        name: nuget
-        if-no-files-found: error
-        retention-days: 7
-        path: ${{ env.NuGetDirectory }}/*.nupkg
-  deploy-windows:
-    if: github.event_name == 'release'
-    runs-on: windows-2022
-    needs: [ package ]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: nuget
-          path: ${{ env.NuGetDirectory }}
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-      - name: Install Intermediate Certificates
-        run: |
-          New-Item -Type File -Name intermediate-1.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
-          New-Item -Type File -Name intermediate-2.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
-          Import-Certificate -FilePath .\intermediate-1.cer -CertStoreLocation Cert:\LocalMachine\CA
-          Import-Certificate -FilePath .\intermediate-2.cer -CertStoreLocation Cert:\LocalMachine\CA
-      - name: Sign Package
-        run: |
-          dotnet tool install --global NuGetKeyVaultSignTool
-          NuGetKeyVaultSignTool sign ${{ env.NuGetDirectory }}\Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg --file-digest sha256 --timestamp-rfc3161 http://timestamp.sectigo.com --timestamp-digest sha256 --azure-key-vault-url ${{ vars.AZURE_KEY_VAULT }} --azure-key-vault-tenant-id ${{ secrets.AZURE_TENANT_ID }} --azure-key-vault-client-id ${{ secrets.AZURE_CLIENT_ID }} --azure-key-vault-client-secret "${{ secrets.AZURE_CLIENT_SECRET }}" --azure-key-vault-certificate ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }}
-      - name: Verify Signed Package
-        run: NuGetKeyVaultSignTool verify ${{ env.NuGetDirectory }}\Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg
-      - uses: actions/upload-artifact@v4
-        with:
-          name: signed-windows
-          if-no-files-found: error
-          retention-days: 7
-          path: ${{ env.NuGetDirectory }}/*.nupkg
-      - name: Publish NuGet package
-        run: dotnet nuget push ${{ env.NuGetDirectory }}\Easy.Blazor.Bulma.${{ github.event.release.tag_name }}.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+  android:
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Android') }}
+    uses: ./.github/workflows/publish-android.yml
+    secrets: inherit
+  ios:
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'iOS') }}
+    uses: ./.github/workflows/publish-ios.yml
+    secrets: inherit
+  nuget:
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'NuGet') }}
+    uses: ./.github/workflows/publish-nuget.yml
+    secrets: inherit
+  mac-catalyst:
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Mac Catalyst') }}
+    uses: ./.github/workflows/publish-mac-catalyst.yml
+    secrets: inherit
+  windows-arm64:
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Mac Catalyst') }}
+    uses: ./.github/workflows/publish-windows.yml
+    with:
+      architecture: arm64
+    secrets: inherit
+  windows-x64:
+    if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Mac Catalyst') }}
+    uses: ./.github/workflows/publish-windows.yml
+    with:
+      architecture: x64
+    secrets: inherit

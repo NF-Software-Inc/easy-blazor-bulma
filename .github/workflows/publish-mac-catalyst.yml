@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: publish-mac-catalyst
+on:
+  workflow_call:
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  GitHubUsername: NF-Software-Inc
+  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  publish:
+    runs-on: macos-15
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          9.0.x
+          8.0.x
+          6.0.x
+    - name: Install MAUI
+      run: dotnet workload install maui-android
+      working-directory: .\easy-blazor-bulma-demo
