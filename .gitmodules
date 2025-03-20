@@ -1,21 +1,21 @@
 [submodule "external/bulma"]
 	path = external/bulma
-	url = https://github.com/thirstyape/bulma.git
+	url = https://github.com/NF-Software-Inc/bulma.git
 [submodule "external/bulma-o-steps"]
 	path = external/bulma-o-steps
-	url = https://github.com/thirstyape/bulma-o-steps.git
+	url = https://github.com/NF-Software-Inc/bulma-o-steps.git
 [submodule "external/bulma-tooltip"]
 	path = external/bulma-tooltip
-	url = https://github.com/thirstyape/bulma-tooltip.git
+	url = https://github.com/NF-Software-Inc/bulma-tooltip.git
 [submodule "external/bulma-calendar"]
 	path = external/bulma-calendar
-	url = https://github.com/thirstyape/bulma-calendar.git
+	url = https://github.com/NF-Software-Inc/bulma-calendar.git
 [submodule "external/bulma-switch"]
 	path = external/bulma-switch
-	url = https://github.com/thirstyape/bulma-switch.git
+	url = https://github.com/NF-Software-Inc/bulma-switch.git
 [submodule "external/bulma-checkradio"]
 	path = external/bulma-checkradio
-	url = https://github.com/thirstyape/bulma-checkradio.git
+	url = https://github.com/NF-Software-Inc/bulma-checkradio.git
 [submodule "external/bulma-jumbo-tiny"]
 	path = external/bulma-jumbo-tiny
-	url = https://github.com/thirstyape/Bulma-Jumbo-Tiny.git
+	url = https://github.com/NF-Software-Inc/Bulma-Jumbo-Tiny.git

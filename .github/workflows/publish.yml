@@ -6,10 +6,6 @@ on:
     release:
       types: [ published ]
 
-defaults:
-  run:
-    shell: pwsh
-
 jobs:
   android:
     if: ${{ contains(github.event.release.name, 'All') || contains(github.event.release.name, 'MAUI') || contains(github.event.release.name, 'Android') }}

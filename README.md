@@ -1,6 +1,6 @@
 # Easy Blazor Bulma
 
-[![MIT](https://img.shields.io/github/license/thirstyape/Easy-Blazor-Bulma)](https://github.com/thirstyape/Easy-Blazor-Bulma/blob/master/LICENSE)
+[![MIT](https://img.shields.io/github/license/NF-Software-Inc/Easy-Blazor-Bulma)](https://github.com/NF-Software-Inc/Easy-Blazor-Bulma/blob/master/LICENSE)
 [![NuGet](https://img.shields.io/nuget/v/Easy.Blazor.Bulma.svg)](https://www.nuget.org/packages/Easy.Blazor.Bulma/)
 [![Build](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/build.yml)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/build.yml)
 [![Publish](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/publish.yml)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/publish.yml)
@@ -183,14 +183,14 @@ To use an icon just add a `<span>` with the desired icon text and the `.material
 
 | Name | Usage | License | Library |
 | ------ | ------ | ------ | ------ |
-| Easy Core | NuGet | MIT | [GitHub](https://github.com/thirstyape/easy-core) |
+| Easy Core | NuGet | MIT | [GitHub](https://github.com/NF-Software-Inc/easy-core) |
 | Bulma | Submodule | MIT | [GitHub](https://github.com/jgthms/bulma) |
 | Bulma Calendar | Submodule | MIT | [GitHub](https://github.com/Wikiki/bulma-calendar) |
 | Bulma Checkradio | Submodule | MIT | [GitHub](https://github.com/Wikiki/bulma-checkradio) |
 | Bulma-O-Steps | Submodule | GPL-3.0 | [GitHub](https://github.com/octoshrimpy/bulma-o-steps) |
 | Bulma Switch  | Submodule | MIT | [GitHub](https://github.com/Wikiki/bulma-switch) |
 | Bulma Tooltip | Submodule | MIT | [GitHub](https://github.com/CreativeBulma/bulma-tooltip) |
-| Bulma Jumbo Tiny | Submodule | MIT | [GitHub](https://github.com/thirstyape/Bulma-Jumbo-Tiny) |
+| Bulma Jumbo Tiny | Submodule | MIT | [GitHub](https://github.com/NF-Software-Inc/Bulma-Jumbo-Tiny) |
 | Material Symbols | Embedded | Apache 2.0 | [GitHub](https://github.com/google/material-design-icons) |
 
 ## Authors
