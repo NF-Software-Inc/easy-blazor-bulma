@@ -37,15 +37,12 @@ jobs:
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: |
-        dotnet workload install maui-android
-        dotnet workload update
+      run: dotnet workload install maui-android
       working-directory: .\easy-blazor-bulma-demo
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Get KeyStore
       run: |
-        $keystore = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}'))
-        New-Item -Type File -Path ${{ env.TempDirectory }}\opensource.keystore -Value $keystore
+        [System.IO.File]::File.WriteAllBytes('${{ env.TempDirectory }}\opensource.keystore', [System.Convert]::FromBase64String('${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}'))
     - name: Publish
       run: dotnet publish -c Release -f net9.0-android -p:AndroidKeyStore=true -p:AndroidSigningKeyStore='${{ env.TempDirectory }}\opensource.keystore' -p:AndroidSigningKeyAlias='${{ secrets.ANDROID_ALIAS_OPENSOURCE }}' -p:AndroidSigningKeyPass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AndroidSigningStorePass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: .\easy-blazor-bulma-demo

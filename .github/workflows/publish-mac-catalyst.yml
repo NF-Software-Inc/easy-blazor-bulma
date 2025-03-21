@@ -34,12 +34,7 @@ jobs:
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: |
-        sw_vers -productVersion
-        ls /Applications | grep 'Xcode'
-        xcrun xcode-select --print-path
-        dotnet workload install ios maui-android maui-maccatalyst
-        dotnet workload list
+      run: dotnet workload install ios maui-android maui-maccatalyst
       working-directory: ./easy-blazor-bulma-demo
     - run: mkdir ${{ env.TempDirectory }}
     - name: Publish
@@ -49,7 +44,7 @@ jobs:
         dotnet publish -c Release -f net9.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: ./easy-blazor-bulma-demo
     - name: Add to Release
-      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/Easy-Blazor-Bulma-Demo.pkg
+      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/easy-blazor-bulma-demo-${{ inputs.version }}.pkg
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4.6.2

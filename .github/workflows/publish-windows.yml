@@ -40,9 +40,7 @@ jobs:
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: |
-        dotnet workload install maui-windows
-        dotnet workload update
+      run: dotnet workload install maui-windows
       working-directory: .\easy-blazor-bulma-demo
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Set Environment Variables
