@@ -57,4 +57,4 @@ jobs:
         retention-days: 7
         path: |
           ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\*Signed.apk
-          ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\*.aab
+          ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\*Signed.aab
