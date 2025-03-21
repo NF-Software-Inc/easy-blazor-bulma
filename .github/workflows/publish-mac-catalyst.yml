@@ -35,8 +35,10 @@ jobs:
           6.0.x
     - name: Install MAUI
       run: |
-        dotnet workload install ios
-        dotnet workload install maui-android maui-maccatalyst --version 9.0.200
+        sw_vers -productVersion
+        ls /Applications | grep 'Xcode'
+        dotnet workload install ios maui-android maui-maccatalyst --version 9.0.101
+        dotnet workload list
       working-directory: ./easy-blazor-bulma-demo
     - run: mkdir ${{ env.TempDirectory }}
     - name: Publish
