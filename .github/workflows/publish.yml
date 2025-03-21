@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Update Environment Variables
         run: |
-          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+          if [[ '${{ github.event_name }}' == 'workflow_dispatch' ]]; then
             echo "Targets=${{ github.event.inputs.targets }}" >> $GITHUB_OUTPUT
             echo "Version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
             echo "Build=${{ github.event.inputs.build || github.run_number }}" >> $GITHUB_OUTPUT
