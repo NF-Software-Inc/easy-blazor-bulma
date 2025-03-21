@@ -14,76 +14,75 @@ on:
           type: string
         build:
           description: Build
-          required: true
           type: string
     release:
       types: [ published ]
 
-env:
-  Targets: ${{ github.event.release.name }}
-  Version: ${{ github.event.release.tag_name }}
-  Build: ${{ github.run_number }}
-
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     defaults:
       run:
         shell: bash
     steps:
       - name: Update Environment Variables
         run: |
-          echo "Targets=${{ github.event.inputs.targets }}" >> $GITHUB_ENV
-          echo "Version=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-          echo "Build=${{ github.event.inputs.build }}" >> $GITHUB_ENV
+          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+            echo "Targets=${{ github.event.inputs.targets }}" >> $GITHUB_OUTPUT
+            echo "Version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            echo "Build=${{ github.event.inputs.build || github.run_number }}" >> $GITHUB_OUTPUT
+          else
+            echo "Targets=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
+            echo "Version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            echo "Build=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          fi
   android:
     needs: [ prepare ]
-    if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'Android')
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android') }}
     uses: ./.github/workflows/publish-android.yml
     with:
-      build: env.Build
-      version: env.Version
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   ios:
     needs: [ prepare ]
-    if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'iOS')
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS') }}
     uses: ./.github/workflows/publish-ios.yml
     with:
-      build: env.Build
-      version: env.Version
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   nuget:
     needs: [ prepare ]
-    if: contains(env.Targets, 'All') || contains(env.Targets, 'NuGet')
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
     uses: ./.github/workflows/publish-nuget.yml
     with:
-      build: env.Build
-      version: env.Version
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   mac-catalyst:
     needs: [ prepare ]
-    if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'Mac Catalyst')
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Mac Catalyst') }}
     uses: ./.github/workflows/publish-mac-catalyst.yml
     with:
-      build: env.Build
-      version: env.Version
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   windows-arm64:
     needs: [ prepare ]
-    if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'Windows')
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: arm64
-      build: env.Build
-      version: env.Version
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   windows-x64:
     needs: [ prepare ]
-    if: contains(env.Targets, 'All') || contains(env.Targets, 'MAUI') || contains(env.Targets, 'Windows')
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: x64
-      build: env.Build
-      version: env.Version
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
