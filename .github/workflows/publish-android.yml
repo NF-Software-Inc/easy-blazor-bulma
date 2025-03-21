@@ -42,7 +42,7 @@ jobs:
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Get KeyStore
       run: |
-        [System.IO.File]::File.WriteAllBytes('${{ env.TempDirectory }}\opensource.keystore', [System.Convert]::FromBase64String('${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}'))
+        [System.IO.File]::WriteAllBytes('${{ env.TempDirectory }}\opensource.keystore', [System.Convert]::FromBase64String('${{ secrets.ANDROID_KEYSTORE_OPENSOURCE }}'))
     - name: Publish
       run: dotnet publish -c Release -f net9.0-android -p:AndroidKeyStore=true -p:AndroidSigningKeyStore='${{ env.TempDirectory }}\opensource.keystore' -p:AndroidSigningKeyAlias='${{ secrets.ANDROID_ALIAS_OPENSOURCE }}' -p:AndroidSigningKeyPass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AndroidSigningStorePass='${{ secrets.ANDROID_PASSWORD_OPENSOURCE }}' -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: .\easy-blazor-bulma-demo
