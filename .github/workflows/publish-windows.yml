@@ -38,17 +38,19 @@ jobs:
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: dotnet workload install maui-windows
+      run: |
+        dotnet workload install maui-windows
+        dotnet workload update
       working-directory: .\easy-blazor-bulma-demo
     - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
     - name: Set Environment Variables
       run: |
         if ("${{ inputs.architecture }}" -eq "arm64") {
           echo "BUILD_ARGUMENTS=-p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }} -p:UseMonoRuntime=false -p:Platform=Arm64" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Arm64\Release\net9.0-windows10.0.19041.0\win-arm64\AppPackages\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_Test" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Arm64\Release\net9.0-windows10.0.19041.0\win-arm64\AppPackages\easy-blazor-bulma-demo_${{ inputs.version }}.0_Test" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         } else {
           echo "BUILD_ARGUMENTS=-p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-windows10.0.19041.0\win-x64\AppPackages\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_Test" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "PUBLISH_DIRECTORY=${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-windows10.0.19041.0\win-x64\AppPackages\easy-blazor-bulma-demo_${{ inputs.version }}.0_Test" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         }
     - name: Save Certificates
       run: |
@@ -69,10 +71,10 @@ jobs:
     - name: Sign Package
       run: |
         dotnet tool install --global --version 6.0.1 AzureSignTool
-        AzureSignTool.exe sign -fd sha256 -td sha256 -tr http://timestamp.sectigo.com -kvu ${{ vars.AZURE_KEY_VAULT }} -kvt ${{ secrets.AZURE_TENANT_ID }} -kvi ${{ secrets.AZURE_CLIENT_ID }} -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }} -ac ${{ env.TempDirectory }}\intermediate-1.cer -ac ${{ env.TempDirectory }}\intermediate-2.cer -ifl ${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ github.event.release.tag_name }}.0_${{ inputs.architecture }}.msix
-        Copy-Item '${{ env.TempDirectory }}\public.cer' -Destination '${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_${{ inputs.architecture }}.cer'
+        AzureSignTool.exe sign -fd sha256 -td sha256 -tr http://timestamp.sectigo.com -kvu ${{ vars.AZURE_KEY_VAULT }} -kvt ${{ secrets.AZURE_TENANT_ID }} -kvi ${{ secrets.AZURE_CLIENT_ID }} -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" -kvc ${{ vars.AZURE_CODE_SIGN_CERTIFICATE }} -ac ${{ env.TempDirectory }}\intermediate-1.cer -ac ${{ env.TempDirectory }}\intermediate-2.cer -ifl ${{ env.PUBLISH_DIRECTORY }}\easy-blazor-bulma-demo_${{ inputs.version }}.0_${{ inputs.architecture }}.msix
+        Copy-Item '${{ env.TempDirectory }}\public.cer' -Destination '${{ env.PUBLISH_DIRECTORY }}\easy-blazor-bulma-demo_${{ inputs.version }}.0_${{ inputs.architecture }}.cer'
     - name: Add to Release
-      run: gh release upload ${{ inputs.version }} ${{ env.PUBLISH_DIRECTORY }}\Easy-Blazor-Bulma-Demo_${{ inputs.version }}.0_${{ inputs.architecture }}.msix
+      run: gh release upload ${{ inputs.version }} ${{ env.PUBLISH_DIRECTORY }}\easy-blazor-bulma-demo_${{ inputs.version }}.0_${{ inputs.architecture }}.msix
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-windows-${{ inputs.architecture }}
