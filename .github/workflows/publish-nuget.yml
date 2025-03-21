@@ -10,6 +10,9 @@ on:
       version:
         required: true
         type: string
+      deploy:
+        required: true
+        type: boolean
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -50,7 +53,7 @@ jobs:
     name: Deploy To NuGet & GitHub
     runs-on: windows-2022
     needs: [ package ]
-    if: ${{ github.event_name == 'release' }}
+    if: ${{ inputs.deploy }}
     defaults:
       run:
         shell: pwsh
@@ -66,8 +69,8 @@ jobs:
           dotnet-version: 8.0.x
       - name: Install Intermediate Certificates
         run: |
-          New-Item -Type File -Name ${{ env.TempDirectory }}\intermediate-1.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
-          New-Item -Type File -Name ${{ env.TempDirectory }}\intermediate-2.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
+          New-Item -Type File -Path ${{ env.TempDirectory }}\intermediate-1.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
+          New-Item -Type File -Path ${{ env.TempDirectory }}\intermediate-2.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
           Import-Certificate -FilePath ${{ env.TempDirectory }}\intermediate-1.cer -CertStoreLocation Cert:\LocalMachine\CA
           Import-Certificate -FilePath ${{ env.TempDirectory }}\intermediate-2.cer -CertStoreLocation Cert:\LocalMachine\CA
       - name: Sign Package

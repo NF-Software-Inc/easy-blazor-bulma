@@ -52,9 +52,9 @@ jobs:
         }
     - name: Save Certificates
       run: |
-        New-Item -Type File -Name ${{ env.TempDirectory }}\public.cer -Value "${{ vars.GLOBALSIGN_PUBLIC }}"
-        New-Item -Type File -Name ${{ env.TempDirectory }}\intermediate-1.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
-        New-Item -Type File -Name ${{ env.TempDirectory }}\intermediate-2.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
+        New-Item -Type File -Path ${{ env.TempDirectory }}\public.cer -Value "${{ vars.GLOBALSIGN_PUBLIC }}"
+        New-Item -Type File -Path ${{ env.TempDirectory }}\intermediate-1.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_1 }}"
+        New-Item -Type File -Path ${{ env.TempDirectory }}\intermediate-2.cer -Value "${{ vars.GLOBALSIGN_INTERMEDIATE_2 }}"
     - name: Update Manifest
       run: |
         $certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 '${{ env.TempDirectory }}\public.cer'

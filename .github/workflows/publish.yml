@@ -15,6 +15,11 @@ on:
         build:
           description: Build
           type: string
+        deploy:
+          description: Deploy
+          required: true
+          type: boolean
+          default: false
     release:
       types: [ published ]
 
@@ -25,6 +30,7 @@ jobs:
       Targets: ${{ steps.set-values.outputs.Targets }}
       Version: ${{ steps.set-values.outputs.Version }}
       Build: ${{ steps.set-values.outputs.Build }}
+      Deploy: ${{ steps.set-values.outputs.Deploy }}
     defaults:
       run:
         shell: bash
@@ -36,10 +42,12 @@ jobs:
             echo "Targets=${{ github.event.inputs.targets }}" >> "$GITHUB_OUTPUT"
             echo "Version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
             echo "Build=${{ github.event.inputs.build || github.run_number }}" >> "$GITHUB_OUTPUT"
+            echo "Deploy=${{ github.event.inputs.deploy }}" >> "$GITHUB_OUTPUT"
           else
             echo "Targets=${{ github.event.release.name }}" >> "$GITHUB_OUTPUT"
             echo "Version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
             echo "Build=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+            echo "Deploy=${{ github.event_name == 'release' }}" >> "$GITHUB_OUTPUT"
           fi
   android:
     needs: [ prepare ]
@@ -64,6 +72,7 @@ jobs:
     with:
       build: ${{ needs.prepare.outputs.Build }}
       version: ${{ needs.prepare.outputs.Version }}
+      deploy: ${{ needs.prepare.outputs.Deploy }}
     secrets: inherit
   mac-catalyst:
     needs: [ prepare ]
