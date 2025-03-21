@@ -22,6 +22,8 @@ jobs:
   publish:
     name: Publish Easy Blazor Bulma Android
     runs-on: windows-2022
+    permissions:
+      contents: write
     defaults:
       run:
         shell: pwsh
@@ -49,6 +51,8 @@ jobs:
       working-directory: .\easy-blazor-bulma-demo
     - name: Add to Release
       run: gh release upload ${{ inputs.version }} ${{ github.workspace }}\easy-blazor-bulma-demo\bin\Release\net9.0-android\com.nfsoftwareinc.easyblazorbulma-Signed.apk
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-android

@@ -52,6 +52,8 @@ jobs:
   android:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-android.yml
     with:
       build: ${{ needs.prepare.outputs.Build }}
@@ -60,6 +62,8 @@ jobs:
   ios:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-ios.yml
     with:
       build: ${{ needs.prepare.outputs.Build }}
@@ -68,15 +72,19 @@ jobs:
   nuget:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-nuget.yml
     with:
       build: ${{ needs.prepare.outputs.Build }}
       version: ${{ needs.prepare.outputs.Version }}
-      deploy: ${{ needs.prepare.outputs.Deploy }}
+      deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
     secrets: inherit
   mac-catalyst:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Mac Catalyst') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-mac-catalyst.yml
     with:
       build: ${{ needs.prepare.outputs.Build }}
@@ -85,6 +93,8 @@ jobs:
   windows-arm64:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: arm64
@@ -94,6 +104,8 @@ jobs:
   windows-x64:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-windows.yml
     with:
       architecture: x64

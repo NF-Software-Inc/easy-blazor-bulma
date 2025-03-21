@@ -25,6 +25,8 @@ jobs:
   publish:
     name: Publish Easy Blazor Bulma Windows ${{ inputs.architecture }}
     runs-on: windows-2022
+    permissions:
+      contents: write
     defaults:
       run:
         shell: pwsh
@@ -75,6 +77,8 @@ jobs:
         Copy-Item '${{ env.TempDirectory }}\public.cer' -Destination '${{ env.PUBLISH_DIRECTORY }}\easy-blazor-bulma-demo_${{ inputs.version }}.0_${{ inputs.architecture }}.cer'
     - name: Add to Release
       run: gh release upload ${{ inputs.version }} ${{ env.PUBLISH_DIRECTORY }}\easy-blazor-bulma-demo_${{ inputs.version }}.0_${{ inputs.architecture }}.msix
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-windows-${{ inputs.architecture }}

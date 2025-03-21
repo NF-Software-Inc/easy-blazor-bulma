@@ -22,6 +22,8 @@ jobs:
   publish:
     name: Publish Easy Blazor Bulma iOS
     runs-on: macos-15
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4.2.2
     - name: Setup .NET
@@ -33,8 +35,8 @@ jobs:
           6.0.x
     - name: Install MAUI
       run: |
-        dotnet workload install maccatalyst maui-android maui-ios
-        dotnet workload update
+        dotnet workload install maccatalyst
+        dotnet workload install maui-android maui-ios --version 9.0.200
       working-directory: ./easy-blazor-bulma-demo
     - run: mkdir ${{ env.TempDirectory }}
     - name: Publish
@@ -42,6 +44,8 @@ jobs:
       working-directory: ./easy-blazor-bulma-demo
     - name: Add to Release
       run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-ios/ios-arm64/publish/Easy-Blazor-Bulma-Demo.ipa
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-ios

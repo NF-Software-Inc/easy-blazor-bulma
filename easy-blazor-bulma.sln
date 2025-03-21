@@ -7,6 +7,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "easy-blazor-bulma", "easy-b
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "easy-blazor-bulma-demo", "easy-blazor-bulma-demo\easy-blazor-bulma-demo.csproj", "{E72E1064-1DF5-4CAF-B920-DCEA31DEDECB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{0749B6DC-4D77-4E61-9A91-D52F7B7DA8B4}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\publish-android.yml = .github\workflows\publish-android.yml
+		.github\workflows\publish-ios.yml = .github\workflows\publish-ios.yml
+		.github\workflows\publish-mac-catalyst.yml = .github\workflows\publish-mac-catalyst.yml
+		.github\workflows\publish-nuget.yml = .github\workflows\publish-nuget.yml
+		.github\workflows\publish-windows.yml = .github\workflows\publish-windows.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
