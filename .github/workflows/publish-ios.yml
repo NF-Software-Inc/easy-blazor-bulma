@@ -41,11 +41,20 @@ jobs:
       with: 
         p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE }}
         p12-password: ${{ secrets.APPLE_DISTRIBUTION_PASSWORD }}
+    - name: Download Provisioning Profiles
+      id: provisioning
+      uses: apple-actions/download-provisioning-profiles@v3
+      with: 
+        bundle-id: com.nfsoftwareinc.easyblazorbulma
+        profile-type: 'IOS_APP_STORE'
+        issuer-id: ${{ secrets.APPLE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPLE_API_KEY_ID }}
+        api-private-key: ${{ secrets.APPLE_API_PRIVATE_KEY }}
     - name: Publish
       run: |
         sudo xcode-select -s /Applications/Xcode_16.2.app
         sudo xcode-select -switch /Applications/Xcode_16.2.app/Contents/Developer
-        dotnet publish -c Release -f net9.0-ios -p:ArchiveOnBuild=true -p:RuntimeIdentifier=ios-arm64 -p:EnableAssemblyILStripping=false -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
+        dotnet publish -c Release -f net9.0-ios -p:ArchiveOnBuild=true -p:RuntimeIdentifier=ios-arm64 -p:EnableAssemblyILStripping=false -p:CodesignKey="${{ secrets.APPLE_DISTRIBUTION_NAME }}" -p:CodesignProvision="Easy Blazor Bulma App Store" -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: ./easy-blazor-bulma-demo
     - name: Add to Release
       run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-ios/ios-arm64/publish/Easy-Blazor-Bulma-Demo.ipa
