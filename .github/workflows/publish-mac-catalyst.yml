@@ -41,12 +41,19 @@ jobs:
       with: 
         p12-file-base64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE }}
         p12-password: ${{ secrets.APPLE_DISTRIBUTION_PASSWORD }}
-    - name: Download Provisioning Profiles
-      id: provisioning
+    - name: Download Provisioning Profile 1
       uses: apple-actions/download-provisioning-profiles@v3
       with: 
         bundle-id: com.nfsoftwareinc.easyblazorbulma
         profile-type: 'IOS_APP_STORE'
+        issuer-id: ${{ secrets.APPLE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPLE_API_KEY_ID }}
+        api-private-key: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+    - name: Download Provisioning Profile 2
+      uses: apple-actions/download-provisioning-profiles@v3
+      with: 
+        bundle-id: com.nfsoftwareinc.easyblazorbulma
+        profile-type: 'MAC_APP_STORE'
         issuer-id: ${{ secrets.APPLE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPLE_API_KEY_ID }}
         api-private-key: ${{ secrets.APPLE_API_PRIVATE_KEY }}
