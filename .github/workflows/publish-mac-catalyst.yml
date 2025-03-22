@@ -46,7 +46,7 @@ jobs:
       uses: apple-actions/download-provisioning-profiles@v3
       with: 
         bundle-id: com.nfsoftwareinc.easyblazorbulma
-        profile-type: 'MAC_APP_STORE'
+        profile-type: 'MAC_CATALYST_APP_STORE'
         issuer-id: ${{ secrets.APPLE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPLE_API_KEY_ID }}
         api-private-key: ${{ secrets.APPLE_API_PRIVATE_KEY }}
