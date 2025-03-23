@@ -3,18 +3,27 @@
 name: publish-mac-catalyst
 on:
   workflow_call:
+    inputs:
+      build:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
-  PublishVersion: ${{ github.event.release.tag_name }}.${{ github.run_number }}
+  PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
   TempDirectory: ${{ github.workspace }}/Temp-Mac-Catalyst
 
 jobs:
   publish:
     name: Publish Easy Blazor Bulma Mac Catalyst
     runs-on: macos-15
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4.2.2
     - name: Setup .NET
@@ -25,14 +34,32 @@ jobs:
           8.0.x
           6.0.x
     - name: Install MAUI
-      run: dotnet workload install maui-maccatalyst
+      run: dotnet workload install ios maui-android maui-maccatalyst
       working-directory: ./easy-blazor-bulma-demo
     - run: mkdir ${{ env.TempDirectory }}
+    - uses: apple-actions/import-codesign-certs@v3
+      with: 
+        p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE }}
+        p12-password: ${{ secrets.APPLE_DEVELOPER_PASSWORD }}
+    - name: Download Provisioning Profile
+      uses: apple-actions/download-provisioning-profiles@v3
+      with: 
+        bundle-id: com.nfsoftwareinc.easyblazorbulma
+        profile-type: 'MAC_APP_STORE'
+        issuer-id: ${{ secrets.APPLE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPLE_API_KEY_ID }}
+        api-private-key: ${{ secrets.APPLE_API_PRIVATE_KEY }}
     - name: Publish
-      run: dotnet publish -c Release -f net9.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ github.event.release.tag_name }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion=${{ github.event.release.tag_name }}
+      run: |
+        mv '/Users/runner/Library/MobileDevice/Provisioning Profiles/${{ secrets.APPLE_MACOS_PROVISIONING_ID }}.mobileprovision' '/Users/runner/Library/MobileDevice/Provisioning Profiles/${{ secrets.APPLE_MACOS_PROVISIONING_ID }}.provisionprofile'
+        sudo xcode-select -s /Applications/Xcode_16.2.app
+        sudo xcode-select -switch /Applications/Xcode_16.2.app/Contents/Developer
+        dotnet publish -c Release -f net9.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:EnableCodeSigning=true -p:EnablePackageSigning=true -p:CodesignKey="${{ secrets.APPLE_DISTRIBUTION_NAME }}" -p:CodesignProvision="Easy Blazor Bulma Mac Store" -p:CodesignEntitlements="Platforms\MacCatalyst\Entitlements.plist" -p:PackageSigningKey="${{ secrets.APPLE_DEVELOPER_NAME }}" -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: ./easy-blazor-bulma-demo
     - name: Add to Release
-      run: gh release upload ${{ github.event.release.tag_name }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/Easy-Blazor-Bulma-Demo.pkg
+      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/easy-blazor-bulma-demo-${{ inputs.version }}.pkg
+      env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: easy-blazor-bulma-demo-maccatalyst
