@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
@@ -23,7 +24,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	/// The collection of items to search when typing in the input.
 	/// </summary>
 	[Parameter]
-	public IEnumerable<TValue> Items { get; set; }
+	[Required]
+	public required IEnumerable<TValue> Items { get; set; }
 
 	/// <summary>
 	/// Limits the number of items displayed in the drop-down list when set.
@@ -35,7 +37,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	/// A function to return the values to display in the drop-down list.
 	/// </summary>
 	[Parameter]
-	public Func<TValue, string> DisplayValue { get; set; }
+	[Required]
+	public required Func<TValue, string> DisplayValue { get; set; }
 
 	/// <summary>
 	/// A function to filter the display items.
