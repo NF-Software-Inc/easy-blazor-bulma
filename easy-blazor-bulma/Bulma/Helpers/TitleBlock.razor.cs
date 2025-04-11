@@ -16,7 +16,7 @@ public partial class TitleBlock : ComponentBase
 	/// </summary>
 	[Required]
 	[Parameter]
-	public string Title { get; set; }
+	public required string Title { get; set; }
 
 	/// <summary>
 	/// Appends to the provided title in the browser tab name. Only applies when <see cref="UpdatePageTitle"/> is true.

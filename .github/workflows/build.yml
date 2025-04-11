@@ -21,13 +21,15 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
       with:
         submodules: true
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v4.3.1
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: |
+          9.0.x
+          8.0.x
     - name: Install dependencies
       run: dotnet restore
       working-directory: ./easy-blazor-bulma

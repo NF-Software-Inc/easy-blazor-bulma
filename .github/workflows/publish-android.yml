@@ -35,7 +35,6 @@ jobs:
         dotnet-version: |
           9.0.x
           8.0.x
-          6.0.x
     - name: Install MAUI
       run: dotnet workload install maui-android
       working-directory: .\easy-blazor-bulma-demo
