@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.ComponentModel.DataAnnotations;
 
 namespace easy_blazor_bulma;
 
@@ -14,7 +15,8 @@ public partial class DeleteButton : ButtonBase
     /// The text to display within the button.
     /// </summary>
     [Parameter]
-    public override string DisplayText { get; set; } = "Delete";
+    [Required]
+	public required override string DisplayText { get; set; } = "Delete";
 
     /// <summary>
     /// An icon to display to the left of the text.
