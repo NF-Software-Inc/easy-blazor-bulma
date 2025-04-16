@@ -98,7 +98,7 @@ public partial class Modal : ComponentBase
 			if (IsFullScreen)
 				css += " width: 100%; height: 100%";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("card-style"));
+			return string.Join(';', css, AdditionalAttributes.GetClass("card-style"));
 		}
 	}
 
