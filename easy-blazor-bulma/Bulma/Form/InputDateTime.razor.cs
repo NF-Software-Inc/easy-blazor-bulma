@@ -94,7 +94,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
 
 	[Inject]
-	private IServiceProvider ServiceProvider { get; init; }
+	private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private DateTime InitialValue;
 	private DateTime PopoutValue;

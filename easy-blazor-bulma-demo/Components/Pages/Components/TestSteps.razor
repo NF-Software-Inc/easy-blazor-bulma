@@ -38,12 +38,12 @@
 	private string ActiveStep2 = "Step 1";
 	private string? Message2;
 
-	private async Task OnSteps1Clicked(string name)
+	private void OnSteps1Clicked(string name)
 	{
 		Message1 = $"You clicked {name}";
 	}
 
-	private async Task OnSteps2Clicked(string name)
+	private void OnSteps2Clicked(string name)
 	{
 		Message2 = $"You clicked {name}";
 	}

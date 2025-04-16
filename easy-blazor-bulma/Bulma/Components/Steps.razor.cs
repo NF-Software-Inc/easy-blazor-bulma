@@ -14,7 +14,7 @@ namespace easy_blazor_bulma;
 public partial class Steps : ComponentBase
 {
     /// <summary>
-	/// The name of the tab that is currently displayed.
+	/// The name of the step that is currently active.
 	/// </summary>
 	[Parameter]
     public string? Active { get; set; }
@@ -55,14 +55,14 @@ public partial class Steps : ComponentBase
     [Parameter]
     public bool IsClickable { get; set; } = true;
 
-    /// <summary>
-    /// Event that occurs when an item in the tab bar is clicked.
-    /// </summary>
-    [Parameter]
+	/// <summary>
+	/// Event that occurs when an item in the steps component is clicked.
+	/// </summary>
+	[Parameter]
     public Func<string?, Task>? OnItemClicked { get; set; }
 
     /// <summary>
-    /// The content to display within the tab bar. Can contain <see cref="Tab"/> elements, as well as other components and markup.
+    /// The content to display within the steps component. Can contain <see cref="Step"/> elements, as well as other components and markup.
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
