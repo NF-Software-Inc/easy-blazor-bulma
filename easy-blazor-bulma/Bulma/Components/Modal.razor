@@ -6,7 +6,7 @@
 	{
 		<div class="modal-background" @onclick='() => CloseModal()'></div>
 	}
-	<div class="@CardCssClass" style='@(IsFullScreen ? "width: 100%; height: 100%" : "")'>
+	<div class="@CardCssClass" style='@CardCssStyle'>
 		@if (string.IsNullOrWhiteSpace(Title) == false)
 		{
 			<header class="@HeaderCssClass">
