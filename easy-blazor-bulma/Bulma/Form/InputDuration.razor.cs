@@ -86,8 +86,8 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
 
-	[Inject]
-	private IServiceProvider ServiceProvider { get; init; }
+    [Inject]
+    private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private TimeSpan InitialValue;
     private TimeSpan PopoutValue;

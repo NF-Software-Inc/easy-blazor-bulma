@@ -18,13 +18,6 @@ public partial class Navbar : ComponentBase
 	public string? DisplayText { get; set; }
 
 	/// <summary>
-	/// The URL of an image to display in the top left of the navbar.
-	/// </summary>
-	[Parameter]
-	[Obsolete("Use LogoUrl or LogoIcon instead.")]
-	public string? DisplayImageUrl { get => LogoUrl; set => LogoUrl = value; }
-
-	/// <summary>
 	/// An icon to display in the top left of the navbar.
 	/// </summary>
 	[Parameter]

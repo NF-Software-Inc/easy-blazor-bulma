@@ -70,12 +70,12 @@
 
 	private class DemoObject
 	{
-		public int Id { get; set; }
+		public int Id { get; init; }
 
-		public string Name { get; set; }
+		public required string Name { get; init; }
 
-		public int Age { get; set; }
+		public int Age { get; init; }
 
-		public string Position { get; set; }
+		public required string Position { get; init; }
 	}
 }

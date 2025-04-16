@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
@@ -19,13 +20,15 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 	/// The collection of items to display in the list.
 	/// </summary>
 	[Parameter]
-	public IEnumerable<TValue> Items { get; set; }
+	[Required]
+	public required IEnumerable<TValue> Items { get; set; }
 
 	/// <summary>
 	/// A function to return the values to display in the drop-down list.
 	/// </summary>
 	[Parameter]
-	public Func<TValue, string> DisplayValue { get; set; }
+	[Required]
+	public required Func<TValue, string> DisplayValue { get; set; }
 
 	/// <summary>
 	/// A function to determine whether two items are equal.
