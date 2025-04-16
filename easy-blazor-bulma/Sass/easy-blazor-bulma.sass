@@ -143,11 +143,10 @@
       background-color: $color
       color: $color-invert
 
-.input
-  .is-blurred
-    &:not(:focus)
-      color: transparent
-      text-shadow: 0 0 0.5rem $scheme-invert
+.input.is-blurred
+  &:not(:focus)
+    color: transparent
+    text-shadow: 0 0 0.5rem $scheme-invert
 
 @for $i from 1 through 10
   .z-#{$i * 10}

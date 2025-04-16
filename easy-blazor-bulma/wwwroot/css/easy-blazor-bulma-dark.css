@@ -23842,7 +23842,7 @@ span[data-tooltip].has-tooltip-highlight {
   color: #fff;
 }
 
-.input .is-blurred:not(:focus) {
+.input.is-blurred:not(:focus) {
   color: transparent;
   text-shadow: 0 0 0.5rem hsl(0deg, 0%, 100%);
 }
