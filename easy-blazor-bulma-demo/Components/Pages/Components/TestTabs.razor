@@ -23,9 +23,11 @@
 	private string ActiveTab = "Tab 2";
 	private int Tab3Clicked;
 
-	private void OnTabClicked(string name)
+	private async Task OnTabClicked(string name)
 	{
 		if (name == "Tab 3")
 			Tab3Clicked++;
+
+		await Task.CompletedTask;
 	}
 }
