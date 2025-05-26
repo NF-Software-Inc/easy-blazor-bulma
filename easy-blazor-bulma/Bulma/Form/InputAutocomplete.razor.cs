@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -108,7 +109,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter" };
+	private readonly string[] DefaultKeys = new[] { "Escape", "Enter", "Tab", "ArrowUp", "ArrowDown" };
 	private bool OnBlurPreventDefault;
 
 	private string MainCssClass
@@ -169,9 +170,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		// Set required options
 		if (Options.HasAnyFlag(InputAutocompleteOptions.AutoSelectOnExit | InputAutocompleteOptions.AutoSelectOnInput) == false && Options.HasAnyFlag(InputAutocompleteOptions.AutoSelectCurrent | InputAutocompleteOptions.AutoSelectExact | InputAutocompleteOptions.AutoSelectClosest))
 			Options |= InputAutocompleteOptions.AutoSelectOnExit;
-
-		// Unset invalid options
-		if (Options.HasFlag(InputAutocompleteOptions.PopoutLeft | InputAutocompleteOptions.PopoutRight))
+        Options |= InputAutocompleteOptions.AutoSelectOnExit;
+        // Unset invalid options
+        if (Options.HasFlag(InputAutocompleteOptions.PopoutLeft | InputAutocompleteOptions.PopoutRight))
 			Options &= ~InputAutocompleteOptions.PopoutRight;
 
 		if (Options.HasFlag(InputAutocompleteOptions.PopoutTop | InputAutocompleteOptions.PopoutBottom))
@@ -268,16 +269,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnBlur(FocusEventArgs args)
 	{
-		if (OnBlurPreventDefault)
-			return;
-
-		IsPopoutDisplayed = false;
-
-		if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnExit))
-		{
-			var match = GetMatch(InputValue);
-			OnItemSelected(match.match, false, match.success);
-		}
 	}
 
 	private void OnClick(MouseEventArgs args)
@@ -304,7 +295,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnKeyUp(KeyboardEventArgs args)
 	{
-		if (args.Code == "Enter")
+        if (args.Code == "Enter")
 		{
 			var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
 			OnItemSelected(match.match, success: match.success);
@@ -312,7 +303,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		if (args.Code == "Enter" || args.Code == "Escape")
 			IsPopoutDisplayed = false;
-	}
+		
+		OnKeyDownPreventDefault = false;
+    }
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
@@ -325,9 +318,15 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			HighlightNext();
 		else if (IsPopoutDisplayed && args.Code == "ArrowUp")
 			HighlightPrevious();
-	}
 
-	private void OnMouseDown(MouseEventArgs args)
+		if (IsPopoutDisplayed && args.Code == "Tab")
+		{
+            var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
+            OnItemSelected(match.match, success: match.success);
+        }
+    }
+
+    private void OnMouseDown(MouseEventArgs args)
 	{
 		OnBlurPreventDefault = true;
 	}
@@ -395,7 +394,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		next ??= first;
 		HighlightedValue = next;
-	}
+    }
 
 	private void HighlightPrevious()
 	{
@@ -416,8 +415,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		}
 
 		HighlightedValue = previous;
-	}
-
+    }
+	
 	private void ResetStatus()
 	{
 		DisplayStatus &= ~InputStatus.BackgroundDanger;
