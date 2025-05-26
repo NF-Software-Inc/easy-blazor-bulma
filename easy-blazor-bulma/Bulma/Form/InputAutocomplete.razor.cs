@@ -108,7 +108,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
-    private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" }; 
+        private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" }; 
 	private bool OnBlurPreventDefault;
 
 	private string MainCssClass
