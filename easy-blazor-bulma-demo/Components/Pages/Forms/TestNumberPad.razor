@@ -45,10 +45,11 @@
 
 	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
 
-	private void AddFive()
+	private async Task AddFive()
 	{
 		InputModel.IntTest += 5;
 		StateHasChanged();
+		await Task.CompletedTask;
 	}
 
 	private class PageModel
