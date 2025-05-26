@@ -321,8 +321,15 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		if (IsPopoutDisplayed && args.Code == "Tab")
 		{
-            var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
-            OnItemSelected(match.match, success: match.success);
+			if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnExit))
+			{
+				var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
+				OnItemSelected(match.match, success: match.success);
+			}
+			else
+			{
+				IsPopoutDisplayed = false;
+			}
         }
     }
 
