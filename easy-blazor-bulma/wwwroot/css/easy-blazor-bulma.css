@@ -12118,6 +12118,9 @@ a.has-text-highlight-dark:hover, a.has-text-highlight-dark:focus {
     page-break-inside: avoid;
     break-inside: avoid;
   }
+  input::placeholder {
+    visibility: hidden !important;
+  }
   .is-fullwidth-print {
     width: 100% !important;
     min-width: 100% !important;
