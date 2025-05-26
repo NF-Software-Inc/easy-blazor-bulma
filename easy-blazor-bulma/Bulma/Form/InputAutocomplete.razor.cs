@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -109,7 +108,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "Enter", "Tab", "ArrowUp", "ArrowDown" };
+    private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" }; 
 	private bool OnBlurPreventDefault;
 
 	private string MainCssClass
@@ -172,7 +171,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			Options |= InputAutocompleteOptions.AutoSelectOnExit;
 
 		// Unset invalid options
-        if (Options.HasFlag(InputAutocompleteOptions.PopoutLeft | InputAutocompleteOptions.PopoutRight))
+		if (Options.HasFlag(InputAutocompleteOptions.PopoutLeft | InputAutocompleteOptions.PopoutRight))
 			Options &= ~InputAutocompleteOptions.PopoutRight;
 
 		if (Options.HasFlag(InputAutocompleteOptions.PopoutTop | InputAutocompleteOptions.PopoutBottom))
