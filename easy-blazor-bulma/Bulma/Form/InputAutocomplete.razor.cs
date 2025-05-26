@@ -170,8 +170,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		// Set required options
 		if (Options.HasAnyFlag(InputAutocompleteOptions.AutoSelectOnExit | InputAutocompleteOptions.AutoSelectOnInput) == false && Options.HasAnyFlag(InputAutocompleteOptions.AutoSelectCurrent | InputAutocompleteOptions.AutoSelectExact | InputAutocompleteOptions.AutoSelectClosest))
 			Options |= InputAutocompleteOptions.AutoSelectOnExit;
-        Options |= InputAutocompleteOptions.AutoSelectOnExit;
-        // Unset invalid options
+
+		// Unset invalid options
         if (Options.HasFlag(InputAutocompleteOptions.PopoutLeft | InputAutocompleteOptions.PopoutRight))
 			Options &= ~InputAutocompleteOptions.PopoutRight;
 
