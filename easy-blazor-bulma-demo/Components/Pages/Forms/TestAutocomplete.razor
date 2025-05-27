@@ -50,6 +50,12 @@
 					<InputAutocomplete dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x?.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options" />
 				</div>
 			</div>
+			<div class="field">
+				<Label For="() => InputModel.SelectedItem3" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left is-expanded">
+					<InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" DisplayValue='x => x?.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options2" />
+				</div>
+			</div>
 		</EditForm>
 
 		<Message class="mt-3" Title="New Hires" Color="BulmaColors.Green">
@@ -97,6 +103,13 @@
 		InputAutocompleteOptions.TypePopout |
 		InputAutocompleteOptions.PopoutTop |
 		InputAutocompleteOptions.UseAutomaticStatusColors;
+
+	private readonly InputAutocompleteOptions Options2 =
+	InputAutocompleteOptions.TypePopout |
+	InputAutocompleteOptions.PopoutTop |
+	InputAutocompleteOptions.UseAutomaticStatusColors |
+	InputAutocompleteOptions.AutoSelectOnExit;
+
 
 	private static readonly List<DemoAutocomplete> AllItems =
 	[
@@ -157,6 +170,9 @@
 
 		[Display(Name = "Accountant Applicant", Description = "Please type the name of the applicant to hire for the Accountant position.")]
 		public DemoAutocomplete? SelectedItem2 { get; set; }
+
+		[Display(Name = "Accountant Applicant with AutoSelect on Exit", Description = "Select an applicant in the drop down with arrow keys and press tab")]
+		public DemoAutocomplete? SelectedItem3 { get; set; }
 	}
 
 	private record class DemoAutocomplete
