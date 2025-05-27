@@ -15,7 +15,7 @@
 		<div class="dropdown-content">
 			@foreach (var item in GetDisplayItems())
 			{
-				<div @key=item class='@GetDropDownItemCssClass(item)' @onmousedown='OnMouseDown' @onmouseup='OnMouseUp' @onclick='x => OnItemSelected(item)'>@DisplayValue(item)</div>
+				<div @key=item class='@GetDropDownItemCssClass(item)' @onclick='x => OnItemSelected(item)'>@DisplayValue(item)</div>
 			}
 		</div>
 	</div>
