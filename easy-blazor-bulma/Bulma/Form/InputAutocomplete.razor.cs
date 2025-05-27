@@ -265,6 +265,11 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			IsPopoutDisplayed = true;
 	}
 
+	private void OnBlur(FocusEventArgs args)
+	{
+        IsPopoutDisplayed = false;
+    }
+
 	private void OnClick(MouseEventArgs args)
 	{
 		if (Options.HasFlag(InputAutocompleteOptions.ClickPopout) && Items.Any())
