@@ -53,7 +53,7 @@
 			<div class="field">
 				<Label For="() => InputModel.SelectedItem3" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left is-expanded">
-					<InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" DisplayValue='x => x?.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options2" />
+					<InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" DisplayValue='x => x?.Name' Items="AllItems" DisplayCount="5" Options="Options2" />
 				</div>
 			</div>
 		</EditForm>

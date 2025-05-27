@@ -108,6 +108,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
+    private bool OnBlurPreventDefault;
     private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" }; 
 
 	private string MainCssClass
@@ -267,6 +268,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnBlur(FocusEventArgs args)
 	{
+		if (OnBlurPreventDefault)
+			return;
         IsPopoutDisplayed = false;
     }
 
@@ -331,8 +334,16 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			}
         }
     }
+    private void OnMouseDown(MouseEventArgs args)
+    {
+        OnBlurPreventDefault = true;
+    }
 
-	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
+    private void OnMouseUp(MouseEventArgs args)
+    {
+        OnBlurPreventDefault = false;
+    }
+    private void OnItemSelected(TValue? value, bool close = true, bool success = true)
 	{
 		CurrentValue = value;
 		InputValue = null;
