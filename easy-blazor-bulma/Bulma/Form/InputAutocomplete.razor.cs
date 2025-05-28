@@ -108,8 +108,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter" };
 	private bool OnBlurPreventDefault;
+	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" };
 
 	private string MainCssClass
 	{
@@ -270,14 +270,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		if (OnBlurPreventDefault)
 			return;
-
 		IsPopoutDisplayed = false;
-
-		if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnExit))
-		{
-			var match = GetMatch(InputValue);
-			OnItemSelected(match.match, false, match.success);
-		}
 	}
 
 	private void OnClick(MouseEventArgs args)
@@ -312,6 +305,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		if (args.Code == "Enter" || args.Code == "Escape")
 			IsPopoutDisplayed = false;
+
+		OnKeyDownPreventDefault = false;
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
@@ -325,8 +320,20 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			HighlightNext();
 		else if (IsPopoutDisplayed && args.Code == "ArrowUp")
 			HighlightPrevious();
-	}
 
+		if (IsPopoutDisplayed && args.Code == "Tab")
+		{
+			if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnExit))
+			{
+				var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
+				OnItemSelected(match.match, success: match.success);
+			}
+			else
+			{
+				IsPopoutDisplayed = false;
+			}
+		}
+	}
 	private void OnMouseDown(MouseEventArgs args)
 	{
 		OnBlurPreventDefault = true;
@@ -336,7 +343,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		OnBlurPreventDefault = false;
 	}
-
 	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
 	{
 		CurrentValue = value;

@@ -27,7 +27,7 @@
 		@DisplayValue(CurrentValue)
 		@if (IsNullable && AdditionalAttributes.IsDisabled() == false)
 		{
-			<button class="delete is-small" @onclick='() => OnItemSelected(default)'></button>
+			<button class="delete is-small" tabindex="-1" @onclick='() => OnItemSelected(default)'></button>
 		}
 	</span>
 }
