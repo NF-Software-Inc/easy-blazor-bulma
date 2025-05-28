@@ -54,6 +54,12 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     public string? Icon { get; set; } = "timer";
 
     /// <summary>
+    /// An icon to reset the input.
+    /// </summary>
+    [Parameter]
+    public string? ResetIcon { get; set; } = "close";
+
+    /// <summary>
     /// Applies styles to the input according to the selected options.
     /// </summary>
     [Parameter]
@@ -553,6 +559,11 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 
 		if (save || reset || clear)
             CurrentValueAsString = FormatTimeSpan(PopoutValue);
+    }
+
+    private void ResetBtnHandler()
+    {
+        CurrentValueAsString = FormatTimeSpan(InitialValue);
     }
 
     private void OnChange(ChangeEventArgs args)

@@ -58,10 +58,16 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Parameter]
 	public string? Icon { get; set; } = "calendar_month";
 
-	/// <summary>
-	/// Applies styles to the input according to the selected options.
-	/// </summary>
-	[Parameter]
+    /// <summary>
+    /// An icon to reset the input.
+    /// </summary>
+    [Parameter]
+    public string? ResetIcon { get; set; } = "close";
+
+    /// <summary>
+    /// Applies styles to the input according to the selected options.
+    /// </summary>
+    [Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
 	/// <summary>
@@ -407,6 +413,11 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		if (save || reset || clear)
 			CurrentValueAsString = FormatDateTime(PopoutValue);
 	}
+
+	private void ResetBtnHandler()
+	{
+        CurrentValueAsString = FormatDateTime(InitialValue);
+    }
 
 	private void OnChange(ChangeEventArgs args)
 	{
