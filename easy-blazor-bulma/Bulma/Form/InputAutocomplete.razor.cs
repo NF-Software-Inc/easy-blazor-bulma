@@ -108,8 +108,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
-    private bool OnBlurPreventDefault;
-    private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" }; 
+	private bool OnBlurPreventDefault;
+	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" };
 
 	private string MainCssClass
 	{
@@ -270,8 +270,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		if (OnBlurPreventDefault)
 			return;
-        IsPopoutDisplayed = false;
-    }
+		IsPopoutDisplayed = false;
+	}
 
 	private void OnClick(MouseEventArgs args)
 	{
@@ -297,7 +297,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnKeyUp(KeyboardEventArgs args)
 	{
-        if (args.Code == "Enter")
+		if (args.Code == "Enter")
 		{
 			var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
 			OnItemSelected(match.match, success: match.success);
@@ -305,9 +305,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		if (args.Code == "Enter" || args.Code == "Escape")
 			IsPopoutDisplayed = false;
-		
+
 		OnKeyDownPreventDefault = false;
-    }
+	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
@@ -332,18 +332,18 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			{
 				IsPopoutDisplayed = false;
 			}
-        }
-    }
-    private void OnMouseDown(MouseEventArgs args)
-    {
-        OnBlurPreventDefault = true;
-    }
+		}
+	}
+	private void OnMouseDown(MouseEventArgs args)
+	{
+		OnBlurPreventDefault = true;
+	}
 
-    private void OnMouseUp(MouseEventArgs args)
-    {
-        OnBlurPreventDefault = false;
-    }
-    private void OnItemSelected(TValue? value, bool close = true, bool success = true)
+	private void OnMouseUp(MouseEventArgs args)
+	{
+		OnBlurPreventDefault = false;
+	}
+	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
 	{
 		CurrentValue = value;
 		InputValue = null;
@@ -401,7 +401,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		next ??= first;
 		HighlightedValue = next;
-    }
+	}
 
 	private void HighlightPrevious()
 	{
@@ -422,8 +422,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		}
 
 		HighlightedValue = previous;
-    }
-	
+	}
+
 	private void ResetStatus()
 	{
 		DisplayStatus &= ~InputStatus.BackgroundDanger;
