@@ -33,7 +33,7 @@ jobs:
           9.0.x
           8.0.x
     - name: Install MAUI
-      run: dotnet workload install maccatalyst maui-android maui-ios
+      run: dotnet workload install maui
       working-directory: ./easy-blazor-bulma-demo
     - run: mkdir ${{ env.TempDirectory }}
     - uses: apple-actions/import-codesign-certs@v3
