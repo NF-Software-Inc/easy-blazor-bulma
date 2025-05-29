@@ -16,10 +16,10 @@
         <span class="@IconCssClass">@Icon</span>
     }
 
-    @if (Options.HasFlag(InputDateTimeOptions.ShowResetButton) && AdditionalAttributes.IsDisabled() == false)
+    @if (Options.HasFlag(InputDateTimeOptions.ShowResetButton) && string.IsNullOrWhiteSpace(ResetIcon) == false && AdditionalAttributes.IsDisabled() == false)
     {
-        <span class="material-icons icon is-right is-clickable" @onclick='() => ClosePopout(clear: true)' @onclick:stopPropagation="true">
-            close
+        <span class="material-icons icon is-right is-clickable" @onclick='() => ResetButtonHandler()' @onclick:stopPropagation="true">
+            @ResetIcon
         </span>
     }
 
