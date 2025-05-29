@@ -561,7 +561,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             CurrentValueAsString = FormatTimeSpan(PopoutValue);
     }
 
-    private void ResetBtnHandler()
+    private void ResetButtonHandler()
     {
         CurrentValueAsString = FormatTimeSpan(InitialValue);
     }

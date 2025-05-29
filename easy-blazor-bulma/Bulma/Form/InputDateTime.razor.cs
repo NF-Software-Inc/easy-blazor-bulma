@@ -414,7 +414,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			CurrentValueAsString = FormatDateTime(PopoutValue);
 	}
 
-	private void ResetBtnHandler()
+	private void ResetButtonHandler()
 	{
         CurrentValueAsString = FormatDateTime(InitialValue);
     }

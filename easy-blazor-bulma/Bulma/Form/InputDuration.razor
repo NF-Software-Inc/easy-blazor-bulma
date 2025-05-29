@@ -16,9 +16,9 @@
         <span class="@IconCssClass">@Icon</span>
     }
 
-    @if (Options.HasFlag(InputDurationOptions.ShowResetButton) && AdditionalAttributes.IsDisabled() == false && string.IsNullOrEmpty(ResetIcon) == false)
+    @if (Options.HasFlag(InputDurationOptions.ShowResetButton) && string.IsNullOrWhiteSpace(ResetIcon) == false && AdditionalAttributes.IsDisabled() == false)
     {
-        <span class="material-icons icon is-right is-clickable" @onclick='() => ResetBtnHandler()' @onclick:stopPropagation="true">
+        <span class="material-icons icon is-right is-clickable" @onclick='() => ResetButtonHandler()' @onclick:stopPropagation="true">
             @ResetIcon
         </span>
     }
