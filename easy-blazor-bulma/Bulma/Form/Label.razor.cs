@@ -51,7 +51,13 @@ public partial class Label<TValue> : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class", "data-tooltip", "tooltip-class" };
+	/// <summary>
+    /// An icon to display within the label.
+    /// </summary>
+    [Parameter]
+    public string? Icon { get; set; } = "";
+
+    private readonly string[] Filter = new[] { "class", "data-tooltip", "tooltip-class" };
 
 	private string? Tooltip;
 
