@@ -5,7 +5,7 @@
 <label class="@MainCssClass" for="@ForInputId" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
 	@if (Icon != null)
 	{
-		<span class="material-icons icon is-left">@Icon</span>
+		<span class="@IconCssClass">@Icon</span>
 	}
 	<span class="@TooltipCssClass" data-tooltip="@Tooltip">@DisplayText</span>
 </label>
