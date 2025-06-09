@@ -55,9 +55,9 @@ public partial class Label<TValue> : ComponentBase
     /// An icon to display within the label.
     /// </summary>
     [Parameter]
-    public string? Icon { get; set; } = "";
+    public string? Icon { get; set; }
 
-    private readonly string[] Filter = new[] { "class", "data-tooltip", "tooltip-class" };
+    private readonly string[] Filter = new[] { "class", "data-tooltip", "tooltip-class", "icon-class" };
 
 	private string? Tooltip;
 
@@ -95,9 +95,10 @@ public partial class Label<TValue> : ComponentBase
 			return string.Join(' ', css, AdditionalAttributes.GetClass("tooltip-class"));
 		}
 	}
+    private string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetClass("icon-class"));
 
-	/// <inheritdoc />
-	protected override void OnInitialized()
+    /// <inheritdoc />
+    protected override void OnInitialized()
 	{
 		DisplayAttribute? attribute = null;
 
