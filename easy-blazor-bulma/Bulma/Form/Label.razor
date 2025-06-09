@@ -3,5 +3,9 @@
 @inherits ComponentBase
 
 <label class="@MainCssClass" for="@ForInputId" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
+	@if (Icon != null)
+	{
+		<span class="@IconCssClass">@Icon</span>
+	}
 	<span class="@TooltipCssClass" data-tooltip="@Tooltip">@DisplayText</span>
 </label>
