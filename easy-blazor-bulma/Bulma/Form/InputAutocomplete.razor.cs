@@ -109,7 +109,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter", "Tab" };
+	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter" };
 
 	private string MainCssClass
 	{
@@ -305,8 +305,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		if (args.Code == "Enter" || args.Code == "Escape")
 			IsPopoutDisplayed = false;
-
-		OnKeyDownPreventDefault = false;
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
@@ -334,6 +332,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			}
 		}
 	}
+
 	private void OnMouseDown(MouseEventArgs args)
 	{
 		OnBlurPreventDefault = true;
@@ -343,6 +342,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		OnBlurPreventDefault = false;
 	}
+
 	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
 	{
 		CurrentValue = value;
