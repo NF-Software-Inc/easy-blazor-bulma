@@ -1,33 +1,105 @@
 ﻿@page "/tabs"
 @inherits ComponentBase
 
-<TitleBlock Title="Tabs Test" />
+<TitleBlock Title="Tabs Demo Page" />
 
 <div class="container pt-3">
-	<Tabs @bind-Active=ActiveTab OnItemClicked="OnTabClicked">
-		<Tab Name="Tab 1" Icon="home">
-			<p class="block">Here's some stuff for Tab 1.</p>
-		</Tab>
-		<Tab Name="Tab 2" Icon="star">
-			<p class="block">And some stuff for Tab 2.</p>
-		</Tab>
-		<Tab Name="Tab 3" Icon="settings">
-			<p class="block">And this one has a count of how many times you clicked it.</p>
-			<p class="block">Tab 3 has been clicked: @Tab3Clicked times.</p>
-		</Tab>
-		<Tab Name="Disabled" Icon="cancel" disabled="disabled"></Tab>
-	</Tabs>
+	<div class="columns p-3">
+		<div class="column is-4">
+			<Message Title="Information" Color="BulmaColors.Cyan">
+				<p class="block">The Bulma Tabs component provides responsive horizontal navigation, with various styles and customizations.</p>
+				<div class="content">
+					<p>Key features demonstrated:</p>
+					<ul>
+						<li>Default, Boxed, Toggle, and Rounded styles.</li>
+						<li>Centered alignment.</li>
+						<li>Tabs with icons and custom content.</li>
+						<li>Disabled tabs.</li>
+						<li>Click events and active tab binding.</li>
+					</ul>
+				</div>
+			</Message>
+		</div>
+		<div class="column is-8">
+			<div class="columns is-multiline">
+				@* Default Tabs with Active Binding and Click Event *@
+				<div class="column is-12">
+					<Panel Title="Default Tabs (Toggle Rounded)" Color="BulmaColors.Blue">
+						<Tabs @bind-Active=ActiveTab1 OnItemClicked="OnTab1Clicked" IsToggle="true" IsRounded="true">
+							<Tab Name="Documents" Icon="folder">
+								<p class="block">Content for the Documents tab.</p>
+								<p>This is a default tab setup with toggle and rounded styles.</p>
+							</Tab>
+							<Tab Name="Images" Icon="image">
+								<p class="block">Content for the Images tab.</p>
+								<img src="https://placehold.co/150x100/FFD700/000000?text=Image" alt="Placeholder Image" class="image is-128x128" />
+							</Tab>
+							<Tab Name="Music" Icon="music_note">
+								<p class="block">Content for the Music tab.</p>
+								<p>You've clicked Music tab: @MusicTabClicks times.</p>
+							</Tab>
+							<Tab Name="Disabled Tab" Icon="block" disabled="disabled">
+								<p class="block">You cannot select this tab.</p>
+							</Tab>
+						</Tabs>
+						<p class="block mt-3">Current Active Tab: <strong>@ActiveTab1</strong></p>
+						<p class="block">@Tab1Message</p>
+					</Panel>
+				</div>
+
+				@* Boxed Tabs *@
+				<div class="column is-12">
+					<Panel Title="Boxed Tabs" Color="BulmaColors.Green">
+						<Tabs @bind-Active=ActiveTab2 IsBoxed="true" IsToggle="false" IsRounded="false">
+							<Tab Name="Overview" Icon="dashboard">
+								<p class="block">This is the Overview section, styled with <code>IsBoxed="true"</code>.</p>
+							</Tab>
+							<Tab Name="Settings" Icon="settings">
+								<p class="block">Adjust your settings here.</p>
+							</Tab>
+							<Tab Name="Help" Icon="help_outline">
+								<p class="block">Find help and support.</p>
+							</Tab>
+						</Tabs>
+						<p class="block mt-3">Current Active Tab: <strong>@ActiveTab2</strong></p>
+					</Panel>
+				</div>
+
+				@* Centered Tabs with custom class *@
+				<div class="column is-12">
+					<Panel Title="Centered Tabs" Color="BulmaColors.Dark">
+						<Tabs @bind-Active=ActiveTab3 IsCentered="true" IsToggle="true" IsRounded="false" class="is-large">
+							<Tab Name="Products" Icon="shopping_cart">
+								<p class="block">Explore our range of products.</p>
+							</Tab>
+							<Tab Name="Services" Icon="build">
+								<p class="block">Discover our professional services.</p>
+							</Tab>
+						</Tabs>
+						<p class="block mt-3">Current Active Tab: <strong>@ActiveTab3</strong></p>
+					</Panel>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 @code {
-	private string ActiveTab = "Tab 2";
-	private int Tab3Clicked;
+	// Tabs Demo State
+	private string ActiveTab1 = "Documents";
+	private int MusicTabClicks = 0;
+	private string? Tab1Message;
 
-	private async Task OnTabClicked(string name)
+	private string ActiveTab2 = "Overview";
+	private string ActiveTab3 = "Products";
+
+	private async Task OnTab1Clicked(string? name)
 	{
-		if (name == "Tab 3")
-			Tab3Clicked++;
-
+		Tab1Message = $"You clicked: {name}";
+		if (name == "Music")
+		{
+			MusicTabClicks++;
+		}
 		await Task.CompletedTask;
 	}
 }

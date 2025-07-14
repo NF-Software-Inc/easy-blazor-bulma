@@ -19,18 +19,84 @@
 	</div>
 	<div class="column is-8">
 		<div class="columns">
-			<div class="column">
-				<Card class="m-1" Title="Sample Card" Icon="search">
-					<div class="content">Some text to display in the card.</div>
+			<div class="column is-6">
+				<Card class="m-1" Title="Basic Card" Icon="info">
+					<div class="content">
+						<p>This is a basic card demonstrating a title, icon, and <code>ChildContent</code>.</p>
+						<p>It uses the default Bulma styling for a card.</p>
+					</div>
 				</Card>
 			</div>
-			<div class="column">
-				<Card class="m-1" Title="Another Card">
+
+			<div class="column is-6">
+				<Card class="m-1" Title="Card with Footer">
 					<CardContent>
-						<div class="content">Some text to display in the card.</div>
+						<div class="content">
+							<p>This card explicitly uses <code>CardContent</code> and includes a <code>CardFooter</code>.</p>
+							<p>The footer is a great place for actions or additional information.</p>
+						</div>
 					</CardContent>
 					<CardFooter>
-						<p class="block">Some text to display in the footer.</p>
+						<p class="card-footer-item">View Details</p>
+						<p class="card-footer-item">Share</p>
+					</CardFooter>
+				</Card>
+			</div>
+		</div>
+			<div class="columns">
+			@* New: Card with an Image *@
+			<div class="column is-6">
+				<Card class="m-1" Title="Card with Image" DisplayImageUrl="https://placehold.co/600x400/FF5733/FFFFFF?text=Card+Image" ImageSize="BulmaImageSizes.Is16by9">
+					<CardContent>
+						<div class="content">
+							<p>This card features an image displayed at the top, using <code>DisplayImageUrl</code> and <code>ImageSize</code> set to 16:9 aspect ratio.</p>
+							<time datetime="2025-07-11">July 11, 2025</time>
+						</div>
+					</CardContent>
+					<CardFooter>
+						<p class="card-footer-item">Image Source</p>
+					</CardFooter>
+				</Card>
+			</div>
+
+			<div class="column is-6">
+				<Card class="m-1" Title="Custom Header" Icon="settings" header-class="has-background-primary-dark" title-class="has-text-white">
+					<CardContent>
+						<div class="content">
+							<p>This card demonstrates custom styling for the header and title using <code>header-class="has-background-primary-dark"</code> and <code>title-class="has-text-white"</code>.</p>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		</div>
+		<div class="columns">
+			<div class="column is-6">
+				<Card class="m-1" Title="Custom Content & Footer" content-class="has-background-info-light p-5" footer-class="has-background-link-light">
+					<CardContent>
+						<div class="content">
+							<p>Here, the <code>CardContent</code> area has a custom background and increased padding using <code>content-class="has-background-info-light p-5"</code>. The <code>footer-class</code> is also applied directly to the Card.</p>
+						</div>
+					</CardContent>
+					<CardFooter>
+						<p class="card-footer-item">Action 1</p>
+						<p class="card-footer-item">Action 2</p>
+					</CardFooter>
+				</Card>
+			</div>
+
+			<div class="column is-6">
+				<Card class="m-1 is-shadowless" Title="Full Featured Card" Icon="star" DisplayImageUrl="https://placehold.co/600x300/336699/FFFFFF?text=Awesome+Card" ImageSize="BulmaImageSizes.Is2by1"
+					  header-class="has-background-success-dark" title-class="has-text-white is-size-4"
+					  content-class="has-background-white-ter" footer-class="has-background-grey-lighter">
+					<CardContent>
+						<div class="content">
+							<p>This card combines a title, icon, image (2:1 aspect ratio), and custom classes for all sections.</p>
+							<p>It also has <code>is-shadowless</code> applied to the main card class for a flat look.</p>
+						</div>
+					</CardContent>
+					<CardFooter>
+						<a href="#" class="card-footer-item">Learn More</a>
+						<a href="#" class="card-footer-item">Buy Now</a>
 					</CardFooter>
 				</Card>
 			</div>

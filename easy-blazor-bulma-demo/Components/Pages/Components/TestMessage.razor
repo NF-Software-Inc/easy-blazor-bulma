@@ -24,8 +24,38 @@
 			<p class="block">Here's a regular sized message</p>
 		</Message>
 
+		@* Basic Message with Delete Button *@
+		<Message Title="Default Message (Info)" Color="BulmaColors.Default" ShowDeleteButton="true">
+			<p class="block">This is a standard info message with a delete button.</p>
+		</Message>
+
+		@* Message without Delete Button *@
+		<Message Title="Success Message" Color="BulmaColors.Green" ShowDeleteButton="false">
+			<p class="block">This message indicates a successful operation and does not have a delete button.</p>
+		</Message>
+
+		@* Message with Custom Classes on Header and Body *@
+		<Message Title="Warning Message with Custom Styles" Color="BulmaColors.Yellow"
+					header-class="has-text-centered has-text-weight-bold"
+					body-class="has-background-warning-light is-italic">
+			<p class="block">This message demonstrates custom classes applied to its header and body for unique styling.</p>
+		</Message>
+
+		@* Danger Message that can be hidden *@
+		<Message Title="Danger Alert" Color="BulmaColors.Red" ShowDeleteButton="true">
+			<p class="block">This is a critical alert message. Click the 'x' to hide it.</p>
+		</Message>
+
+		@* Message with varying sizes (using custom classes for demonstration) *@
+		<Message class="is-small" Title="Small Message" Color="BulmaColors.Dark" ShowDeleteButton="false">
+			<p class="block">This is a small message.</p>
+		</Message>
+		<Message class="is-large" Title="Large Message" Color="BulmaColors.Blue" ShowDeleteButton="false">
+			<p class="block">This is a large message to draw attention.</p>
+		</Message>
 		<Message class="is-size-4 is-jumbo" Title="Jumbo Purple Message" Color="BulmaColors.Purple" ShowDeleteButton=false>
 			<p class="block">Big message!</p>
 		</Message>
 	</div>
+
 </div>

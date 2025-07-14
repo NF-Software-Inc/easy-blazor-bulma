@@ -3,25 +3,101 @@
 
 <TitleBlock Title="Notification Test" />
 
-<div class="container pt-2">
-	<Notification Color="BulmaColors.Purple" ShowDeleteButton=false>
-		Notification that cannot be deleted.
-	</Notification>
+<div class="container pt-3">
+	<div class="columns p-3">
+		<div class="column is-4">
+			<Message Title="Information" Color="BulmaColors.Cyan">
+				<p class="block">The Bulma Notification component is used to display prominent, colored alert blocks.</p>
+				<div class="content">
+					<p>Key features:</p>
+					<ul>
+						<li>Various color options.</li>
+						<li>Optional delete button for dismissal.</li>
+						<li>Can be hidden programmatically.</li>
+						<li>Supports custom content within the notification.</li>
+					</ul>
+				</div>
+			</Message>
+		</div>
+		<div class="column is-8">
+			<Panel Title="Notification Examples" Color="BulmaColors.Turquoise">
+				<h3 class="title is-4">Basic Notifications</h3>
+				<div class="block">
+					<Notification Color="BulmaColors.Blue">
+						This is a **primary** notification.
+					</Notification>
+				</div>
+				<div class="block">
+					<Notification Color="BulmaColors.Turquoise">
+						This is an **info** notification.
+					</Notification>
+				</div>
+				<div class="block">
+					<Notification Color="BulmaColors.Green">
+						This is a **success** notification.
+					</Notification>
+				</div>
+				<div class="block">
+					<Notification Color="BulmaColors.Yellow">
+						This is a **warning** notification.
+					</Notification>
+				</div>
+				<div class="block">
+					<Notification Color="BulmaColors.Red">
+						This is a **danger** notification.
+					</Notification>
+				</div>
 
-	<Notification Color="BulmaColors.Blue">
-		Notification that can be deleted.
-	</Notification>
+				<h3 class="title is-4 mt-5">Notifications with Delete Button</h3>
+				<div class="block">
+					<Notification Color="BulmaColors.Purple" ShowDeleteButton="true">
+						This notification has a delete button (default behavior).
+					</Notification>
+				</div>
+				<div class="block">
+					<Notification Color="BulmaColors.Blue" ShowDeleteButton="false">
+						This notification *cannot* be deleted by the user.
+					</Notification>
+				</div>
 
-	<Notification @bind-IsHidden=DeleteNotification>
-		<button type="button" class="button" @onclick=HideNotification>Hide</button>
-	</Notification>
+				<h3 class="title is-4 mt-5">Programmatic Hiding</h3>
+				<div class="block">
+					<Notification @bind-IsHidden=CustomHiddenNotification Color="BulmaColors.Dark">
+						This notification can be hidden using a custom button.
+						<button type="button" class="button is-light is-small ml-3" @onclick=HideCustomNotification>Hide Me!</button>
+					</Notification>
+					@if (CustomHiddenNotification)
+					{
+							<p class="block has-text-info">Notification is hidden. <button class="button is-small" @onclick="ShowCustomNotification">Show it again</button></p>
+					}
+				</div>
+
+				<h3 class="title is-4 mt-5">Notification with Custom Content</h3>
+				<div class="block">
+					<Notification Color="BulmaColors.Light">
+						<p class="title is-5">Custom Title</p>
+						<p class="subtitle is-6">This notification contains rich HTML content.</p>
+						<div class="buttons">
+							<button class="button is-small is-primary">Action 1</button>
+							<button class="button is-small is-link">Action 2</button>
+						</div>
+					</Notification>
+				</div>
+			</Panel>
+		</div>
+	</div>
 </div>
 
 @code {
-	private bool DeleteNotification;
+	private bool CustomHiddenNotification = false;
 
-	private void HideNotification()
+	private void HideCustomNotification()
 	{
-		DeleteNotification = true;
+		CustomHiddenNotification = true;
+	}
+
+	private void ShowCustomNotification()
+	{
+		CustomHiddenNotification = false;
 	}
 }

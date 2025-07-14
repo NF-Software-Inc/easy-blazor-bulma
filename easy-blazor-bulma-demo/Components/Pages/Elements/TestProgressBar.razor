@@ -1,19 +1,59 @@
 ﻿@page "/progressBar"
 @inherits ComponentBase
 
-<TitleBlock Title="Progress Bar Test" />
+<TitleBlock Title="Progress Bar Demo Page" />
 
-<div class="container">
-	<Panel class="m-3" Title="Progress Bar Tests" Color="BulmaColors.Turquoise">
-		<label class="label">Changable Value</label>
-		<ProgressBar Color="BulmaColors.Green" Max="50" Current="@CurrentValue" />
-		<button type="button" class="button is-danger" @onclick=Decrement>Subtract 5</button>
-		<button type="button" class="button is-success" @onclick=Increment>Add 5</button>
+<div class="container pt-3">
+	<div class="columns p-3">
+		<div class="column is-4">
+			<Message Title="Information" Color="BulmaColors.Cyan">
+				<p class="block">The Bulma Progress Bar component displays progress or a loading animation.</p>
+				<div class="content">
+					<p>Key features:</p>
+					<ul>
+						<li>Display current progress towards a maximum value.</li>
+						<li>Show an indeterminate loading state when no current value is provided.</li>
+						<li>Customizable fill colors.</li>
+						<li>Support for various sizes.</li>
+					</ul>
+				</div>
+			</Message>
+		</div>
+		<div class="column is-8">
+			<Panel Title="Progress Bar Examples" Color="BulmaColors.Turquoise">
+				<h3 class="title is-4">Controllable Progress Bar</h3>
+				<label class="label">Current Progress: @CurrentValue / 50</label>
+				<ProgressBar Color="BulmaColors.Green" Max="50" Current="@CurrentValue" />
+				<div class="buttons">
+					<button type="button" class="button is-danger" @onclick=Decrement>Subtract 5</button>
+					<button type="button" class="button is-success" @onclick=Increment>Add 5</button>
+				</div>
 
-		<label class="label mt-3">Indeterminate Value</label>
-		<ProgressBar class="is-jumbo" Color="BulmaColors.Purple" Max="250" Current="null" />
+				<h3 class="title is-4 mt-5">Indeterminate Progress Bars (Loading)</h3>
+				<label class="label">Loading (Blue)</label>
+				<ProgressBar Color="BulmaColors.Blue" Max="100" Current="null" />
 
-	</Panel>
+				<label class="label mt-3">Processing (Yellow)</label>
+				<ProgressBar Color="BulmaColors.Yellow" Max="100" Current="null" />
+
+				<label class="label mt-3">Uploading (Purple)</label>
+				<ProgressBar Color="BulmaColors.Purple" Max="100" Current="null" />
+
+				<h3 class="title is-4 mt-5">Progress Bar Sizes and Colors</h3>
+				<label class="label">Small Red Progress</label>
+				<ProgressBar Color="BulmaColors.Red" Max="100" Current="25" class="is-small" />
+
+				<label class="label mt-3">Normal Green Progress</label>
+				<ProgressBar Color="BulmaColors.Green" Max="100" Current="50" />
+
+				<label class="label mt-3">Medium Blue Progress</label>
+				<ProgressBar Color="BulmaColors.Blue" Max="100" Current="75" class="is-medium" />
+
+				<label class="label mt-3">Large Yellow Progress</label>
+				<ProgressBar Color="BulmaColors.Yellow" Max="100" Current="90" class="is-large" />
+			</Panel>
+		</div>
+	</div>
 </div>
 
 @code {

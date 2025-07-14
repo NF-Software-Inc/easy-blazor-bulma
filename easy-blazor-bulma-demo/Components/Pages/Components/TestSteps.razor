@@ -3,51 +3,94 @@
 
 <TitleBlock Title="Steps Test" />
 
-<div class="container pt-3">
-	<Panel Title="Horizontal Steps">
-		<Steps @bind-Active=ActiveStep1 OnItemClicked="OnSteps1Clicked">
-			<Step Name="Step 1" Icon="home" MarkerColor="BulmaColors.Yellow" />
-			<Step Name="Step 2" Icon="star" MarkerColor="BulmaColors.Red" />
-			<Step Name="Step 3" Icon="settings" MarkerColor="BulmaColors.Purple" />
-			<Step Name="Step 4" Icon="cancel" MarkerColor="BulmaColors.Green" />
-		</Steps>
-		<p class="block">@Message1</p>
-	</Panel>
+<div class="columns p-3">
+	<div class="column is-4">
+		<Message Title="Information" Color="BulmaColors.Cyan">
+			<p class="block">The Bulma Steps component is ideal for multi-step forms or wizards, providing a clear visual progression.</p>
+			<p class="block">Each <code>&lt;Step&gt;</code> can have a name, icon, and custom marker color.</p>
+			<div class="content">
+				<p>Key features demonstrated:</p>
+				<ul>
+					<li>Horizontal and Vertical layouts.</li>
+					<li>Clickable steps with event handling.</li>
+					<li>Custom icons and marker colors.</li>
+					<li><code>TextAbove</code> for vertical steps.</li>
+					<li>Custom CSS classes for individual steps and markers.</li>
+				</ul>
+			</div>
+		</Message>
+	</div>
+	<div class="column is-8">
+		<div class="columns is-multiline">
+			<div class="column is-12">
+				<Panel Title="Horizontal Steps (Clickable)" Color="BulmaColors.Yellow">
+					<Steps @bind-Active=ActiveStep1 OnItemClicked="OnSteps1Clicked">
+						<Step Name="Personal Info" Icon="person" MarkerColor="BulmaColors.Blue" />
+						<Step Name="Address Details" Icon="location_on" MarkerColor="BulmaColors.Yellow" />
+						<Step Name="Payment Info" Icon="credit_card" MarkerColor="BulmaColors.Yellow" />
+						<Step Name="Confirmation" Icon="check_circle" MarkerColor="BulmaColors.Green" />
+					</Steps>
+					<p class="block mt-3">Current Active Step: <strong>@ActiveStep1</strong></p>
+					<p class="block">@Message1</p>
+				</Panel>
+			</div>
 
-	<Panel Title="Vertical Steps">
-		<div class="columns">
-			<div class="column">
-				<Steps @bind-Active=ActiveStep2 OnItemClicked="OnSteps2Clicked" IsVertical=true TextAbove=true>
-					<Step Name="Step 1" Icon="home" MarkerColor="BulmaColors.Yellow" />
-					<Step Name="Step 2" Icon="star" MarkerColor="BulmaColors.Red" />
-					<Step Name="Step 3" Icon="settings" MarkerColor="BulmaColors.Purple" />
-					<Step Name="Step 4" Icon="cancel" MarkerColor="BulmaColors.Green" />
-				</Steps>
+			<div class="column is-6">
+				<Panel Title="Vertical Steps (Text Above)" Color="BulmaColors.Yellow">
+					<Steps @bind-Active=ActiveStep2 OnItemClicked="OnSteps2Clicked" IsVertical=true TextAbove=true>
+						<Step Name="Start" Icon="play_arrow" MarkerColor="BulmaColors.Green" />
+						<Step Name="Process" Icon="settings_ethernet" MarkerColor="BulmaColors.Cyan" />
+						<Step Name="Finish" Icon="flag" MarkerColor="BulmaColors.Red" />
+					</Steps>
+					<p class="block mt-3">Current Active Step: <strong>@ActiveStep2</strong></p>
+					<p class="block">@Message2</p>
+				</Panel>
 			</div>
-			<div class="column">
-				<p class="block">@Message2</p>
+
+			<div class="column is-6">
+				<Panel Title="Non-Clickable Steps" Color="BulmaColors.Red">
+					<Steps Active="Step B" IsClickable="false">
+						<Step Name="Step A" Icon="looks_one" MarkerColor="BulmaColors.Light" />
+						<Step Name="Step B" Icon="looks_two" MarkerColor="BulmaColors.Dark" />
+						<Step Name="Step C" Icon="looks_3" MarkerColor="BulmaColors.Dark" />
+					</Steps>
+					<p class="block mt-3">These steps are not clickable. The active step is fixed.</p>
+				</Panel>
 			</div>
+
+            <div class="column is-12">
+                <Panel Title="Steps with Custom Step Styling" Color="BulmaColors.Purple">
+                    <Steps @bind-Active="ActiveStep3">
+                        <Step Name="First" Icon="filter_1" MarkerColor="BulmaColors.Blue" class="has-text-weight-bold" marker-class="is-large" />
+                        <Step Name="Middle" Icon="filter_2" MarkerColor="BulmaColors.Green" content-class="has-text-info" />
+                        <Step Name="Last" Icon="filter_3" MarkerColor="BulmaColors.Red" class="has-text-danger" />
+                    </Steps>
+                    <p class="block mt-3">Current Active Step: <strong>@ActiveStep3</strong></p>
+                    <p class="block">Individual steps and their markers/content can be styled using <code>class</code>, <code>marker-class</code>, and <code>content-class</code>.</p>
+                </Panel>
+            </div>
 		</div>
-	</Panel>
+	</div>
 </div>
 
 @code {
-	private string ActiveStep1 = "Step 2";
-	private string? Message1;
+	private string ActiveStep1 = "Address Details";
+	private string? Message1 = "Click a step to change the active step.";
 
-	private string ActiveStep2 = "Step 1";
-	private string? Message2;
+	private string ActiveStep2 = "Start";
+	private string? Message2 = "Click a step to change the active step.";
 
-	private async Task OnSteps1Clicked(string name)
+    private string ActiveStep3 = "First";
+
+	private async Task OnSteps1Clicked(string? name)
 	{
-		Message1 = $"You clicked {name}";
+		Message1 = $"You clicked: {name}";
 		await Task.CompletedTask;
 	}
 
-	private async Task OnSteps2Clicked(string name)
+	private async Task OnSteps2Clicked(string? name)
 	{
-		Message2 = $"You clicked {name}";
+		Message2 = $"You clicked: {name}";
 		await Task.CompletedTask;
-
 	}
 }

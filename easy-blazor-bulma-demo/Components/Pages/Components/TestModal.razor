@@ -6,49 +6,64 @@
 <div class="columns p-3">
 	<div class="column is-4">
 		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">There are several additional attributes that can apply customization to the component:</p>
-			<div class="content">
-				<ul class="content">
-					<li>header-class</li>
-					<li>card-class</li>
-					<li>body-class</li>
-					<li>foot-class</li>
-				</ul>
-			</div>
+			<p class="block">The Bulma Modal component is a flexible overlay for displaying content.</p>
+			<p class="block">It supports various customizations through attributes like <code>card-class</code>, <code>header-class</code>, <code>body-class</code>, and <code>foot-class</code>.</p>
+            <p class="block">The <code>card-style</code> attribute can be used for inline CSS styling, for example, to control width and height.</p>
 		</Message>
 	</div>
 	<div class="column is-8">
 		<Panel Title="Modal Controls">
-			<label class="label">First Modal</label>
+			<label class="label">First Modal (Default)</label>
 			<button type="button" class="button is-info" @onclick='OpenModal1'>Open Modal 1</button>
 
-			<label class="label mt-3">Second Modal</label>
+			<label class="label mt-3">Second Modal (Full Screen with Custom Classes)</label>
 			<button type="button" class="button is-info" @onclick='OpenModal2'>Open Modal 2</button>
+
+            <label class="label mt-3">Third Modal (No Background, Custom Body Style)</label>
+            <button type="button" class="button is-info" @onclick='OpenModal3'>Open Modal 3</button>
 		</Panel>
 	</div>
 </div>
 
 <Modal Title="Open Sesame" @bind-IsDisplayed=Modal1Displayed>
 	<ModalBody>
-		<p class="block">Here's a modal.</p>
+		<p class="block">Here's a standard modal with default styling.</p>
+        <p class="block">You can close it by clicking the 'x' button or the background overlay.</p>
 	</ModalBody>
 	<ModalFooter>
 		<button type="button" class="button" @onclick='CloseModal1'>Close</button>
 	</ModalFooter>
 </Modal>
 
-<Modal Title="Alakazam!" @bind-IsDisplayed=Modal2Displayed card-style="width: 100%; height: 100%">
+<Modal Title="Alakazam! (Full Screen)" @bind-IsDisplayed=Modal2Displayed card-style="width: 100%; height: 100%;"
+       header-class="has-background-primary-dark has-text-white"
+       body-class="has-background-primary-light"
+       foot-class="has-background-primary-dark">
 	<ModalBody>
-		<p class="block">Here's a bigger modal.</p>
+		<p class="block">This is a full-screen modal, achieved by setting <code>card-style="width: 100%; height: 100%;"</code>.</p>
+        <p class="block">It also demonstrates custom styling on the header, body, and footer using their respective class attributes.</p>
 	</ModalBody>
 	<ModalFooter>
-		<button type="button" class="button" @onclick='CloseModal2'>Close</button>
+		<button type="button" class="button is-light" @onclick='CloseModal2'>Close</button>
 	</ModalFooter>
+</Modal>
+
+<Modal Title="No Background Modal" @bind-IsDisplayed=Modal3Displayed UseBackground="false"
+       card-class="has-background-white-ter" body-class="has-text-centered has-text-primary">
+    <ModalBody>
+        <p class="block">This modal has <code>UseBackground="false"</code>, so clicking outside won't close it.</p>
+        <p class="block">You must use the 'x' button or a custom close button.</p>
+        <p class="block">It also has a custom card background and centered text in the body.</p>
+    </ModalBody>
+    <ModalFooter>
+        <button type="button" class="button is-danger" @onclick='CloseModal3'>Close This One</button>
+    </ModalFooter>
 </Modal>
 
 @code {
 	private bool Modal1Displayed = false;
 	private bool Modal2Displayed = false;
+    private bool Modal3Displayed = false;
 
 	private void OpenModal1()
 	{
@@ -60,6 +75,11 @@
 		Modal2Displayed = true;
 	}
 
+    private void OpenModal3()
+    {
+        Modal3Displayed = true;
+    }
+
 	private void CloseModal1()
 	{
 		Modal1Displayed = false;
@@ -69,4 +89,9 @@
 	{
 		Modal2Displayed = false;
 	}
+
+    private void CloseModal3()
+    {
+        Modal3Displayed = false;
+    }
 }

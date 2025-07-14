@@ -5,31 +5,118 @@
 
 <TitleBlock Title="Buttons Test" />
 
-<div class="container">
-	<Panel class="m-3" Title="Button Tests" Color="BulmaColors.Turquoise">
-		<div class="block">
-			<EditForm Model="InputModel">
-				<div class="field">
-					<Label For="() => InputModel.Test" TooltipMode="TooltipDisplayMode" />
-					<div class="control has-icons-left">
-						<InputText class="input" @bind-Value=InputModel.Test />
-						<span class="icon material-icons is-left">title</span>
-					</div>
+<div class="container pt-3">
+	<div class="columns p-3">
+		<div class="column is-4">
+			<Message Title="Information" Color="BulmaColors.Cyan">
+				<p class="block">This page demonstrates various button components, including standard, submit, reset, and delete buttons.</p>
+				<div class="content">
+					<p>Key features:</p>
+					<ul>
+						<li>Customizable display text, icons, and colors.</li>
+						<li>Integration with forms for submit/reset actions.</li>
+						<li>Delete button with a built-in confirmation modal.</li>
+						<li>Support for standard Bulma button modifiers.</li>
+					</ul>
 				</div>
+			</Message>
+		</div>
+		<div class="column is-8">
+			<Panel Title="Button Examples" Color="BulmaColors.Turquoise">
+				<h3 class="title is-4">Form Buttons</h3>
+				<EditForm Model="InputModel">
+					<div class="field">
+						<Label For="() => InputModel.Test" TooltipMode="TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline" Text="Test Input" />
+						<div class="control has-icons-left">
+							<InputText class="input" @bind-Value=InputModel.Test />
+							<span class="icon material-icons is-left">title</span>
+						</div>
+					</div>
 
-				<div class="field">
+					<div class="field is-grouped">
+						<div class="control">
+							<SubmitButton />
+						</div>
+						<div class="control">
+							<ResetButton />
+						</div>
+					</div>
+				</EditForm>
+
+				<h3 class="title is-4 mt-5">Delete Button with Confirmation</h3>
+				<div class="block">
+					<DeleteButton DisplayText="Delete Item" Icon="delete_forever" Color="BulmaColors.Red" ConfirmationText="Are you absolutely sure you want to delete this item? This action cannot be undone." />
+				</div>
+                <div class="block">
+                    <DeleteButton DisplayText="Remove User" Color="BulmaColors.Purple" ConfirmationText="Confirm removal of user from the system." />
+                </div>
+
+				<h3 class="title is-4 mt-5">Standard Button Styles</h3>
+				<div class="field is-grouped is-grouped-multiline">
 					<div class="control">
-						<SubmitButton />
-						<ResetButton />
+						<button type="button" class="button is-primary">Primary Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-info">Info Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-success">Success Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-warning">Warning Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-danger">Danger Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-link">Link Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-dark">Dark Button</button>
+					</div>
+					<div class="control">
+						<button type="button" class="button is-light">Light Button</button>
 					</div>
 				</div>
-			</EditForm>
-		</div>
 
-		<div class="block">
-			<DeleteButton DisplayText="Test Delete Button" Icon="delete_forever" Color="BulmaColors.Purple" ConfirmationText="Do you really want to delete this?" />
+                <h3 class="title is-4 mt-5">Button Sizes</h3>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <SubmitButton DisplayText="Small" class="is-small" />
+                    </div>
+                    <div class="control">
+                        <SubmitButton DisplayText="Normal" />
+                    </div>
+                    <div class="control">
+                        <SubmitButton DisplayText="Medium" class="is-medium" />
+                    </div>
+                    <div class="control">
+                        <SubmitButton DisplayText="Large" class="is-large" />
+                    </div>
+                </div>
+
+                <h3 class="title is-4 mt-5">Outlined Buttons</h3>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="button" class="button is-primary is-outlined">Outlined Primary</button>
+                    </div>
+                    <div class="control">
+                        <button type="button" class="button is-danger is-outlined">Outlined Danger</button>
+                    </div>
+                </div>
+
+                <h3 class="title is-4 mt-5">Light Buttons</h3>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="button" class="button is-primary is-light">Light Primary</button>
+                    </div>
+                    <div class="control">
+                        <button type="button" class="button is-success is-light">Light Success</button>
+                    </div>
+                </div>
+			</Panel>
 		</div>
-	</Panel>
+	</div>
 </div>
 
 @code {
@@ -39,6 +126,6 @@
 	private class PageModel
 	{
 		[Display(Name = "Test", Description = "A value to demonstrate the buttons.")]
-		public string Test { get; set; } = "Hello";
+		public string Test { get; set; } = "Hello World!";
 	}
 }

@@ -3,10 +3,60 @@
 
 <TitleBlock Title="Bread Crumb Test" />
 
-<div class="container pt-3">
-	<BreadCrumb>
-		<BreadCrumbItem DisplayText="Home" Icon="home" Url="#" />
-		<BreadCrumbItem DisplayText="Widgets" Icon="settings" Url="#" />
-		<BreadCrumbItem DisplayText="My Widget 1" Url="#" />
-	</BreadCrumb>
+<div class="columns p-3">
+	<div class="column is-4">
+		<Message Title="Information" Color="BulmaColors.Cyan">
+			<p>To use the BreadCrumb element it must have children BreadCrumbItem elements.
+				You can choose between 4 additional separator classes on the BreadCrumb element:
+				<br />
+				<br />
+				<strong>has-arrow-separator, has-bullet-separator, has-dot-separator, has-succeeds-separator.</strong>
+			</p>
+
+		</Message>
+		<Message Title="BreadCrumbItem Parameters" Color="BulmaColors.Green">
+			<div>
+				DisplayText - The text to show for this item. <br />
+				Url - The URL to redirect to when clicking this item.<br />
+				Icon - An icon to display to the left of this item.
+			</div>
+		</Message>
+	</div>
+	<div class="column pt-3">
+		<div class="column pt-3">
+			<BreadCrumb>
+				<BreadCrumbItem DisplayText="Home" Icon="home" Url="#" />
+				<BreadCrumbItem DisplayText="Widgets" Icon="settings" Url="#" />
+				<BreadCrumbItem DisplayText="My Widget 1" Url="#" />
+			</BreadCrumb>
+		</div>
+		<div class="column pt-3">
+			<BreadCrumb class="has-arrow-separator">
+				<BreadCrumbItem DisplayText="Home" Icon="home" Url="#" />
+				<BreadCrumbItem DisplayText="Widgets" Icon="settings" Url="#" />
+				<BreadCrumbItem DisplayText="My Widget 1" Url="#" />
+			</BreadCrumb>
+		</div>
+		<div class="column pt-3">
+			<BreadCrumb class="has-bullet-separator">
+				<BreadCrumbItem DisplayText="Home" Icon="home" Url="#" />
+				<BreadCrumbItem DisplayText="Widgets" Icon="settings" Url="#" />
+				<BreadCrumbItem DisplayText="My Widget 1" Url="#" />
+			</BreadCrumb>
+		</div>
+		<div class="column pt-3">
+			<BreadCrumb class="has-dot-separator">
+				<BreadCrumbItem DisplayText="Home" Icon="home" Url="#" />
+				<BreadCrumbItem DisplayText="Widgets" Icon="settings" Url="#" />
+				<BreadCrumbItem DisplayText="My Widget 1" Url="#" />
+			</BreadCrumb>
+		</div>
+		<div class="column pt-3">
+			<BreadCrumb class="has-succeeds-separator">
+				<BreadCrumbItem DisplayText="Home" Icon="home" Url="#" />
+				<BreadCrumbItem DisplayText="Widgets" Icon="settings" Url="#" />
+				<BreadCrumbItem DisplayText="My Widget 1" Url="#" />
+			</BreadCrumb>
+	</div>
+</div>
 </div>

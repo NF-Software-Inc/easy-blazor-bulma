@@ -6,37 +6,62 @@
 <div class="columns p-3">
 	<div class="column is-4">
 		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">There are several additional attributes that can apply customization to the component:</p>
+			<p class="block">The Bulma Panel component is a composable container for controls and content.</p>
+			<p class="block">It supports a title, optional icon, and collapsible content.</p>
 			<div class="content">
-				<ul class="content">
-					<li>header-class</li>
-					<li>content-class</li>
-				</ul>
+				<p>Additional attributes like <code>header-class</code> and <code>content-class</code> can be used to apply custom CSS classes to specific parts of the panel.</p>
 			</div>
 		</Message>
 	</div>
 	<div class="column is-8">
-		<Panel class="is-size-4 is-tiny" Title="Tiny Panel" Color="BulmaColors.Cyan">
-			<p class="block">Here's a super small panel</p>
-		</Panel>
+		<div class="columns is-multiline">
+			<div class="column is-12">
+				<Panel Title="Collapsible Panel" Color="BulmaColors.Yellow" @bind-IsCollapsed="Panel1Collapsed">
+					<p class="block">This panel's content can be collapsed and expanded by clicking its title.</p>
+					<p class="block">It uses the default collapse/expand icons.</p>
+				</Panel>
+			</div>
 
-		<Panel Title="Regular Panel" Color="BulmaColors.Yellow" Icon="history" OnTitleClicked="OnTitleClicked">
-			<p class="block">Here's a regular sized panel</p>
-			<p class="block">This one has a custom icon</p>
-			<p>@ChangeableMessage</p>
-		</Panel>
+			<div class="column is-12">
+				<Panel Title="Panel with Custom Icon" Color="BulmaColors.Yellow" Icon="history" OnTitleClicked="OnPanel2TitleClicked" ShowCollapseIcons="false">
+					<p class="block">This panel has a custom icon and a specific action tied to its title click event.</p>
+					<p class="block">The collapse icons are explicitly hidden.</p>
+					<p>Message: @Panel2Message</p>
+				</Panel>
+			</div>
 
-		<Panel class="is-size-4 is-jumbo" Title="Jumbo Panel" Color="BulmaColors.Purple" ShowCollapseIcons=false>
-			<p class="block">Big panel!</p>
-		</Panel>
+			<div class="column is-12">
+				<Panel Color="BulmaColors.Green" content-class="has-background-success-light p-4">
+					<p class="block">This panel has no title, but its content area has a custom background and padding.</p>
+					<p class="block">It demonstrates using <code>content-class</code> for styling the body.</p>
+				</Panel>
+			</div>
+
+			<div class="column is-12">
+				<Panel Title="Flex Panel" Color="BulmaColors.Blue" IsFlex="true" header-class="has-background-link-dark has-text-white">
+					<p class="block">This panel uses <code>IsFlex="true"</code> and has a custom styled header.</p>
+					<p class="block">Its content area will grow to fill available space if within a flex container.</p>
+				</Panel>
+			</div>
+
+			<div class="column is-12">
+				<Panel Title="Initially Collapsed Panel" Color="BulmaColors.Red" @bind-IsCollapsed="Panel5Collapsed">
+					<p class="block">This panel starts in a collapsed state.</p>
+					<p class="block">Click its title to expand it.</p>
+				</Panel>
+			</div>
+		</div>
 	</div>
 </div>
 
 @code {
-	private string ChangeableMessage = "Click the title of this Panel and see what happens";
+	private bool Panel1Collapsed = false;
+	private bool Panel5Collapsed = true;
 
-	private void OnTitleClicked()
+	private string Panel2Message = "Click the title of this Panel to change this message!";
+
+	private void OnPanel2TitleClicked()
 	{
-		ChangeableMessage = "Whatever you want!";
+		Panel2Message = "The title was clicked! You can bind any method here.";
 	}
 }

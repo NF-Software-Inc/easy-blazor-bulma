@@ -1,27 +1,54 @@
 ﻿@page "/booleanIcon"
 @inherits ComponentBase
 
-<TitleBlock Title="Boolean Icon Test" />
+<TitleBlock Title="Boolean Icon Demo Page" />
 
-<div class="container">
-	<Panel class="m-3" Title="Icon Tests" Color="BulmaColors.Turquoise">
-		<div class="block">
-			<BooleanIcon Value=true /> True
+<div class="container pt-3">
+	<div class="columns p-3">
+		<div class="column is-4">
+			<Message Title="Information" Color="BulmaColors.Cyan">
+				<p class="block">The Boolean Icon component displays one of two icons based on a boolean value.</p>
+				<div class="content">
+					<p>It's useful for showing status (e.g., true/false, pass/fail) visually.</p>
+					<ul>
+						<li>Customize true/false icons and colors.</li>
+						<li>Uses Material Icons.</li>
+					</ul>
+				</div>
+			</Message>
 		</div>
-		<div class="block">
-			<BooleanIcon Value=false /> False
+		<div class="column is-8">
+			<Panel Title="Boolean Icon Examples" Color="BulmaColors.Turquoise">
+				<div class="block">
+					<BooleanIcon Value=true /> True (Default)
+				</div>
+				<div class="block">
+					<BooleanIcon Value=false /> False (Default)
+				</div>
+				<div class="block">
+					<BooleanIcon Value=true TrueIcon="check_box" /> True Box Icon
+				</div>
+				<div class="block">
+					<BooleanIcon Value=false FalseIcon="delete_forever" /> False Trash Icon
+				</div>
+				<div class="block">
+					<BooleanIcon Value=true TrueColor="BulmaColors.Blue" /> Blue True
+				</div>
+				<div class="block">
+					<BooleanIcon Value=false FalseColor="BulmaColors.Yellow"/> Yellow False
+				</div>
+				<div class="block">
+					<label class="checkbox">
+						<input type="checkbox" @bind="BooleanIconValue" />
+						Toggle Boolean Icon: <BooleanIcon Value="BooleanIconValue" />
+					</label>
+				</div>
+			</Panel>
 		</div>
-		<div class="block">
-			<BooleanIcon Value=true TrueIcon="check_box" /> True Box Icon
-		</div>
-		<div class="block">
-			<BooleanIcon Value=false FalseIcon="delete_forever" /> False Trash Icon
-		</div>
-		<div class="block">
-			<BooleanIcon Value=true TrueColor="BulmaColors.Blue" /> Blue True
-		</div>
-		<div class="block">
-			<BooleanIcon Value=false FalseColor="BulmaColors.Yellow"/> Yellow False
-		</div>
-	</Panel>
+	</div>
 </div>
+
+@code {
+    // Boolean Icon Demo State
+    private bool BooleanIconValue = true;
+}
