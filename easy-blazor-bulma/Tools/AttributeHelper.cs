@@ -89,5 +89,5 @@ public static class AttributeHelper
     /// Checks to see whether the provided collection contains any readonly or disabled attributes.
     /// </summary>
     /// <param name="attributes">The collection containing HTML attribute data.</param>
-    public static bool IsDisabled(this IReadOnlyDictionary<string, object>? attributes) => attributes != null && attributes.Any(x => x.Key == "readonly" || (x.Key == "disabled" && (x.Value.ToString() == "disabled" || x.Value.ToString() == "true")));
+    public static bool IsDisabled(this IReadOnlyDictionary<string, object>? attributes) => attributes != null && attributes.Any(x => x.Key == "readonly" || (x.Key == "disabled" && (string.Equals(x.Value.ToString(), "disabled", StringComparison.OrdinalIgnoreCase) || string.Equals(x.Value.ToString(), "true", StringComparison.OrdinalIgnoreCase))));
 }
