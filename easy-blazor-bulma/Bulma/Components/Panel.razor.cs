@@ -119,7 +119,7 @@ public partial class Panel : ComponentBase
     {
         get
         {
-            var css = "panel-block box";
+            var css = "panel-block";
 
             if (IsCollapsed)
                 css += " is-hidden";
