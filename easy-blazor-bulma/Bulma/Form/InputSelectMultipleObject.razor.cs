@@ -49,23 +49,7 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	[Range(2, 100)]
 	public int Size { get; set; } = 8;
 
-	/// <summary>
-	/// Applies styles to the input.
-	/// </summary>
-	[Parameter]
-	public InputStatus DisplayStatus { get; set; }
-
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
-	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
-	/// </para>
-	/// </summary>
-	[DisallowNull]
-	public ElementReference? Element { get; private set; }
-
 	private readonly string[] Filter = new[] { "class" };
-
 	private readonly Type UnderlyingType;
 
 	private int CurrentIndex = -1;
@@ -73,22 +57,7 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	private int? EndIndex = null;
 	private bool CtrlMove;
 
-	private string MainCssClass
-	{
-		get
-		{
-			var css = "select is-multiple";
-
-			if (DisplayStatus.HasFlag(InputStatus.BackgroundDanger))
-				css += " is-danger";
-			else if (DisplayStatus.HasFlag(InputStatus.BackgroundWarning))
-				css += " is-warning";
-			else if (DisplayStatus.HasFlag(InputStatus.BackgroundSuccess))
-				css += " is-success";
-
-			return string.Join(' ', css, CssClass);
-		}
-	}
+	private string MainCssClass => string.Join(' ', "select is-multiple", CssClass);
 
 	public InputSelectMultipleObject()
 	{
@@ -99,6 +68,7 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	}
 
 	/// <inheritdoc />
+	/// <exception cref="NotImplementedException"></exception>
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
 		throw new NotImplementedException();
