@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -107,18 +106,33 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 
 	private void OnMouseDown(int index, MouseEventArgs args)
 	{
-		StartIndex ??= index;
-
-		Debug.WriteLine($"Mouse down, CurrentIndex: {CurrentIndex}, StartIndex: {StartIndex}, EndIndex: {EndIndex}");
-		Debug.WriteLine($"Selected: {string.Join(", ", Value?.Select(x => DisplayValue(x)) ?? [])}");
+		if (args.ShiftKey == false)
+			StartIndex = index;
+		else
+			StartIndex ??= index;
 	}
 
 	private void OnMouseUp(int index, MouseEventArgs args)
 	{
-		EndIndex ??= index;
+		CurrentIndex = index;
+		EndIndex = index;
 
-		Debug.WriteLine($"Mouse up, CurrentIndex: {CurrentIndex}, StartIndex: {StartIndex}, EndIndex: {EndIndex}");
-		Debug.WriteLine($"Selected: {string.Join(", ", Value?.Select(x => DisplayValue(x)) ?? [])}");
+		if (args.CtrlKey == false)
+		{
+			StartIndex ??= CurrentIndex;
+
+			Value?.Clear();
+			AddSelected(StartIndex.Value, EndIndex.Value);
+		}
+		else
+		{
+			StartIndex ??= CurrentIndex;
+
+			if (Contains(Value, Items[StartIndex.Value]))
+				RemoveSelected(StartIndex.Value, EndIndex.Value);
+			else
+				AddSelected(StartIndex.Value, EndIndex.Value);
+		}
 	}
 
 	private void OnKeyUp(KeyboardEventArgs args)
@@ -190,9 +204,6 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 			Value?.Clear();
 			AddSelected(StartIndex.Value, EndIndex.Value);
 		}
-
-		Debug.WriteLine($"Key up: {args.Code}, CurrentIndex: {CurrentIndex}, StartIndex: {StartIndex}, EndIndex: {EndIndex}, CtrlMove: {CtrlMove}");
-		Debug.WriteLine($"Selected: {string.Join(", ", Value?.Select(x => DisplayValue(x)) ?? [])}");
 	}
 
 	private void ToggleSelected(int start, int end)
