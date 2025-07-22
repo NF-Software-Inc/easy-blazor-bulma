@@ -19,13 +19,6 @@ public partial class Modal : ComponentBase
 	public string? Title { get; set; }
 
 	/// <summary>
-	/// Specifies whether the modal will use the full screen or fit to content.
-	/// </summary>
-	[Parameter]
-	[Obsolete("Direct CSS styles should be used via card-style.")]
-	public bool IsFullScreen { get; set; }
-
-	/// <summary>
 	/// Specifies whether to display the modal.
 	/// </summary>
 	[Parameter]
@@ -89,18 +82,7 @@ public partial class Modal : ComponentBase
 	}
 
 	private string CardCssClass => string.Join(' ', "modal-card", AdditionalAttributes.GetClass("card-class"));
-	private string CardCssStyle
-	{
-		get
-		{
-			var css = "";
-
-			if (IsFullScreen)
-				css += " width: 100%; height: 100%";
-
-			return string.Join(';', css, AdditionalAttributes.GetClass("card-style"));
-		}
-	}
+	private string? CardCssStyle => AdditionalAttributes.GetClass("card-style");
 
 	private string HeaderCssClass => string.Join(' ', "modal-card-head", AdditionalAttributes.GetClass("header-class"));
 	private string BodyCssClass => string.Join(' ', "modal-card-body", AdditionalAttributes.GetClass("body-class"));
