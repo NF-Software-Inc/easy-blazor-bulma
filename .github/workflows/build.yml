@@ -15,10 +15,6 @@ env:
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
 
-defaults:
-  run:
-    shell: pwsh
-
 jobs:
   build:
     runs-on: ubuntu-24.04

@@ -93,8 +93,8 @@ The following components are currently available for use. All of them are docume
 * `<InputPassword />`, creates an input for entering passwords
 * `<InputNumberPad />`, creates a keyboard style number pad for numeric values
 * `<InputRadioGroupObject />`, creates a radio group with the provided option list
-* `<InputSelectEnum />`, creates a select list for enum types
 * `<InputSelectObject />`, creates a select list for object types
+* `<InputSelectMultipleObject />`, creates a select list for selection of multiple object types
 * `<InputSwitch \>`, creates a sliding on off switch with an underlying checkbox
 * `<Label />`, creates a label to display with form inputs
 

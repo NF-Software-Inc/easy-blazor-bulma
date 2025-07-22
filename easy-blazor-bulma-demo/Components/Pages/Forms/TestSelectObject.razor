@@ -1,4 +1,5 @@
-﻿@using System.ComponentModel.DataAnnotations
+﻿@using easy_core
+@using System.ComponentModel.DataAnnotations
 
 @page "/inputSelectObject"
 @inherits ComponentBase
@@ -17,65 +18,27 @@
 					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' Items="AllItems" IsNullable=false />
 				</div>
 			</div>
+
 			<div class="field">
 				<Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left is-expanded">
 					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x?.Name' Items="GetObjects()" />
 				</div>
 			</div>
+
+			<div class="field">
+				<Label For="() => InputModel.EnumSelectTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left is-expanded">
+					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.EnumSelectTest" DisplayValue='x => x.GetValueDisplayName()' Items="Enum.GetValues<TestEnum>().ToList()" IsNullable="false" />
+				</div>
+			</div>
+
+			<div class="field">
+				<Label For="() => InputModel.SelectedItems" TooltipMode="TooltipDisplayMode" />
+				<div class="control is-expanded">
+					<InputSelectMultipleObject class="is-fullwidth" @bind-Value="InputModel.SelectedItems" DisplayValue='x => x.Name' Items="AllItems" />
+				</div>
+			</div>
 		</EditForm>
 	</div>
 </div>
-
-@code {
-	private readonly PageModel InputModel = new()
-	{
-		SelectedItem1 = AllItems[2]
-	};
-
-	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
-
-	private static readonly List<DemoObject> AllItems =
-	[
-		new DemoObject { Id = 1, Name = "Jimbo Moneybags", Age = 30, Position = "Accountant" },
-		new DemoObject { Id = 2, Name = "Suzy Goldenfold", Age = 18, Position = "Accountant" },
-		new DemoObject { Id = 3, Name = "Sal Mopnbucket", Age = 44, Position = "Janitor" },
-		new DemoObject { Id = 4, Name = "Jill Broomhandel", Age = 61, Position = "Janitor" },
-		new DemoObject { Id = 5, Name = "Reggie Cashonlee", Age = 23, Position = "Accountant" },
-		new DemoObject { Id = 6, Name = "Oldie Butagoodie", Age = 72, Position = "Janitor" },
-		new DemoObject { Id = 7, Name = "Rickie Notapenny", Age = 56, Position = "Accountant" },
-		new DemoObject { Id = 8, Name = "Cheryl McMillions", Age = 33, Position = "Accountant" },
-		new DemoObject { Id = 9, Name = "Lindsay Spicnspan", Age = 46, Position = "Janitor" },
-		new DemoObject { Id = 10, Name = "Bob Skidmarks-McNastypants", Age = 55, Position = "Janitor" },
-		new DemoObject { Id = 11, Name = "Pat Waxon", Age = 24, Position = "Janitor" },
-		new DemoObject { Id = 12, Name = "Melissa Taxevader", Age = 36, Position = "Accountant" },
-		new DemoObject { Id = 13, Name = "Larry Robberson", Age = 47, Position = "Accountant" },
-		new DemoObject { Id = 14, Name = "Pat Waxoff", Age = 19, Position = "Janitor" },
-		new DemoObject { Id = 15, Name = "Betty Terletson", Age = 20, Position = "Janitor" }
-	];
-
-	private IEnumerable<DemoObject> GetObjects()
-	{
-		return AllItems.Where(x => x.Position == "Accountant");
-	}
-
-	private class PageModel
-	{
-		[Display(Name = "Janitor Applicant", Description = "Please type the name of the applicant to hire for the Janitor position.")]
-		public DemoObject SelectedItem1 { get; set; }
-
-		[Display(Name = "Accountant Applicant", Description = "Please type the name of the applicant to hire for the Accountant position.")]
-		public DemoObject? SelectedItem2 { get; set; }
-	}
-
-	private class DemoObject
-	{
-		public int Id { get; init; }
-
-		public required string Name { get; init; }
-
-		public int Age { get; init; }
-
-		public required string Position { get; init; }
-	}
-}
