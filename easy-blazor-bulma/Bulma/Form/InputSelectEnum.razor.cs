@@ -12,30 +12,31 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// <see href="https://bulma.io/documentation/form/select/">Bulma Documentation</see>
 /// </remarks>
+[Obsolete("Use InputSelectObject with DisplayValue='x => x.GetValueDisplayName()' Items='Enum.GetValues<TestEnum>()' instead.")]
 public partial class InputSelectEnum<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TEnum> : InputBase<TEnum>
 {
-    /// <summary>
-	/// An icon to display within the input.
-	/// </summary>
-	[Parameter]
-    public string? Icon { get; set; } = "list";
-
-    /// <summary>
-    /// Specifies the text to display for the null option.
-    /// </summary>
-    [Parameter]
-    public string NullText { get; set; } = "Null";
-
     /// <summary>
     /// A function to determine whether two items are equal.
     /// </summary>
     [Parameter]
     public Func<TEnum, TEnum?, bool> AreEqual { get; set; } = EqualityComparer<TEnum>.Default.Equals;
 
-    /// <summary>
-    /// Applies styles to the input.
-    /// </summary>
-    [Parameter]
+	/// <summary>
+	/// An icon to display within the input.
+	/// </summary>
+	[Parameter]
+	public string? Icon { get; set; } = "list";
+
+	/// <summary>
+	/// Specifies the text to display for the null option.
+	/// </summary>
+	[Parameter]
+	public string NullText { get; set; } = "Null";
+
+	/// <summary>
+	/// Applies styles to the input.
+	/// </summary>
+	[Parameter]
     public InputStatus DisplayStatus { get; set; }
 
     /// <inheritdoc cref="InputDateTimeOptions.UseAutomaticStatusColors"/>
