@@ -1,0 +1,19 @@
+﻿@using easy_core
+
+@namespace easy_blazor_bulma
+@typeparam TValue
+@inherits InputBase<List<TValue>>
+
+<div class='@MainCssClass'>
+    <select class='input' multiple size="@Size" @ref=Element @onkeyup='(x) => OnKeyUp(x)' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
+        @foreach (var item in Items.Select((x, i) => new { Value = x, Index = i }))
+        {
+            <option value="@DisplayValue(item.Value)" selected='@(Contains(Value, item.Value))' @onmousedown='(x) => OnMouseDown(item.Index, x)' @onmouseup='(x) => OnMouseUp(item.Index, x)'>@DisplayValue(item.Value)</option>
+        }
+    </select>
+</div>
+
+@if (string.IsNullOrWhiteSpace(Icon) == false)
+{
+    <span class="material-icons icon is-left">@Icon</span>
+}

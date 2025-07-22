@@ -8,7 +8,7 @@ using System.Reflection;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// Creates a select list with the provided items. Supported types inherit class.
+/// Creates a select list with the provided items. Supported types inherit class or enum.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
@@ -98,8 +98,8 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		UnderlyingType = typeof(TValue);
 
-		if (UnderlyingType.GetTypeInfo().IsClass == false)
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be a class.");
+		if (UnderlyingType.GetTypeInfo().IsClass == false && typeof(Enum).IsAssignableFrom(UnderlyingType) == false)
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be a class or enum.");
 	}
 
 	/// <inheritdoc/>
