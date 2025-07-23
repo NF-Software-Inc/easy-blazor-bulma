@@ -4,7 +4,7 @@
 
 @if (DisplayInput)
 {
-	<input type="text" class="@MainCssClass" value='@CurrentValueAsString' @onkeydown='OnInputKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+	<input type="text" class="@MainCssClass" value='@CurrentValueAsString' @ref=Element @onkeydown='OnInputKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
 	@if (string.IsNullOrWhiteSpace(Icon) == false)
 	{
 		<span class="material-icons icon is-left">@Icon</span>

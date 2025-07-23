@@ -36,7 +36,16 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 	[Parameter]
 	public TooltipOptions TooltipMode { get; set; } = TooltipOptions.Default;
 
-    private readonly string[] Filter = new string[] { "class", "id", "data-tooltip", "div-class", "label-class", "tooltip-class" };
+	/// <summary>
+	/// Gets or sets the associated <see cref="ElementReference"/>.
+	/// <para>
+	/// May be <see langword="null"/> if accessed before the component is rendered.
+	/// </para>
+	/// </summary>
+	[DisallowNull]
+	public ElementReference? Element { get; private set; }
+
+	private readonly string[] Filter = new string[] { "class", "id", "data-tooltip", "div-class", "label-class", "tooltip-class" };
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 
