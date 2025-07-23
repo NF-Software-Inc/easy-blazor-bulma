@@ -56,8 +56,8 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private readonly string[] Filter = new[] { "class", "columns-class", "column-class", "button-class" };
 
-	private readonly bool IsNullable;
-	private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
 
 	private bool IsUpperCase = true;
 	private bool OnKeyDownPreventDefault;
@@ -67,20 +67,16 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private string ColumnCssClass => string.Join(' ', "column pb-0", AdditionalAttributes.GetClass("column-class"));
 
-	public InputCharacter()
-	{
-		var nullable = Nullable.GetUnderlyingType(typeof(TValue));
-
-		UnderlyingType = nullable ?? typeof(TValue);
-		IsNullable = nullable != null;
-
-		if (UnderlyingType != typeof(char))
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type char.");
-	}
-
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
+		// Type checks
+		IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
+
+		if (UnderlyingType != typeof(char))
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type char.");
+
+		// Check casing on start value
 		var current = CurrentValueAsString?.FirstOrDefault();
 
 		if (current != null && current != '\0' && char.IsUpper(current.Value) == false)

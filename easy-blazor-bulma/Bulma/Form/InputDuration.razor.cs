@@ -81,26 +81,17 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         InputDurationOptions.ShowSeconds |
         InputDurationOptions.ValidateTextInput;
 
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
-	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
-	/// </para>
-	/// </summary>
-	[DisallowNull]
-	public ElementReference? Element { get; private set; }
+	[Inject]
+	private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
-
-    [Inject]
-    private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private TimeSpan InitialValue;
     private TimeSpan PopoutValue;
     private bool IsPopoutDisplayed;
 
-    private readonly bool IsNullable;
-    private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
 	private ILogger<InputDuration<TValue>>? Logger;
 
     private string MainCssClass
@@ -179,20 +170,15 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         }
     }
 
-    public InputDuration()
-    {
-        var nullable = Nullable.GetUnderlyingType(typeof(TValue));
-
-        UnderlyingType = nullable ?? typeof(TValue);
-        IsNullable = nullable != null;
-
-        if (UnderlyingType != typeof(TimeSpan) && UnderlyingType != typeof(TimeOnly))
-            throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type {nameof(TimeSpan)} or {nameof(TimeOnly)}.");
-    }
-
     /// <inheritdoc />
     protected override void OnInitialized()
     {
+		// Type checks
+		IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
+
+		if (UnderlyingType != typeof(TimeSpan) && UnderlyingType != typeof(TimeOnly))
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type {nameof(TimeSpan)} or {nameof(TimeOnly)}.");
+
 		// Get services
 		Logger = ServiceProvider.GetService<ILogger<InputDuration<TValue>>>();
 

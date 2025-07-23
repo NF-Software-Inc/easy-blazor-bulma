@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// Creates a select list with the provided items for selection of multiple objects. Supported types inherit class or enum.
+/// Creates a select list with the provided items for selection of multiple objects.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
@@ -50,7 +49,6 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	public int Size { get; set; } = 8;
 
 	private readonly string[] Filter = new[] { "class" };
-	private readonly Type UnderlyingType;
 
 	private int CurrentIndex = -1;
 	private int? StartIndex = null;
@@ -58,14 +56,6 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	private bool CtrlMove;
 
 	private string MainCssClass => string.Join(' ', "select is-multiple", CssClass);
-
-	public InputSelectMultipleObject()
-	{
-		UnderlyingType = typeof(TValue);
-
-		if (UnderlyingType.GetTypeInfo().IsClass == false && typeof(Enum).IsAssignableFrom(UnderlyingType) == false)
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be a class or enum.");
-	}
 
 	/// <inheritdoc />
 	/// <exception cref="NotImplementedException"></exception>

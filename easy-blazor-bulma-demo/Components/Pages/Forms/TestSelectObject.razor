@@ -15,7 +15,7 @@
 			<div class="field">
 				<Label For="() => InputModel.SelectedItem1" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left is-expanded">
-					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' Items="AllItems" IsNullable=false />
+					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' Items="AllItems" />
 				</div>
 			</div>
 
@@ -27,9 +27,16 @@
 			</div>
 
 			<div class="field">
-				<Label For="() => InputModel.EnumSelectTest" TooltipMode="TooltipDisplayMode" />
+				<Label For="() => InputModel.EnumSelectTest1" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left is-expanded">
-					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.EnumSelectTest" DisplayValue='x => x.GetValueDisplayName()' Items="Enum.GetValues<TestEnum>().ToList()" IsNullable="false" />
+					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.EnumSelectTest1" DisplayValue='x => x.GetValueDisplayName()' Items="Enum.GetValues<TestEnum>().ToList()" />
+				</div>
+			</div>
+
+			<div class="field">
+				<Label For="() => InputModel.EnumSelectTest2" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left is-expanded">
+					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.EnumSelectTest2" DisplayValue='x => x.GetValueDisplayName()' Items="Array.ConvertAll((TestEnum[])Enum.GetValues<TestEnum>(), x => (TestEnum?)x)" NullText="None" />
 				</div>
 			</div>
 

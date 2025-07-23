@@ -7,11 +7,12 @@ using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for selecting a value from a list of options. Supported types inherit class.
+/// An input component for selecting a value from a list of options.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
@@ -65,12 +66,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	public InputStatus DisplayStatus { get; set; }
 
 	/// <summary>
-	/// Specifies whether to allow null values to be selected.
-	/// </summary>
-	[Parameter]
-	public bool IsNullable { get; set; } = true;
-
-	/// <summary>
 	/// The configuration options to apply to the component.
 	/// </summary>
 	[Parameter]
@@ -87,25 +82,18 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	[Parameter]
 	public Func<string?, Task>? OnItemsRequested { get; set; }
 
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
-	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
-	/// </para>
-	/// </summary>
-	[DisallowNull]
-	public ElementReference? Element { get; private set; }
+	[Inject]
+	private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private readonly string[] Filter = new[] { "class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class" };
 
-	[Inject]
-	private IServiceProvider ServiceProvider { get; init; } = default!;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
+	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
 	private string? InputValue;
-
-	private ILogger<InputAutocomplete<TValue>>? Logger;
 
 	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
@@ -159,6 +147,19 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
+		// Type checks
+		if (UnderlyingType.GetTypeInfo().IsValueType)
+		{
+			IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
+		}
+		else if (FieldIdentifier.Model != null && FieldIdentifier.FieldName != null)
+		{
+			var property = FieldIdentifier.Model.GetType().GetProperty(FieldIdentifier.FieldName);
+
+			if (property != null)
+				IsNullable = new NullabilityInfoContext().Create(property).WriteState == NullabilityState.Nullable;
+		}
+
 		// Get services
 		Logger = ServiceProvider.GetService<ILogger<InputAutocomplete<TValue>>>();
 

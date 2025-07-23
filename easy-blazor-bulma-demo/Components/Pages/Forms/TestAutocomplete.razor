@@ -41,7 +41,7 @@
             <div class="field">
                 <Label For="() => InputModel.SelectedItem1" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
-                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" IsNullable=false />
+                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
                 </div>
             </div>
             <div class="field">

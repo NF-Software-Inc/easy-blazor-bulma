@@ -46,7 +46,10 @@ public partial class TestSelectObject : ComponentBase
 		public DemoObject? SelectedItem2 { get; set; }
 
 		[Display(Name = "Enum Test", Description = "Input to test modifying a non-nullable enum value.")]
-		public TestEnum EnumSelectTest { get; set; } = TestEnum.One;
+		public TestEnum EnumSelectTest1 { get; set; } = TestEnum.One;
+
+		[Display(Name = "Nullable Enum Test", Description = "Input to test modifying a nullable enum value.")]
+		public TestEnum? EnumSelectTest2 { get; set; }
 
 		[Display(Name = "Rejected Applicant(s)", Description = "Please select the name(s) of the applicant to send a rejection letter to.")]
 		public List<DemoObject> SelectedItems { get; set; } = [AllItems[3], AllItems[7]];

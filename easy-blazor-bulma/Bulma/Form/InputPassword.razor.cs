@@ -31,21 +31,12 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Parameter]
 	public bool UseAutomaticStatusColors { get; set; } = true;
 
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
-	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
-	/// </para>
-	/// </summary>
-	[DisallowNull]
-	public ElementReference? Element { get; private set; }
-
 	private readonly string[] Filter = new string[] { "class", "icon-class", "message-class" };
 
-	private readonly bool IsNullable;
-	private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
 
-    private string? Message = null;
+	private string? Message = null;
 	private BulmaColors MessageColor = BulmaColors.Default;
 
     private bool IsCapsOn = false;
@@ -93,12 +84,10 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
         }
     }
 
-    public InputPassword()
+	/// <inheritdoc />
+	protected override void OnInitialized()
 	{
-		var nullable = Nullable.GetUnderlyingType(typeof(TValue));
-
-		UnderlyingType = nullable ?? typeof(TValue);
-		IsNullable = nullable != null;
+		IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
 
 		if (UnderlyingType != typeof(string))
 			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type string.");

@@ -88,15 +88,6 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		InputDateTimeOptions.CloseOnDateClicked |
 		InputDateTimeOptions.ValidateTextInput;
 
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
-	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
-	/// </para>
-	/// </summary>
-	[DisallowNull]
-	public ElementReference? Element { get; private set; }
-
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
 
 	[Inject]
@@ -107,8 +98,8 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private bool IsPopoutDisplayed;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
 
-	private readonly bool IsNullable;
-	private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
 	private ILogger<InputDateTime<TValue>>? Logger;
 
 	private string MainCssClass
@@ -191,20 +182,15 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		}
 	}
 
-	public InputDateTime()
-	{
-		var nullable = Nullable.GetUnderlyingType(typeof(TValue));
-
-		UnderlyingType = nullable ?? typeof(TValue);
-		IsNullable = nullable != null;
-
-		if (UnderlyingType != typeof(DateTime) && UnderlyingType != typeof(DateOnly) && UnderlyingType != typeof(TimeSpan) && UnderlyingType != typeof(TimeOnly))
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type {nameof(DateTime)}, {nameof(DateOnly)}, {nameof(TimeSpan)}, or {nameof(TimeOnly)}.");
-	}
-
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
+		// Type checks
+		IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
+
+		if (UnderlyingType != typeof(DateTime) && UnderlyingType != typeof(DateOnly) && UnderlyingType != typeof(TimeSpan) && UnderlyingType != typeof(TimeOnly))
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type {nameof(DateTime)}, {nameof(DateOnly)}, {nameof(TimeSpan)}, or {nameof(TimeOnly)}.");
+
 		// Get services
 		Logger = ServiceProvider.GetService<ILogger<InputDateTime<TValue>>>();
 

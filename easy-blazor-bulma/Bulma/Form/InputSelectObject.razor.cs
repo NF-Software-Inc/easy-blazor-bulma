@@ -8,7 +8,7 @@ using System.Reflection;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// Creates a select list with the provided items. Supported types inherit class or enum.
+/// Creates a select list with the provided items.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
@@ -49,12 +49,6 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 	public string NullText { get; set; } = "Null";
 
     /// <summary>
-    /// Specifies whether to allow null values to be selected.
-    /// </summary>
-    [Parameter]
-    public bool IsNullable { get; set; } = true;
-
-    /// <summary>
     /// Applies styles to the input.
     /// </summary>
     [Parameter]
@@ -75,7 +69,8 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 
     private readonly string[] Filter = new[] { "class" };
 
-	private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
 
 	private string MainCssClass
 	{
@@ -94,12 +89,20 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 		}
 	}
 
-	public InputSelectObject()
+	/// <inheritdoc/>
+	protected override void OnInitialized()
 	{
-		UnderlyingType = typeof(TValue);
+		if (UnderlyingType.GetTypeInfo().IsValueType)
+		{
+			IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
+		}
+		else if (FieldIdentifier.Model != null && FieldIdentifier.FieldName != null)
+		{
+			var property = FieldIdentifier.Model.GetType().GetProperty(FieldIdentifier.FieldName);
 
-		if (UnderlyingType.GetTypeInfo().IsClass == false && typeof(Enum).IsAssignableFrom(UnderlyingType) == false)
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be a class or enum.");
+			if (property != null)
+				IsNullable = new NullabilityInfoContext().Create(property).WriteState == NullabilityState.Nullable;
+		}
 	}
 
 	/// <inheritdoc/>
