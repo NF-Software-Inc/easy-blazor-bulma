@@ -29,9 +29,9 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 
 	private readonly string[] Filter = new[] { "class", "switch-class", "label-class" };
 
-	private readonly bool IsNullable;
-    private readonly Type UnderlyingType;
-    private readonly string PropertyName = Guid.NewGuid().ToString("N");
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TEnum)) ?? typeof(TEnum);
+	private bool IsNullable;
+	private readonly string PropertyName = Guid.NewGuid().ToString("N");
 
     private string MainCssClass
     {
@@ -49,18 +49,16 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
     private string SwitchCssClass => string.Join(' ', "switch", AdditionalAttributes.GetClass("switch-class"));
     private string LabelCssClass => string.Join(' ', "is-unselectable", AdditionalAttributes.GetClass("label-class"));
 
-    public InputFlaggedEnum()
-    {
-        var nullable = Nullable.GetUnderlyingType(typeof(TEnum));
+	/// <inheritdoc/>
+	protected override void OnInitialized()
+	{
+		IsNullable = Nullable.GetUnderlyingType(typeof(TEnum)) != null;
 
-        UnderlyingType = nullable ?? typeof(TEnum);
-        IsNullable = nullable != null;
-
-        if (typeof(Enum).IsAssignableFrom(UnderlyingType) == false)
-            throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must inherit {nameof(Enum)}.");
-        else if (Enum.GetUnderlyingType(UnderlyingType) == typeof(ulong))
-            throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Does not support enums based on ulong.");
-    }
+		if (typeof(Enum).IsAssignableFrom(UnderlyingType) == false)
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must inherit {nameof(Enum)}.");
+		else if (Enum.GetUnderlyingType(UnderlyingType) == typeof(ulong))
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Does not support enums based on ulong.");
+	}
 
     /// <inheritdoc/>
     protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TEnum result, [NotNullWhen(false)] out string? validationErrorMessage)

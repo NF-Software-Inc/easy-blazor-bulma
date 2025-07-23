@@ -36,21 +36,11 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 	[Parameter]
 	public TooltipOptions TooltipMode { get; set; } = TooltipOptions.Default;
 
-    /// <summary>
-    /// Gets or sets the associated <see cref="ElementReference"/>.
-    /// <para>
-    /// May be <see langword="null"/> if accessed before the component is rendered.
-    /// </para>
-    /// </summary>
-    [DisallowNull]
-    public ElementReference? Element { get; private set; }
-
     private readonly string[] Filter = new string[] { "class", "id", "data-tooltip", "div-class", "label-class", "tooltip-class" };
 
-	private readonly bool IsNullable;
-	private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 
-    private string? Id;
+	private string? Id;
     private string? Tooltip;
 
     private string MainCssClass => string.Join(' ', "switch", CssClass);
@@ -103,20 +93,14 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 		}
 	}
 
-    public InputSwitch()
-	{
-        var nullable = Nullable.GetUnderlyingType(typeof(TValue));
-
-        UnderlyingType = nullable ?? typeof(TValue);
-        IsNullable = nullable != null;
-
-        if (UnderlyingType != typeof(bool))
-            throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type bool.");
-    }
-
     /// <inheritdoc />
     protected override void OnInitialized()
 	{
+		// Type checks
+		if (UnderlyingType != typeof(bool))
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type bool.");
+
+		// Extract details
 		if (string.IsNullOrWhiteSpace(Id))
 			Id = AdditionalAttributes.GetValue("id") ?? Guid.NewGuid().ToString("N");
 

@@ -61,21 +61,12 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	[Parameter]
 	public Func<Task>? OnCustomButtonClicked { get; set; }
 
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
-	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
-	/// </para>
-	/// </summary>
-	[DisallowNull]
-	public ElementReference? Element { get; private set; }
-
 	private readonly string[] Filter = new string[] { "class", "columns-class", "column-class", "button-class" };
 
-	private readonly bool IsNullable;
-	private readonly Type UnderlyingType;
+	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private bool IsNullable;
 
-	private readonly bool SupportsDecimals;
+	private bool SupportsDecimals;
 	private bool OnKeyDownPreventDefault;
 	private readonly string[] DefaultKeys = new[] { "Escape", "Tab", "Enter", "NumpadEnter" };
 
@@ -121,22 +112,17 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		}
 	}
 
-	public InputNumberPad()
+	/// <inheritdoc />
+	protected override void OnInitialized()
 	{
-		var nullable = Nullable.GetUnderlyingType(typeof(TValue));
-
-		UnderlyingType = nullable ?? typeof(TValue);
-		IsNullable = nullable != null;
+		// Type checks
+		IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
+		SupportsDecimals = UnderlyingType == typeof(float) || UnderlyingType == typeof(double) || UnderlyingType == typeof(decimal);
 
 		if (UnderlyingType != typeof(short) && UnderlyingType != typeof(int) && UnderlyingType != typeof(long) && UnderlyingType != typeof(float) && UnderlyingType != typeof(double) && UnderlyingType != typeof(decimal))
 			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type short, int, long, float, double, or decimal.");
 
-		SupportsDecimals = UnderlyingType == typeof(float) || UnderlyingType == typeof(double) || UnderlyingType == typeof(decimal);
-	}
-
-	/// <inheritdoc />
-	protected override void OnInitialized()
-	{
+		// Store initial value
 		if (string.IsNullOrWhiteSpace(InternalValueAsString) && CurrentValue != null)
 			InternalValueAsString = FormatValueAsString(CurrentValue);
 	}

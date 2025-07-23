@@ -3,7 +3,7 @@
 @inherits InputBase<TValue>
 
 <div class="@DivCssClass">
-    <input type="checkbox" class="@MainCssClass" id="@Id" @bind='CurrentValue' @ref=Element @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)' />
+    <input type="checkbox" class="@MainCssClass" id="@Id" @bind='CurrentValue' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)' />
     @if (string.IsNullOrWhiteSpace(Label) == false)
     {
         <label class="@LabelCssClass" for="@Id">
