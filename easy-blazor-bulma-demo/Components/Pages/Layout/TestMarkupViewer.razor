@@ -1,0 +1,11 @@
+﻿@page "/markupviewer"
+@inherits ComponentBase
+
+<TitleBlock Title="Markup Viewer Test" />
+
+<MarkupViewer Content="@HTMLString" />
+
+@code
+{
+	private const string HTMLString = "<strong>Hello!</strong>";
+}

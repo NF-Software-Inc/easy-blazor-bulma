@@ -1,0 +1,109 @@
+﻿@using easy_core
+
+@page "/calendar"
+@inherits ComponentBase
+
+<TitleBlock Title="Calendar Test" />
+
+<TwoColumns>
+	<Left>
+        <div class="is-sticky is-sticky-top">
+
+            <Panel class="pt-2 mb-0 is-size-7" Title="Actions">
+                <div class="field">
+                    <div class="control has-icons-left has-icons-right">
+                        <InputDateTime @bind-Value="SelectedDate" StartOfWeek="StartOfWeek" />
+                    </div>
+                </div>
+
+                <div class="buttons has-addons is-fullwidth my-1">
+                    <button class="button is-info" @onclick="() => ChangeMonth(false)">
+                        <span class="material-icons icon">skip_previous</span>
+                    </button>
+                    <button class="button is-expanded" @onclick="() => SelectedDate = DateTime.Today">Today</button>
+                    <button class="button is-info" @onclick="() => ChangeMonth(true)">
+                        <span class="material-icons icon">skip_next</span>
+                    </button>
+                </div>
+
+                <div class="buttons">
+                    <button class="button is-primary" @onclick="AddAppointment">Add Appointment</button>
+                    <button class="button" @onclick="AddRandomAppointment">Add Random Appointment</button>
+                    <button class="button is-danger" @onclick="() => Appointments.Clear()">Clear</button>
+                </div>
+            </Panel>
+        </div>
+    </Left>
+	<Right>
+		<Calendar Months="Months.OrderBy(x => x).ToList()">
+			<Days>
+				<td>
+					<div>
+						@context.Day
+					</div>
+
+					@foreach (var appointment in Appointments.OrderBy(x => x.Date).ToList())
+					{
+						@if (appointment.Date.Year == context.Year && appointment.Date.Day == context.Day && appointment.Date.Month == context.Month)
+						{
+							<span class="@GetTagClass(appointment.Color)">@appointment.Date.ToString("t")</span>
+							<span class="ml-2 is-size-7">@appointment.Title</span>
+						}
+					}
+				</td>
+			</Days>
+		</Calendar>
+	</Right>
+</TwoColumns>
+
+@code
+{
+	private DateTime SelectedDate { get; set; } = DateTime.Today;
+	private DayOfWeek StartOfWeek { get; init; } = DayOfWeek.Monday;
+
+	private readonly List<DateOnly> Months = [DateTime.Today.ToDateOnly()];
+	private readonly List<Appointment> Appointments = [];
+
+	private static readonly List<string> ColorOptions = new List<string>
+	{
+		"link",
+		"info",
+		"secondary",
+		"tertiary",
+		"highlight",
+		"success",
+		"warning",
+		"danger"
+	};
+
+	private class Appointment
+	{
+		public string Color { get; init; } = ColorOptions[Random.Shared.Next(0, ColorOptions.Count)];
+		public DateTime Date { get; set; }
+		public string Title { get; set; } = "Meeting";
+	}
+
+	private void AddAppointment()
+	{
+		Appointments.Add(new Appointment
+        {
+            Date = SelectedDate,
+            Title = $"Appointment {Appointments.Count + 1}"
+        });
+
+		if (Months.Any(x => x.Year == SelectedDate.Year && x.Month == SelectedDate.Month) == false)
+			Months.Add(DateOnly.FromDateTime(SelectedDate));
+	}
+
+	private void AddRandomAppointment()
+	{
+		var first = new DateTime(SelectedDate.Year, SelectedDate.Month, 1, SelectedDate.Hour, SelectedDate.Minute, 0);
+		var offset = Random.Shared.Next(0, DateTime.DaysInMonth(SelectedDate.Year, SelectedDate.Month));
+		var appointment = new Appointment { Date = first.AddDays(offset), Title = "Appointment" };
+
+        Appointments.Add(appointment);
+    }
+
+	private string GetTagClass(string color) => $"tag is-{color} mr-2 mb-2-tiny";
+	private void ChangeMonth(bool increment) => SelectedDate = increment ? SelectedDate.AddMonths(1) : SelectedDate.AddMonths(-1);
+}

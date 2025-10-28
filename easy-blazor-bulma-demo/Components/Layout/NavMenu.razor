@@ -1,5 +1,6 @@
 ﻿<Navbar class="is-dark" DisplayText="Easy Blazor Bulma" LogoUrl="favicon.png">
 	<NavbarStart>
+		<NavigationButtons />
 		<NavbarDropdown DisplayText="Components" tabindex="0">
 			<NavbarItem href="breadcrumb">Bread Crumb</NavbarItem>
 			<NavbarItem href="card">Card</NavbarItem>
@@ -12,8 +13,10 @@
 		<NavbarDropdown DisplayText="Elements" tabindex="0">
 			<NavbarItem href="booleanIcon">Boolean Icon</NavbarItem>
 			<NavbarItem href="buttons">Buttons</NavbarItem>
+			<NavbarItem href="calendar">Calendar</NavbarItem>
 			<NavbarItem href="notification">Notifications</NavbarItem>
 			<NavbarItem href="progressBar">Progress Bar</NavbarItem>
+			<NavbarItem href="weekScheduler">Week Scheduler</NavbarItem>
 		</NavbarDropdown>
 		<NavbarDropdown DisplayText="Errors" IsFullWidth=true tabindex="0">
 			<div class="columns is-multiline">
@@ -61,9 +64,12 @@
 		<NavbarDropdown DisplayText="Layout" tabindex="0">
 			<NavbarItem href="hero">Hero</NavbarItem>
 			<NavbarItem href="level">Level</NavbarItem>
+			<NavbarItem href="markupviewer">Markup Viewer</NavbarItem>
 		</NavbarDropdown>
 	</NavbarStart>
 	<NavbarEnd>
+		<Clock />
 		<ThemeSelector />
+		<ZoomSelector />
 	</NavbarEnd>
 </Navbar>

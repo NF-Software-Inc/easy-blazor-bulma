@@ -1,0 +1,110 @@
+﻿@using easy_core
+
+@page "/weekScheduler"
+@inherits ComponentBase
+
+<TitleBlock Title="Week Scheduler Test" />
+
+<TwoColumns>
+    <Left>
+        <div class="is-sticky is-sticky-top">
+
+            <Panel class="pt-2 mb-0 is-size-7" Title="Actions">
+                <div class="field">
+                    <div class="control has-icons-left has-icons-right">
+                        <InputDateTime @bind-Value="SelectedDate" StartOfWeek="StartOfWeek" />
+                    </div>
+                </div>
+
+                <div class="buttons has-addons is-fullwidth my-1">
+                    <button class="button is-info" @onclick="() => ChangeWeek(false)">
+                        <span class="material-icons icon">skip_previous</span>
+                    </button>
+                    <button class="button is-expanded" @onclick="() => SelectedDate = DateTime.Now">Today</button>
+                    <button class="button is-info" @onclick="() => ChangeWeek(true)">
+                        <span class="material-icons icon">skip_next</span>
+                    </button>
+                </div>
+
+                <div class="buttons">
+                    <button class="button is-primary" @onclick="AddAppointment">Add Appointment</button>
+                    <button class="button" @onclick="AddRandomAppointment">Add Random Appointment</button>
+                    <button class="button is-danger" @onclick="() => Appointments.Clear()">Clear</button>
+                </div>
+            </Panel>
+        </div>
+    </Left>
+    <Right>
+        <WeekScheduler DayInWeek="@DateOnly.FromDateTime(SelectedDate)"
+                       StartOfWeek="@StartOfWeek"
+                       StartHour="@StartHour"
+                       EndHour="@EndHour"
+                       RowHeight="@RowHeight"
+                       WeekFormat="d"
+                       DayFormat="dd ddd"
+                       HourFormat="t">
+            <Hours>
+                <td>
+                    @foreach (var appointment in Appointments.Where(a => a.Date.Date == context.Date && a.Date.Hour == context.Hour).OrderBy(a => a.Date))
+                    {
+                        <div class="mb-1">
+                            <span class="@GetTagClass(appointment.Color)">@appointment.Date.ToString("t")</span>
+                            <span class="ml-2 is-size-7">@appointment.Title</span>
+                        </div>
+                    }
+                </td>
+            </Hours>
+        </WeekScheduler>
+    </Right>
+</TwoColumns>
+
+@code
+{
+    private DateTime SelectedDate { get; set; } = DateTime.Now;
+    private DayOfWeek StartOfWeek { get; init; } = DayOfWeek.Monday;
+    private int StartHour { get; init; } = 8;
+    private int EndHour { get; init; } = 17;
+    private int RowHeight { get; init; } = 50;
+
+    private List<Appointment> Appointments { get; } = new();
+
+    private static readonly List<string> ColorOptions = new()
+    {
+        "link",
+        "info",
+        "secondary",
+        "tertiary",
+        "highlight",
+        "success",
+        "warning",
+        "danger"
+    };
+
+    private class Appointment
+    {
+        public string Color { get; init; } = ColorOptions[Random.Shared.Next(ColorOptions.Count)];
+        public DateTime Date { get; set; }
+        public string Title { get; set; } = "Meeting";
+    }
+
+    private void AddAppointment()
+    {
+        Appointments.Add(new Appointment
+        {
+            Date = SelectedDate,
+            Title = $"Appointment {Appointments.Count + 1}"
+        });
+    }
+
+    private void AddRandomAppointment()
+    {
+        var offset = Random.Shared.Next(0, 7);
+        var date = SelectedDate.Date.GetPreviousWeekday(StartOfWeek).AddDays(offset).AddHours(Random.Shared.Next(StartHour, EndHour));
+        var appointment = new Appointment { Date = date, Title = "Appointment" };
+
+        Appointments.Add(appointment);
+    }
+
+    private string GetTagClass(string color) => $"tag is-{color} mr-2";
+    private void ChangeWeek(bool increment) => SelectedDate = increment ? SelectedDate.AddDays(7) : SelectedDate.AddDays(-7);
+}
