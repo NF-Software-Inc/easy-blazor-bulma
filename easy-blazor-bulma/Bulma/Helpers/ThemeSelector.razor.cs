@@ -45,7 +45,7 @@ public partial class ThemeSelector : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class" };
+	private readonly string[] Filter = ["class"];
 
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
@@ -78,7 +78,7 @@ public partial class ThemeSelector : ComponentBase
 			return;
 
 		// Determine current mode
-		var isOsDarkMode = await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.IsOsDarkMode");
+		var isOsDarkMode = await JsRuntime.IsOsDarkMode();
 
 		if (LoadUserPreference == false)
 		{
@@ -86,7 +86,7 @@ public partial class ThemeSelector : ComponentBase
 			return;
 		}
 
-		var isUserDarkMode = await JsRuntime.InvokeAsync<string>("easyBlazorBulma.ReadStorage", DarkModeKeyName);
+		var isUserDarkMode = await JsRuntime.ReadStorage(DarkModeKeyName);
 
 		if (string.IsNullOrWhiteSpace(isUserDarkMode))
 		{
@@ -118,15 +118,15 @@ public partial class ThemeSelector : ComponentBase
 		IsDarkMode = !IsDarkMode;
 
 		if (JsRuntime != null)
-			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.WriteStorage", DarkModeKeyName, IsDarkMode.ToString());
+			await JsRuntime.WriteStorage(DarkModeKeyName, IsDarkMode.ToString());
 	}
 
 	private async Task SetActiveTheme(string activate, string deactivate)
 	{
 		if (JsRuntime != null)
 		{
-			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.ToggleStyleSheet", activate, true, true);
-			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.ToggleStyleSheet", deactivate, false);
+			await JsRuntime.ToggleStyleSheet(activate, true, true);
+			await JsRuntime.ToggleStyleSheet(deactivate, false);
 		}
 	}
 }

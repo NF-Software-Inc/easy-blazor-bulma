@@ -22,7 +22,7 @@ public partial class Level : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class" };
+	private readonly string[] Filter = ["class"];
 
 	private string MainCssClass => string.Join(' ', "level", AdditionalAttributes.GetClass("class"));
 }

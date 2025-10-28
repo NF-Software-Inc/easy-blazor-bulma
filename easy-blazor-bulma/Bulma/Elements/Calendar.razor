@@ -1,0 +1,43 @@
+﻿@namespace easy_blazor_bulma
+@inherits ComponentBase
+
+<div class="@MainCssClass">
+	@foreach (var month in Months)
+	{
+		<div class="@ColumnCssClass" @key=month>
+			@if (string.IsNullOrWhiteSpace(MonthFormat) == false)
+			{
+				<h2 class="is-size-4 has-text-centered">@month.ToString(MonthFormat)</h2>
+			}
+
+			<Table class="@TableCssClass">
+				<TableHead>
+					<tr>
+						@foreach (var day in month.GetPreviousWeekday(StartOfWeek).ListDaysTo(month.GetPreviousWeekday(StartOfWeek).AddDays(6)))
+						{
+							<th style="width: 14%">@day.ToString(DayFormat)</th>
+						}
+					</tr>
+				</TableHead>
+				<TableBody>
+					@foreach (var week in GetWeeksInMonth(month))
+					{
+						<tr style='@($"height: {RowHeight}px")'>
+							@foreach (var day in week.ListDaysTo(week.AddDays(6)))
+							{
+								if (day.Month == month.Month || ShowAllDays)
+								{
+									@Days.Invoke(day)
+								}
+								else
+								{
+									<td>&nbsp;</td>
+								}
+							}
+						</tr>
+					}
+				</TableBody>
+			</Table>
+		</div>
+	}
+</div>

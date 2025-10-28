@@ -1,0 +1,39 @@
+﻿@namespace easy_blazor_bulma
+@inherits ComponentBase
+
+@if (string.IsNullOrWhiteSpace(WeekFormat) == false)
+{
+	<h2 class="is-size-4 has-text-centered">@DayInWeek.GetPreviousWeekday(StartOfWeek).ToString(WeekFormat) - @DayInWeek.GetPreviousWeekday(StartOfWeek).AddDays(6).ToString(WeekFormat)</h2>
+}
+
+<Table class="@TableCssClass">
+	<TableHead>
+		<tr>
+			@if (string.IsNullOrWhiteSpace(HourFormat) == false)
+			{
+				<th style="width: 9%">&nbsp;</th>
+			}
+
+			@foreach (var day in DayInWeek.GetPreviousWeekday(StartOfWeek).ListDaysTo(DayInWeek.GetPreviousWeekday(StartOfWeek).AddDays(6)))
+			{
+				<th style='@(string.IsNullOrWhiteSpace(HourFormat) ? "width: 14%" : "width: 13%")'>@day.ToString(DayFormat)</th>
+			}
+		</tr>
+	</TableHead>
+	<TableBody>
+		@for (var i = StartHour; i <= EndHour; i++)
+		{
+			<tr style='@($"height: {RowHeight}px")'>
+				@if (string.IsNullOrWhiteSpace(HourFormat) == false)
+				{
+					<th>@(new TimeOnly(i, 0).ToString(HourFormat))</th>
+				}
+
+				@foreach (var day in DayInWeek.GetPreviousWeekday(StartOfWeek).ListDaysTo(DayInWeek.GetPreviousWeekday(StartOfWeek).AddDays(6)))
+				{
+					@Hours.Invoke(day.ToDateTime(new TimeOnly(i, 0)))
+				}
+			</tr>
+		}
+	</TableBody>
+</Table>

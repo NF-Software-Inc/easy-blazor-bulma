@@ -1,0 +1,15 @@
+﻿@namespace easy_blazor_bulma
+@inherits ComponentBase
+
+<a class="@FullCssClass" @onclick='() => IsZoomDisplayed = true' @attributes='AdditionalAttributes?.Where(x => x.Key != "class")'>
+    <span class="material-icons">zoom_in</span>
+    <span class="ml-2">Zoom</span>
+</a>
+
+<Modal Title="Select Zoom Level" @bind-IsDisplayed=IsZoomDisplayed>
+    <button type="button" class="button is-info is-fullwidth my-1" @onclick='() => ApplyZoom(50)'>50%</button>
+    <button type="button" class="button is-info is-fullwidth my-1" @onclick='() => ApplyZoom(75)'>75%</button>
+    <button type="button" class="button is-info is-fullwidth my-1" @onclick='() => ApplyZoom(100)'>100%</button>
+    <button type="button" class="button is-info is-fullwidth my-1" @onclick='() => ApplyZoom(125)'>125%</button>
+    <button type="button" class="button is-info is-fullwidth my-1" @onclick='() => ApplyZoom(150)'>150%</button>
+</Modal>

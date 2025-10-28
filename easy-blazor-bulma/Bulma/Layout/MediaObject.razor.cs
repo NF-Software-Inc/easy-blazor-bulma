@@ -28,7 +28,7 @@ public partial class MediaObject : ComponentBase
     [Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class", "left-class", "image-class", "content-class" };
+	private readonly string[] Filter = ["class", "left-class", "image-class", "content-class"];
 
 	private string MainCssClass => string.Join(' ', "media", AdditionalAttributes.GetClass("class"));
     private string LeftCssClass => string.Join(' ', "media-left", AdditionalAttributes.GetClass("left-class"));
