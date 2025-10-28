@@ -41,7 +41,7 @@ public partial class LevelItem : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class", "a-class" };
+	private readonly string[] Filter = ["class", "a-class"];
 
 	private string MainCssClass => string.Join(' ', "level-item", AdditionalAttributes.GetClass("class"));
 	private string? UrlCssClass => AdditionalAttributes.GetClass("a-class");

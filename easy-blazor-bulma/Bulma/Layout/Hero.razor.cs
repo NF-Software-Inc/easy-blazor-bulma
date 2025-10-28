@@ -59,7 +59,7 @@ public partial class Hero : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class", "header-class", "body-class", "foot-class" };
+	private readonly string[] Filter = ["class", "header-class", "body-class", "foot-class"];
 
 	private string MainCssClass
 	{

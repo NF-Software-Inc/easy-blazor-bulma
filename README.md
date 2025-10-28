@@ -29,7 +29,7 @@ To use this library:
 * Additional components to help with common Blazor tasks
 * Bundled with Google Material Symbols icon font
 * No additional dependencies (Microsoft.AspNetCore.Components.Web is already required by Blazor)
-* No JavaScript required (except for `<ThemeSelector />`)
+* Minimal JavaScript
 
 ### Component List
 
@@ -39,19 +39,23 @@ The following components are currently available for use. All of them are docume
 
 * `<BreadCrumb />` and `<BreadCrumbItem />`, creates a simple breadcrumb component to improve your navigation experience
 * `<Card />`, creates an all-around flexible and composable component
+* `<Clock />`, creates a live updating clock display
 * `<Message />`, creates a styled block containing a note to display
 * `<Modal />`, creates an overlay that can display additional content
 * `<Navbar />`, creates a navigation menu to use at the top of the screen
 * `<NavbarDropdown />`, creates a dropdown to use in a Navbar menu
 * `<NavbarItem />`, creates a link to use in a Navbar menu
+* `<NavigationButtons />`, creates Previous and Next buttons for navigating between pages
 * `<Panel />`, creates a styled block containing content to display
 * `<Steps />` and `<Step />`, creates a progress tracker with visual indicators
 * `<Tabs />` and `<Tab />`, creates a tab bar and content panels
+* `<ZoomSelector />`, creates a drop-down list of zoom levels to select from and apply to a target element
 
 **Elements**
 
 * `<BooleanIcon />`, creates an icon with either a check or 'X'
 * `<ButtonBase />`, allows easily creating standard buttons
+* `<Calendar />`, creates a grid style calendar to display dates and schedule items
 * `<DeleteButton />`, creates a button to delete a record with a confirmation modal
 * `<Notification />`, creates a bold notification block, to alert your users of something
 * `<ProgressBar />`, creates a meter to display completion or loading status
@@ -62,6 +66,7 @@ The following components are currently available for use. All of them are docume
 * `<TableData />`, creates a td element within a table
 * `<TableHeader />`, creates a th element within a table
 * `<TableRow />`, creates a tr element within a table
+* `<WeekScheduler />`, creates a weekly scheduler to display events
 
 **Errors**
 
@@ -108,7 +113,11 @@ The following components are currently available for use. All of them are docume
 
 * `<Hero />`, creates an imposing hero banner to showcase something
 * `<Level />` and `<LevelItem />`, displays a multi-purpose horizontal level
+* `<MarkupViewer />`, creates a viewer for displaying HTML markup safely
 * `<MediaObject />`, creates a media object prevalent in social media interfaces
+* `<ThreeColumns />`, creates a simple three column layout
+* `<TruncatedText />`, creates a block of text that is truncated after a set number of characters
+* `<TwoColumns />`, creates a simple two column layout
 
 ### Usage
 
@@ -154,13 +163,7 @@ To use the dark theme, just add a secondary stylesheet reference in your index.h
 </body>
 ```
 
-There are 5 helper methods in the bundled JavaScript file.
-
-* easyBlazorBulma.IsOsDarkMode, checks to see if dark mode is currently enabled
-* easyBlazorBulma.ToggleStyleSheet, enables or disables the element with the matching id
-* easyBlazorBulma.HasStorage, tests to see if browser storage is available
-* easyBlazorBulma.WriteStorage, saves the provided value to browser storage
-* easyBlazorBulma.ReadStorage, retrieves the specified value from browser storage
+There are several helper methods in the bundled JavaScript file. The recommendation is to use the extension methods provided in the `easy_blazor_bulma` namespace to call these functions.
 
 Additionally, you can use the `<ThemeSelector />` component to display a button that will toggle between themes. By default it applies the `.navbar-item` CSS class, if you provide another class this will override it. Simply including this component anywhere in your display will automatically load the correct theme when your app starts.
 

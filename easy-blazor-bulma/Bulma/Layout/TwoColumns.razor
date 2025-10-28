@@ -1,0 +1,11 @@
+﻿@namespace easy_blazor_bulma
+@inherits ComponentBase
+
+<div class="@MainCssClass" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
+	<div class="@LeftCssClass" style='@AdditionalAttributes.GetClass("left-style")'>
+		@Left
+	</div>
+	<div class="@RightCssClass" style='@AdditionalAttributes.GetClass("right-style")'>
+		@Right
+	</div>
+</div>

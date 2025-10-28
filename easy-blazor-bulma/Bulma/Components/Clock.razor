@@ -1,0 +1,14 @@
+﻿@namespace easy_blazor_bulma
+@inherits ComponentBase
+@implements IDisposable
+
+@if (ShowWeek)
+{
+    <div class="@FullCssClass" @attributes='AdditionalAttributes?.Where(x => x.Key != "class")'>
+        Week @DateTime.Now.GetWeekOfYear()
+    </div>
+}
+
+<div class="@FullCssClass" @attributes='AdditionalAttributes?.Where(x => x.Key != "class")'>
+    @DateTime.Now.ToString(Format)
+</div>

@@ -1,0 +1,16 @@
+﻿@namespace easy_blazor_bulma
+@inherits ComponentBase
+
+@if (DisplayBack)
+{
+    <a class="@FullCssClass" @onclick=OnBack @attributes='AdditionalAttributes?.Where(x => x.Key != "class")'>
+        <span class="material-icons is-size-4">arrow_back</span>
+    </a>
+}
+
+@if (DisplayForward)
+{
+    <a class="@FullCssClass" @onclick=OnForward @attributes='AdditionalAttributes?.Where(x => x.Key != "class")'>
+        <span class="material-icons is-size-4">arrow_forward</span>
+    </a>
+}
