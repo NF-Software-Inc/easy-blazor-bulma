@@ -13,10 +13,10 @@
 		<Company>NF Software Inc.</Company>
 		<Product>Easy Logger Parser</Product>
 		<Copyright>Copyright 2024 $(Company)</Copyright>
-		<AssemblyVersion>1.3.2.0</AssemblyVersion>
-		<FileVersion>1.3.2.0</FileVersion>
-		<Version>1.3.2</Version>
-		<MauiVersion>9.0.90</MauiVersion>
+		<AssemblyVersion>1.4.0.0</AssemblyVersion>
+		<FileVersion>1.4.0.0</FileVersion>
+		<Version>1.4.0</Version>
+		<MauiVersion>9.0.120</MauiVersion>
 
 		<!-- Display name -->
 		<ApplicationTitle>Easy Blazor Bulma</ApplicationTitle>
@@ -26,7 +26,7 @@
 		<ApplicationIdGuid>033431F0-FF8E-466E-ACE0-C8C426AE0242</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.3.2</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.4.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
