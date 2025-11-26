@@ -5,6 +5,12 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/build.yml)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/build.yml)
 [![Publish](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/publish.yml?label=publish)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/publish.yml)
 
+## Versioning Notice
+
+As of version 10.0.0, Easy Blazor Bulma has adopted a new versioning scheme that aligns its major version with the .NET major version it targets. This change is intended to provide better clarity and consistency with regard to supported frameworks.
+
+Going forward, the major version of Easy Blazor Bulma will correspond to the major version of .NET it targets (e.g., Easy Blazor Bulma 10.x.x targets .NET 10). The minor and patch versions are used for library-specific updates and do not map to .NET's minor or SDK versions.
+
 ## Getting Started
 
 This library provides an easy to use, out of the box implementation of the Bulma CSS framework for use with Blazor. It uses the latest version of Bulma, so you do not need to worry about updating it yourself. There are also several extensions to Bulma that are included and integrated here. Additionally, the Google Material Symbols font is packaged here also. All of this is takes just a single line in your index.html or single using statement in your CS files to start using.
