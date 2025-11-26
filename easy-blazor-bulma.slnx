@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/GitHub/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/publish-android.yml" />
+    <File Path=".github/workflows/publish-ios.yml" />
+    <File Path=".github/workflows/publish-mac-catalyst.yml" />
+    <File Path=".github/workflows/publish-nuget.yml" />
+    <File Path=".github/workflows/publish-windows.yml" />
+    <File Path=".github/workflows/publish.yml" />
+  </Folder>
+  <Project Path="easy-blazor-bulma-demo/easy-blazor-bulma-demo.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="easy-blazor-bulma/easy-blazor-bulma.csproj" />
+</Solution>
