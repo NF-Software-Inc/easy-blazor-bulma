@@ -54,10 +54,10 @@ jobs:
         mv '/Users/runner/Library/MobileDevice/Provisioning Profiles/${{ secrets.APPLE_MACOS_PROVISIONING_ID }}.mobileprovision' '/Users/runner/Library/MobileDevice/Provisioning Profiles/${{ secrets.APPLE_MACOS_PROVISIONING_ID }}.provisionprofile'
         sudo xcode-select -s /Applications/Xcode_16.2.app
         sudo xcode-select -switch /Applications/Xcode_16.2.app/Contents/Developer
-        dotnet publish -c Release -f net9.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:EnableCodeSigning=true -p:EnablePackageSigning=true -p:CodesignKey="${{ secrets.APPLE_DISTRIBUTION_NAME }}" -p:CodesignProvision="Easy Blazor Bulma Mac Store" -p:CodesignEntitlements="Platforms/MacCatalyst/Entitlements.plist" -p:PackageSigningKey="${{ secrets.APPLE_DEVELOPER_NAME }}" -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
+        dotnet publish -c Release -f net10.0-maccatalyst -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:UseHardenedRuntime=true -p:EnableCodeSigning=true -p:EnablePackageSigning=true -p:CodesignKey="${{ secrets.APPLE_DISTRIBUTION_NAME }}" -p:CodesignProvision="Easy Blazor Bulma Mac Store" -p:CodesignEntitlements="Platforms/MacCatalyst/Entitlements.plist" -p:PackageSigningKey="${{ secrets.APPLE_DEVELOPER_NAME }}" -p:AssemblyVersion=${{ env.PublishVersion }} -p:Version=${{ inputs.version }} -p:FileVersion=${{ env.PublishVersion }} -p:ApplicationVersion=${{ inputs.build }} -p:ApplicationDisplayVersion=${{ inputs.version }}
       working-directory: ./easy-blazor-bulma-demo
     - name: Add to Release
-      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/easy-blazor-bulma-demo-${{ inputs.version }}.pkg
+      run: gh release upload ${{ inputs.version }} ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net10.0-maccatalyst/publish/easy-blazor-bulma-demo-${{ inputs.version }}.pkg
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/upload-artifact@v4.6.2
@@ -65,4 +65,4 @@ jobs:
         name: easy-blazor-bulma-demo-maccatalyst
         if-no-files-found: error
         retention-days: 7
-        path: ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net9.0-maccatalyst/publish/*.pkg
+        path: ${{ github.workspace }}/easy-blazor-bulma-demo/bin/Release/net10.0-maccatalyst/publish/*.pkg
