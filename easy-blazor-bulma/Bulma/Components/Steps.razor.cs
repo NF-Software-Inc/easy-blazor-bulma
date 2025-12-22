@@ -96,7 +96,7 @@ public partial class Steps : ComponentBase
             if (IsCentered)
                 css += " has-content-centered";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
     }
 
@@ -200,7 +200,7 @@ public partial class Steps : ComponentBase
 		if (step.Index >= active.Index)
 			css += " is-dashed";
 
-        return string.Join(' ', css, step.AdditionalAttributes.GetClass("class"));
+        return string.Join(' ', css, step.AdditionalAttributes.GetValue("class"));
     }
 
     private string GetMarkerCssClass(Step step)
@@ -216,8 +216,8 @@ public partial class Steps : ComponentBase
         if (step.MarkerColor != BulmaColors.Default)
             css += ' ' + BulmaColorHelper.GetColorCss(step.MarkerColor);
 
-        return string.Join(' ', css, step.AdditionalAttributes.GetClass("marker-class"));
+        return string.Join(' ', css, step.AdditionalAttributes.GetValue("marker-class"));
     }
 
-    private string GetContentCssClass(Step step) => string.Join(' ', "steps-content is-size-4", step.AdditionalAttributes.GetClass("content-class"));
+    private string GetContentCssClass(Step step) => string.Join(' ', "steps-content is-size-4", step.AdditionalAttributes.GetValue("content-class"));
 }

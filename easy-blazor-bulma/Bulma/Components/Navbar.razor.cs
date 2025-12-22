@@ -65,9 +65,9 @@ public partial class Navbar : ComponentBase
 	private string? Id;
 	private string Href = "";
 
-	private string MainCssClass => string.Join(' ', "navbar", AdditionalAttributes.GetClass("class"));
+	private string MainCssClass => string.Join(' ', "navbar", AdditionalAttributes.GetValue("class"));
 
-    private string BrandCssClass => string.Join(' ', "navbar-brand no-select", AdditionalAttributes.GetClass("brand-class"));
+    private string BrandCssClass => string.Join(' ', "navbar-brand no-select", AdditionalAttributes.GetValue("brand-class"));
 
     private string BurgerCssClass
 	{
@@ -78,7 +78,7 @@ public partial class Navbar : ComponentBase
 			if (IsActive)
 				css += " is-active";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("burger-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("burger-class"));
         }
 	}
 
@@ -91,13 +91,13 @@ public partial class Navbar : ComponentBase
 			if (IsActive)
 				css += " is-active";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("menu-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("menu-class"));
         }
 	}
 
-	private string LinkCssClass => string.Join(' ', "navbar-item", AdditionalAttributes.GetClass("a-class"));
+	private string LinkCssClass => string.Join(' ', "navbar-item", AdditionalAttributes.GetValue("a-class"));
 
-	private string LogoCssClass => AdditionalAttributes.GetClass("logo-class") ?? AdditionalAttributes.GetClass("img-class") ?? "mr-2";
+	private string LogoCssClass => AdditionalAttributes.GetValue("logo-class") ?? AdditionalAttributes.GetValue("img-class") ?? "mr-2";
 
 	/// <inheritdoc />
 	protected override void OnInitialized()

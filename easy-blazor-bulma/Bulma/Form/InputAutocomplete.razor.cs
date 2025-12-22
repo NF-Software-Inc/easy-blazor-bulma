@@ -143,15 +143,15 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 			if (Options.HasFlag(InputAutocompleteOptions.HoverPopout))
 				css += " is-hoverable";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("dropdown-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("dropdown-class"));
 		}
 	}
 
-	private string DropDownTriggerCssClass => string.Join(' ', "dropdown-trigger", AdditionalAttributes.GetClass("dropdown-trigger-class"));
+	private string DropDownTriggerCssClass => string.Join(' ', "dropdown-trigger", AdditionalAttributes.GetValue("dropdown-trigger-class"));
 
-	private string DropDownMenuCssClass => string.Join(' ', "dropdown-menu p-0", AdditionalAttributes.GetClass("dropdown-menu-class"));
+	private string DropDownMenuCssClass => string.Join(' ', "dropdown-menu p-0", AdditionalAttributes.GetValue("dropdown-menu-class"));
 
-	private string TagCssClass => string.Join(' ', "tag is-success mt-1", AdditionalAttributes.GetClass("tag-class"));
+	private string TagCssClass => string.Join(' ', "tag is-success mt-1", AdditionalAttributes.GetValue("tag-class"));
 
 	/// <inheritdoc />
 	protected override void OnInitialized()
@@ -451,6 +451,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		if (CurrentValue != null && AreEqual(item, CurrentValue))
 			css += " has-text-success";
 
-		return string.Join(' ', css, AdditionalAttributes.GetClass("dropdown-item-class"));
+		return string.Join(' ', css, AdditionalAttributes.GetValue("dropdown-item-class"));
 	}
 }

@@ -30,5 +30,5 @@ public abstract class TableCellBase : ComponentBase
 	/// <summary>
 	/// The full CSS class to assign to the button.
 	/// </summary>
-	protected string? MainCssClass => AdditionalAttributes.GetClass("class");
+	protected string? MainCssClass => AdditionalAttributes.GetValue("class");
 }

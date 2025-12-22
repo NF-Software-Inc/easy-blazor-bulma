@@ -98,7 +98,7 @@ public partial class Tabs : ComponentBase
 			if (IsToggle && IsRounded)
 				css += " is-toggle-rounded";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
 	}
 
@@ -203,6 +203,6 @@ public partial class Tabs : ComponentBase
 		if (Active == tab.Name)
 			css += " is-active";
 
-        return string.Join(' ', css, tab.AdditionalAttributes.GetClass("class"));
+        return string.Join(' ', css, tab.AdditionalAttributes.GetValue("class"));
     }
 }

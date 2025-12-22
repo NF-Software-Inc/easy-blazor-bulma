@@ -91,12 +91,12 @@ public partial class TitleBlock : ComponentBase
 			if (IsBold)
 				css += " is-bold";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 
-	private string BodyCssClass => string.Join(' ', "hero-body pl-4", AdditionalAttributes.GetClass("body-class"));
-	private string TitleCssClass => string.Join(' ', "title has-text-centered", AdditionalAttributes.GetClass("title-class"));
+	private string BodyCssClass => string.Join(' ', "hero-body pl-4", AdditionalAttributes.GetValue("body-class"));
+	private string TitleCssClass => string.Join(' ', "title has-text-centered", AdditionalAttributes.GetValue("title-class"));
 
 	private string TooltipCssClass
 	{
@@ -127,7 +127,7 @@ public partial class TitleBlock : ComponentBase
 					css += " has-tooltip-multiline";
 			}
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("tooltip-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("tooltip-class"));
 		}
 	}
 

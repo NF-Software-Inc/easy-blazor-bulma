@@ -46,7 +46,7 @@ public abstract class HttpErrorBase : ComponentBase
     {
         get
         {
-            return string.Join(' ', "column is-12-tablet is-10-desktop is-10-widescreen", AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', "column is-12-tablet is-10-desktop is-10-widescreen", AdditionalAttributes.GetValue("class"));
         }
     }
 }

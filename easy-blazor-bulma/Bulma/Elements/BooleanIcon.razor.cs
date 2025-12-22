@@ -53,7 +53,7 @@ public partial class BooleanIcon : ComponentBase
 		{
 			var css = "material-icons";
 			css += ' ' + BulmaColorHelper.GetTextCss(Color);
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 	private string Icon => Value ? TrueIcon : FalseIcon;

@@ -46,8 +46,8 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
         }
 	}
 
-    private string SwitchCssClass => string.Join(' ', "switch", AdditionalAttributes.GetClass("switch-class"));
-    private string LabelCssClass => string.Join(' ', "is-unselectable", AdditionalAttributes.GetClass("label-class"));
+    private string SwitchCssClass => string.Join(' ', "switch", AdditionalAttributes.GetValue("switch-class"));
+    private string LabelCssClass => string.Join(' ', "is-unselectable", AdditionalAttributes.GetValue("label-class"));
 
 	/// <inheritdoc/>
 	protected override void OnInitialized()

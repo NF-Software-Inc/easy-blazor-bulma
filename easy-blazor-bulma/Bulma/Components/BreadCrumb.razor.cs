@@ -29,7 +29,7 @@ public partial class BreadCrumb : ComponentBase
     [Inject]
     private IServiceProvider ServiceProvider { get; init; } = default!;
 
-    private string MainCssClass => string.Join(' ', "breadcrumb", AdditionalAttributes.GetClass("class"));
+    private string MainCssClass => string.Join(' ', "breadcrumb", AdditionalAttributes.GetValue("class"));
 
 	private readonly List<BreadCrumbItem> Children = new();
     private ILogger<BreadCrumb>? Logger;

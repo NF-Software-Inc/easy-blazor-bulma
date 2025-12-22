@@ -142,7 +142,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             else if (Options.HasFlag(InputDurationOptions.PopoutRight))
                 css += " datetimepicker-right";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("datetimepicker-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("datetimepicker-class"));
 		}
     }
 
@@ -162,7 +162,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             else if (DisplayStatus.HasFlag(InputStatus.IconSuccess))
                 css += " has-text-success";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("icon-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("icon-class"));
 		}
     }
 

@@ -76,7 +76,7 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
             if (MainCssClass.Contains("is-small"))
                 css += " is-small";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("icon-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("icon-class"));
         }
     }
 
@@ -89,7 +89,7 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 			if (MessageColor != BulmaColors.Default)
                 css += ' ' + BulmaColorHelper.GetColorCss(MessageColor);
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("message-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("message-class"));
         }
     }
 
