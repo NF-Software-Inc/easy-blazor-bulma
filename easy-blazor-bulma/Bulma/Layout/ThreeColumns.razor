@@ -2,13 +2,13 @@
 @inherits ComponentBase
 
 <div class="@MainCssClass" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
-	<div class="@LeftCssClass" style='@AdditionalAttributes.GetClass("left-style")'>
+	<div class="@LeftCssClass" style='@AdditionalAttributes.GetValue("left-style")'>
 		@Left
 	</div>
-	<div class="@MiddleCssClass" style='@AdditionalAttributes.GetClass("middle-style")'>
+	<div class="@MiddleCssClass" style='@AdditionalAttributes.GetValue("middle-style")'>
 		@Middle
 	</div>
-	<div class="@RightCssClass" style='@AdditionalAttributes.GetClass("right-style")'>
+	<div class="@RightCssClass" style='@AdditionalAttributes.GetValue("right-style")'>
 		@Right
 	</div>
 </div>

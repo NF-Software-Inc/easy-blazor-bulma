@@ -105,7 +105,7 @@ public partial class Loader : ComponentBase
             if (Status == null || Status.Value == LoadingStatus.NotStarted)
                 css += " is-hidden";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
     }
 
@@ -118,11 +118,11 @@ public partial class Loader : ComponentBase
             if (IsFullHeight)
                 css += " container";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("container-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("container-class"));
         }
     }
 
-    private string ProgressCssClass => string.Join(' ', "progress", AdditionalAttributes.GetClass("progress-class"));
+    private string ProgressCssClass => string.Join(' ', "progress", AdditionalAttributes.GetValue("progress-class"));
 
     private string IconCssClass
     {
@@ -135,7 +135,7 @@ public partial class Loader : ComponentBase
             else
                 css += " has-text-success";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("icon-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("icon-class"));
         }
     }
 
@@ -148,7 +148,7 @@ public partial class Loader : ComponentBase
             if (Status == null || Status.Value == LoadingStatus.NotStarted)
                 css += " is-hidden";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("loading-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("loading-class"));
 		}
     }
 
@@ -161,7 +161,7 @@ public partial class Loader : ComponentBase
             if (Status != null && Status.Value != LoadingStatus.NotStarted)
                 css += " is-hidden";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("content-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("content-class"));
 		}
     }
 

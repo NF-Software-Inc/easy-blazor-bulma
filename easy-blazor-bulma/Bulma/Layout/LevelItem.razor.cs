@@ -43,6 +43,6 @@ public partial class LevelItem : ComponentBase
 
 	private readonly string[] Filter = ["class", "a-class"];
 
-	private string MainCssClass => string.Join(' ', "level-item", AdditionalAttributes.GetClass("class"));
-	private string? UrlCssClass => AdditionalAttributes.GetClass("a-class");
+	private string MainCssClass => string.Join(' ', "level-item", AdditionalAttributes.GetValue("class"));
+	private string? UrlCssClass => AdditionalAttributes.GetValue("a-class");
 }

@@ -66,7 +66,7 @@ public partial class Modal : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class", "card-class", "header-class", "body-class", "foot-class" };
+	private readonly string[] Filter = new[] { "class", "card-class", "card-style", "header-class", "body-class", "foot-class" };
 
 	private string MainCssClass
 	{
@@ -77,16 +77,16 @@ public partial class Modal : ComponentBase
 			if (IsDisplayed)
 				css += " is-active";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 
-	private string CardCssClass => string.Join(' ', "modal-card", AdditionalAttributes.GetClass("card-class"));
-	private string? CardCssStyle => AdditionalAttributes.GetClass("card-style");
+	private string CardCssClass => string.Join(' ', "modal-card", AdditionalAttributes.GetValue("card-class"));
+	private string? CardCssStyle => AdditionalAttributes.GetValue("card-style");
 
-	private string HeaderCssClass => string.Join(' ', "modal-card-head", AdditionalAttributes.GetClass("header-class"));
-	private string BodyCssClass => string.Join(' ', "modal-card-body", AdditionalAttributes.GetClass("body-class"));
-	private string FootCssClass => string.Join(' ', "modal-card-foot", AdditionalAttributes.GetClass("foot-class"));
+	private string HeaderCssClass => string.Join(' ', "modal-card-head", AdditionalAttributes.GetValue("header-class"));
+	private string BodyCssClass => string.Join(' ', "modal-card-body", AdditionalAttributes.GetValue("body-class"));
+	private string FootCssClass => string.Join(' ', "modal-card-foot", AdditionalAttributes.GetValue("foot-class"));
 
 	private async Task CloseModal()
 	{

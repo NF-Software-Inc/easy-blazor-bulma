@@ -54,7 +54,7 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 
     private string MainCssClass => string.Join(' ', "switch", CssClass);
 
-	private string LabelCssClass => string.Join(' ', "is-unselectable", AdditionalAttributes.GetClass("label-class"));
+	private string LabelCssClass => string.Join(' ', "is-unselectable", AdditionalAttributes.GetValue("label-class"));
 
 	private string DivCssClass
 	{
@@ -65,7 +65,7 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 			if (IsBoxed)
 				css += " box";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("div-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("div-class"));
 		}
 	}
 
@@ -98,7 +98,7 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 					css += " has-tooltip-multiline";
             }
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("tooltip-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("tooltip-class"));
 		}
 	}
 

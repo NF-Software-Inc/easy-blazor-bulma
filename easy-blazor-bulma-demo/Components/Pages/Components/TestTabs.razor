@@ -4,7 +4,7 @@
 <TitleBlock Title="Tabs Test" />
 
 <div class="container pt-3">
-	<Tabs @bind-Active=ActiveTab OnItemClicked="OnTabClicked">
+	<Tabs @bind-Active=ActiveTab OnTabClicked="OnTabClicked">
 		<Tab Name="Tab 1" Icon="home">
 			<p class="block">Here's some stuff for Tab 1.</p>
 		</Tab>
@@ -23,11 +23,9 @@
 	private string ActiveTab = "Tab 2";
 	private int Tab3Clicked;
 
-	private async Task OnTabClicked(string name)
+	private void OnTabClicked(Tab tab)
 	{
-		if (name == "Tab 3")
+		if (tab.Name == "Tab 3")
 			Tab3Clicked++;
-
-		await Task.CompletedTask;
 	}
 }

@@ -63,9 +63,9 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	private bool OnKeyDownPreventDefault;
 	private readonly string[] DefaultKeys = new[] { "Escape", "Tab", "Enter", "NumpadEnter" };
 
-	private string ColumnsCssClass => string.Join(' ', "columns mb-0", AdditionalAttributes.GetClass("columns-class"));
+	private string ColumnsCssClass => string.Join(' ', "columns mb-0", AdditionalAttributes.GetValue("columns-class"));
 
-	private string ColumnCssClass => string.Join(' ', "column pb-0", AdditionalAttributes.GetClass("column-class"));
+	private string ColumnCssClass => string.Join(' ', "column pb-0", AdditionalAttributes.GetValue("column-class"));
 
 	/// <inheritdoc />
 	protected override void OnInitialized()
@@ -234,6 +234,6 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 		if (IsBordered)
 			css += " is-bordered";
 
-		return string.Join(' ', css, AdditionalAttributes.GetClass("button-class"));
+		return string.Join(' ', css, AdditionalAttributes.GetValue("button-class"));
 	}
 }

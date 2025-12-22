@@ -1,11 +1,13 @@
-﻿@page "/steps"
+﻿@using easy_core
+
+@page "/steps"
 @inherits ComponentBase
 
 <TitleBlock Title="Steps Test" />
 
 <div class="container pt-3">
 	<Panel Title="Horizontal Steps">
-		<Steps @bind-Active=ActiveStep1 OnItemClicked="OnSteps1Clicked">
+		<Steps @bind-Active=ActiveStep1 OnStepClicked="OnSteps1Clicked">
 			<Step Name="Step 1" Icon="home" MarkerColor="BulmaColors.Yellow" />
 			<Step Name="Step 2" Icon="star" MarkerColor="BulmaColors.Red" />
 			<Step Name="Step 3" Icon="settings" MarkerColor="BulmaColors.Purple" />
@@ -17,15 +19,20 @@
 	<Panel Title="Vertical Steps">
 		<div class="columns">
 			<div class="column">
-				<Steps @bind-Active=ActiveStep2 OnItemClicked="OnSteps2Clicked" IsVertical=true TextAbove=true>
-					<Step Name="Step 1" Icon="home" MarkerColor="BulmaColors.Yellow" />
-					<Step Name="Step 2" Icon="star" MarkerColor="BulmaColors.Red" />
-					<Step Name="Step 3" Icon="settings" MarkerColor="BulmaColors.Purple" />
-					<Step Name="Step 4" Icon="cancel" MarkerColor="BulmaColors.Green" />
+				<Steps @bind-Active=ActiveStep2 OnStepClicked="OnSteps2Clicked" IsVertical=true TextAbove=true>
+					@foreach (var step in SampleSteps)
+					{
+                        <Step Name='@($"Step {step.Number}")' Icon="@step.Icon" MarkerColor="@step.MarkerColor" />
+					}
 				</Steps>
 			</div>
 			<div class="column">
 				<p class="block">@Message2</p>
+				<hr class="my-2" />
+
+				<button class="button is-info" @onclick="AddRandomStep">Add Random Step</button>
+				<button class="button is-danger" @onclick="RemoveRandomStep">Remove Random Step</button>
+                <button class="button is-warning" @onclick="ChangeStepExternal">Change Step</button>
 			</div>
 		</div>
 	</Panel>
@@ -38,16 +45,64 @@
 	private string ActiveStep2 = "Step 1";
 	private string? Message2;
 
-	private async Task OnSteps1Clicked(string name)
+	private readonly List<DynamicSteps> SampleSteps = [];
+
+	protected override void OnInitialized()
 	{
-		Message1 = $"You clicked {name}";
+		SampleSteps.Add(new DynamicSteps(1, "home", BulmaColors.Yellow));
+		SampleSteps.Add(new DynamicSteps(2, "star", BulmaColors.Red));
+		SampleSteps.Add(new DynamicSteps(3, "settings", BulmaColors.Purple));
+		SampleSteps.Add(new DynamicSteps(4, "cancel", BulmaColors.Green));
+
+		base.OnInitialized();
+	}
+
+	private async Task OnSteps1Clicked(Step step)
+	{
+		Message1 = $"You clicked {step.Name}";
 		await Task.CompletedTask;
 	}
 
-	private async Task OnSteps2Clicked(string name)
+	private void OnSteps2Clicked(Step step)
 	{
-		Message2 = $"You clicked {name}";
-		await Task.CompletedTask;
-
+		Message2 = $"You clicked {step.Name}";
 	}
+
+	private void AddRandomStep()
+	{
+		var number = SampleSteps.MaxOrDefault(x => x.Number) + 1;
+		var icon = (number % 5) switch
+		{
+			0 => "home",
+			1 => "star",
+			2 => "settings",
+			3 => "cancel",
+			_ => "help"
+		};
+
+		var color = (number % 5) switch
+		{
+			0 => BulmaColors.Yellow,
+			1 => BulmaColors.Red,
+			2 => BulmaColors.Purple,
+			3 => BulmaColors.Green,
+			_ => BulmaColors.Cyan
+		};
+
+		SampleSteps.Add(new DynamicSteps(number, icon, color));
+	}
+
+	private void RemoveRandomStep()
+	{
+		if (SampleSteps.Count > 0)
+			SampleSteps.RemoveAt(Random.Shared.Next(SampleSteps.Count));
+	}
+
+	private void ChangeStepExternal()
+	{
+        var step = SampleSteps[Random.Shared.Next(SampleSteps.Count)];
+		ActiveStep2 = $"Step {step.Number}";
+	}
+
+    private record class DynamicSteps(int Number, string Icon, BulmaColors MarkerColor);
 }

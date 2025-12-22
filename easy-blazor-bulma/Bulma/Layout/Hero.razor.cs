@@ -70,11 +70,11 @@ public partial class Hero : ComponentBase
 			if (Color != BulmaColors.Default)
 				css += ' ' + BulmaColorHelper.GetColorCss(Color);
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 
-	private string HeaderCssClass => string.Join(' ', "hero-head", AdditionalAttributes.GetClass("header-class"));
-	private string BodyCssClass => string.Join(' ', "hero-body", AdditionalAttributes.GetClass("body-class"));
-	private string FootCssClass => string.Join(' ', "hero-foot", AdditionalAttributes.GetClass("foot-class"));
+	private string HeaderCssClass => string.Join(' ', "hero-head", AdditionalAttributes.GetValue("header-class"));
+	private string BodyCssClass => string.Join(' ', "hero-body", AdditionalAttributes.GetValue("body-class"));
+	private string FootCssClass => string.Join(' ', "hero-foot", AdditionalAttributes.GetValue("foot-class"));
 }

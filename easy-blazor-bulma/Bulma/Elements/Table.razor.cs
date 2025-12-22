@@ -52,7 +52,7 @@ public partial class Table : ComponentBase
 			if (IsStriped)
 				css += " is-striped";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 }

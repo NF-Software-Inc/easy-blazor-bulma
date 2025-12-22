@@ -61,13 +61,13 @@ public partial class Message : ComponentBase
             if (Color != BulmaColors.Default)
                 css += ' ' + BulmaColorHelper.GetColorCss(Color);
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
 	}
 
-    private string HeaderCssClass => string.Join(' ', "message-header", AdditionalAttributes.GetClass("header-class"));
+    private string HeaderCssClass => string.Join(' ', "message-header", AdditionalAttributes.GetValue("header-class"));
 
-    private string BodyCssClass => string.Join(' ', "message-body", AdditionalAttributes.GetClass("body-class"));
+    private string BodyCssClass => string.Join(' ', "message-body", AdditionalAttributes.GetValue("body-class"));
 
     private void Delete()
 	{

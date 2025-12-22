@@ -60,7 +60,7 @@ public partial class NavbarDropdown : ComponentBase
 			if (IsFullWidth)
 				css += " is-mega";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
 	}
 
@@ -76,7 +76,7 @@ public partial class NavbarDropdown : ComponentBase
 			if (CompactDisplay && string.IsNullOrWhiteSpace(DisplayText) == false)
 				css += " is-hidden-touch is-hidden-desktop-only is-hidden-widescreen-only";
 
-            return string.Join(' ', css.TrimStart(), AdditionalAttributes.GetClass("link-class"));
+            return string.Join(' ', css.TrimStart(), AdditionalAttributes.GetValue("link-class"));
         }
 	}
 
@@ -89,7 +89,7 @@ public partial class NavbarDropdown : ComponentBase
 			if (IsActive)
 				css += " is-active";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("dropdown-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("dropdown-class"));
         }
 	}
 

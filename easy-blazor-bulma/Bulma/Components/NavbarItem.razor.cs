@@ -42,7 +42,7 @@ public partial class NavbarItem : ComponentBase
 
     private readonly string[] Filter = new[] { "class", "link-class", "icon-class" };
 
-    private string MainCssClass => string.Join(' ', "navbar-item", AdditionalAttributes.GetClass("class"));
+    private string MainCssClass => string.Join(' ', "navbar-item", AdditionalAttributes.GetValue("class"));
 
     private string LinkCssClass
 	{
@@ -56,9 +56,9 @@ public partial class NavbarItem : ComponentBase
 			if (CompactDisplay && ChildContent != null)
 				css += " is-hidden-touch is-hidden-desktop-only is-hidden-widescreen-only";
 
-            return string.Join(' ', css.TrimStart(), AdditionalAttributes.GetClass("link-class"));
+            return string.Join(' ', css.TrimStart(), AdditionalAttributes.GetValue("link-class"));
         }
 	}
 
-	internal string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetClass("icon-class"));
+	internal string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetValue("icon-class"));
 }

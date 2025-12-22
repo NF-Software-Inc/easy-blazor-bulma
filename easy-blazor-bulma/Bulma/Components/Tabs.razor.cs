@@ -59,7 +59,14 @@ public partial class Tabs : ComponentBase
     /// Event that occurs when an item in the tab bar is clicked.
     /// </summary>
     [Parameter]
+	[Obsolete("Use OnTabClicked instead.")]
     public Func<string?, Task>? OnItemClicked { get; set; }
+
+	/// <summary>
+	/// Event that occurs when an item in the tab bar is clicked.
+	/// </summary>
+	[Parameter]
+	public EventCallback<Tab> OnTabClicked { get; set; }
 
     /// <summary>
     /// The content to display within the tab bar. Can contain <see cref="Tab"/> elements, as well as other components and markup.
@@ -73,13 +80,21 @@ public partial class Tabs : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    private readonly string[] Filter = new[] { "class" };
+    private readonly string[] Filter = ["class"];
 
     [Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
-    private readonly List<Tab> Children = new();
+    private readonly List<Tab> Children = [];
 	private ILogger<Tabs>? Logger;
+
+	/// <summary>
+	/// The index of the currently active tab.
+	/// </summary>
+	/// <remarks>
+	/// Serves as a zero-based identifier for the active tab within the component. A value of -1 indicates that no tab is currently active.
+	/// </remarks>
+	public int ActiveIndex { get; internal set; } = -1;
 
 	private string MainCssClass
 	{
@@ -98,7 +113,7 @@ public partial class Tabs : ComponentBase
 			if (IsToggle && IsRounded)
 				css += " is-toggle-rounded";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
 	}
 
@@ -107,12 +122,29 @@ public partial class Tabs : ComponentBase
 	{
 		Logger = ServiceProvider.GetService<ILogger<Tabs>>();
 
-		if (string.IsNullOrWhiteSpace(Active) && Children.Count > 0)
+		if (ActiveIndex == -1 && Children.Count > 0)
 		{
-			Active = Children.First().Name;
+			ActiveIndex = Children[0].Index;
+			Active = Children[0].Name;
 
 			if (ActiveChanged.HasDelegate)
 				await ActiveChanged.InvokeAsync(Active);
+		}
+	}
+
+	/// <inheritdoc/>
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		var active = Children.FirstOrDefault(x => x.Index == ActiveIndex);
+
+		if ((active != null && Active != active.Name) || (active == null && string.IsNullOrWhiteSpace(Active) == false))
+		{
+			if (string.IsNullOrWhiteSpace(Active) == false)
+				ActiveIndex = Children.FirstOrDefault(x => x.Name == Active)?.Index ?? -1;
+			else
+				ActiveIndex = -1;
 		}
 	}
 
@@ -123,18 +155,13 @@ public partial class Tabs : ComponentBase
 			Logger?.LogError("Tabs must have a name assigned.");
 			return;
 		}
-		else if (Children.Any(x => x.Name == tab.Name))
-		{
-			Logger?.LogError("Tabs must have a unique name. Duplicate is {name}.", tab.Name);
-			return;
-		}
 
 		tab.Index = Children.Count != 0 ? Children.Max(x => x.Index) + 1 : 0;
-
 		Children.Add(tab);
 
-		if (string.IsNullOrWhiteSpace(Active))
+		if (ActiveIndex == -1)
 		{
+			ActiveIndex = tab.Index;
 			Active = tab.Name;
 
 			if (ActiveChanged.HasDelegate)
@@ -156,14 +183,10 @@ public partial class Tabs : ComponentBase
 
 		Children.Remove(child);
 
-		var i = 0;
-
-		foreach (var item in Children.OrderBy(x => x.Index))
-			item.Index = i++;
-
-		if (Active == child.Name && Children.Count != 0)
+		if (ActiveIndex == child.Index && Children.Count > 0)
 		{
-			Active = Children.First().Name;
+			ActiveIndex = Children[0].Index;
+			Active = Children[0].Name;
 
 			if (ActiveChanged.HasDelegate)
 				await ActiveChanged.InvokeAsync(Active);
@@ -180,8 +203,12 @@ public partial class Tabs : ComponentBase
         if (OnItemClicked != null)
             await OnItemClicked.Invoke(tab.Name);
 
-        if (Active != tab.Name)
+		if (OnTabClicked.HasDelegate)
+			await OnTabClicked.InvokeAsync(tab);
+
+		if (ActiveIndex != tab.Index)
 		{
+			ActiveIndex = tab.Index;
 			Active = tab.Name;
 
 			if (ActiveChanged.HasDelegate)
@@ -200,9 +227,9 @@ public partial class Tabs : ComponentBase
 		else
 			css = "mx-1";
 
-		if (Active == tab.Name)
+		if (ActiveIndex == tab.Index)
 			css += " is-active";
 
-        return string.Join(' ', css, tab.AdditionalAttributes.GetClass("class"));
+        return string.Join(' ', css, tab.AdditionalAttributes.GetValue("class"));
     }
 }

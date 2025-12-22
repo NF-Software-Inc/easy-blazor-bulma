@@ -66,7 +66,7 @@ public partial class TableHeader : TableCellBase
 					css += " has-tooltip-multiline";
 			}
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("tooltip-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("tooltip-class"));
 		}
 	}
 

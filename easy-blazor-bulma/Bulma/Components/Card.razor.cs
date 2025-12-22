@@ -61,15 +61,15 @@ public partial class Card : ComponentBase
 
     private readonly string[] Filter = new[] { "class", "header-class", "title-class", "content-class", "footer-class" };
 
-    private string MainCssClass => string.Join(' ', "card", AdditionalAttributes.GetClass("class"));
+    private string MainCssClass => string.Join(' ', "card", AdditionalAttributes.GetValue("class"));
 
-    private string HeaderCssClass => string.Join(' ', "card-header", AdditionalAttributes.GetClass("header-class"));
+    private string HeaderCssClass => string.Join(' ', "card-header", AdditionalAttributes.GetValue("header-class"));
 
-    private string TitleCssClass => string.Join(' ', "card-header-title", AdditionalAttributes.GetClass("title-class"));
+    private string TitleCssClass => string.Join(' ', "card-header-title", AdditionalAttributes.GetValue("title-class"));
 
 	private string FigureCssClass => $"image {BulmaImageHelper.GetImageCss(ImageSize)}";
 
-    private string ContentCssClass => string.Join(' ', "card-content", AdditionalAttributes.GetClass("content-class"));
+    private string ContentCssClass => string.Join(' ', "card-content", AdditionalAttributes.GetValue("content-class"));
 
-    private string FooterCssClass => string.Join(' ', "card-footer", AdditionalAttributes.GetClass("footer-class"));
+    private string FooterCssClass => string.Join(' ', "card-footer", AdditionalAttributes.GetValue("footer-class"));
 }

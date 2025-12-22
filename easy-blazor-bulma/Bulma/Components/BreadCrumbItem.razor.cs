@@ -51,13 +51,13 @@ public partial class BreadCrumbItem : ComponentBase, IDisposable
 			if (IsLast)
 				css += " is-active";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
     }
 
-    internal string? LinkCssClass => AdditionalAttributes.GetClass("a-class");
+    internal string? LinkCssClass => AdditionalAttributes.GetValue("a-class");
 
-    internal string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetClass("icon-class"));
+    internal string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetValue("icon-class"));
 
     /// <inheritdoc/>
 	protected override void OnInitialized()

@@ -53,7 +53,7 @@ public partial class Notification : ComponentBase
 			if (Color != BulmaColors.Default)
 				css += ' ' + BulmaColorHelper.GetColorCss(Color);
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 

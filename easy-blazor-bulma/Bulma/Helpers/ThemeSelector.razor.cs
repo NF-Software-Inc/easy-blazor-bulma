@@ -61,7 +61,7 @@ public partial class ThemeSelector : ComponentBase
 			if (IsNavbarItem)
 				css += " navbar-item";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
 		}
 	}
 

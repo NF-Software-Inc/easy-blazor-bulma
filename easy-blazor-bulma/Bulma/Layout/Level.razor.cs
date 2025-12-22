@@ -24,5 +24,5 @@ public partial class Level : ComponentBase
 
 	private readonly string[] Filter = ["class"];
 
-	private string MainCssClass => string.Join(' ', "level", AdditionalAttributes.GetClass("class"));
+	private string MainCssClass => string.Join(' ', "level", AdditionalAttributes.GetValue("class"));
 }

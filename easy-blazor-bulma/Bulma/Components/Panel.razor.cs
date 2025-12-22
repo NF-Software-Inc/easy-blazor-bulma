@@ -98,7 +98,7 @@ public partial class Panel : ComponentBase
             if (Color != BulmaColors.Default)
                 css += ' ' + BulmaColorHelper.GetColorCss(Color);
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
         }
     }
 
@@ -111,7 +111,7 @@ public partial class Panel : ComponentBase
             if (OnTitleClicked.HasDelegate || ShowCollapseIcons)
                 css += " is-clickable";
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("header-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("header-class"));
         }
     }
 
@@ -133,7 +133,7 @@ public partial class Panel : ComponentBase
             if (Color != BulmaColors.Default)
                 css += ' ' + BulmaColorHelper.GetBackgroundCss(Color, "light");
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("content-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("content-class"));
         }
     }
 

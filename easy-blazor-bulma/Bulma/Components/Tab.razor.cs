@@ -29,7 +29,7 @@ public partial class Tab : ComponentBase, IAsyncDisposable
 	public RenderFragment? ChildContent { get; set; }
 
     [CascadingParameter]
-    private Tabs Parent { get; set; } = default!;
+    private Tabs Parent { get; init; } = default!;
 
     /// <summary>
     /// Any additional attributes applied directly to the component.
@@ -37,9 +37,16 @@ public partial class Tab : ComponentBase, IAsyncDisposable
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    internal readonly string[] Filter = new[] { "class" };
-    internal bool IsActive => Name != null && Parent.Active == Name;
-	internal int Index;
+    internal readonly string[] Filter = ["class"];
+	internal bool IsActive => Parent.ActiveIndex == Index;
+
+	/// <summary>
+	/// The index of this tab within the parent <see cref="Tabs"/> component.
+	/// </summary>
+	/// <remarks>
+	/// Serves as a unique identifier for the tab within the parent component.
+	/// </remarks>
+	public int Index { get; internal set; }
 
 	/// <inheritdoc/>
 	protected async override Task OnInitializedAsync()

@@ -61,7 +61,7 @@ public partial class Label<TValue> : ComponentBase
 
     private string? Tooltip;
 
-    private string MainCssClass => string.Join(' ', "label", AdditionalAttributes.GetClass("class"));
+    private string MainCssClass => string.Join(' ', "label", AdditionalAttributes.GetValue("class"));
 
     private string TooltipCssClass
     {
@@ -92,10 +92,10 @@ public partial class Label<TValue> : ComponentBase
                     css += " has-tooltip-multiline";
             }
 
-            return string.Join(' ', css, AdditionalAttributes.GetClass("tooltip-class"));
+            return string.Join(' ', css, AdditionalAttributes.GetValue("tooltip-class"));
         }
     }
-    private string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetClass("icon-class"));
+    private string IconCssClass => string.Join(' ', "material-icons", AdditionalAttributes.GetValue("icon-class"));
 
     /// <inheritdoc />
     protected override void OnInitialized()

@@ -24,5 +24,5 @@ public partial class TableRow : ComponentBase
 
 	private readonly string[] Filter = new[] { "class" };
 
-	private string? MainCssClass => AdditionalAttributes.GetClass("class");
+	private string? MainCssClass => AdditionalAttributes.GetValue("class");
 }

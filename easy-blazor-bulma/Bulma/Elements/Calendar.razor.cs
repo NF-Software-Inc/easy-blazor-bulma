@@ -76,7 +76,7 @@ public partial class Calendar : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private string MainCssClass => Months.Count > 1 ? string.Join(' ', "columns is-multiline is-variable is-1 pt-2", AdditionalAttributes.GetClass("class")) : string.Join(' ', "pt-2", AdditionalAttributes.GetClass("class"));
+	private string MainCssClass => Months.Count > 1 ? string.Join(' ', "columns is-multiline is-variable is-1 pt-2", AdditionalAttributes.GetValue("class")) : string.Join(' ', "pt-2", AdditionalAttributes.GetValue("class"));
 
 	private string ColumnCssClass
 	{
@@ -92,11 +92,11 @@ public partial class Calendar : ComponentBase
 			else
 				css += " is-break-avoid";
 
-			return string.Join(' ', css, AdditionalAttributes.GetClass("column-class"));
+			return string.Join(' ', css, AdditionalAttributes.GetValue("column-class"));
 		}
 	}
 
-	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetClass("table-class"));
+	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetValue("table-class"));
 
 	private IEnumerable<DateOnly> GetWeeksInMonth(DateOnly month)
 	{
