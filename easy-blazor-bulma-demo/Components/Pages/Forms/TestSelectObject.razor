@@ -43,9 +43,11 @@
 			<div class="field">
 				<Label For="() => InputModel.SelectedItems" TooltipMode="TooltipDisplayMode" />
 				<div class="control is-expanded">
-					<InputSelectMultipleObject class="is-fullwidth" @bind-Value="InputModel.SelectedItems" DisplayValue='x => x.Name' Items="AllItems" />
+					<InputSelectMultipleObject class="is-fullwidth" @bind-Value="InputModel.SelectedItems" DisplayValue='x => x.Name' Items="AllItems" ShowGroupButtons=true Contains="(x, y) => x != null && x.Any(z => z.Id == y.Id)" @ref="Reference" />
 				</div>
 			</div>
+
+			<button type="button" class="button is-info is-small" @onclick="ClearSelection">Clear Selections</button>
 		</EditForm>
 	</div>
 </div>

@@ -6,6 +6,8 @@ namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 
 public partial class TestSelectObject : ComponentBase
 {
+	private InputSelectMultipleObject<DemoObject>? Reference;
+
 	private readonly PageModel InputModel = new()
 	{
 		SelectedItem1 = AllItems[2]
@@ -35,6 +37,12 @@ public partial class TestSelectObject : ComponentBase
 	private IEnumerable<DemoObject> GetObjects()
 	{
 		return AllItems.Where(x => x.Position == "Accountant");
+	}
+
+	private void ClearSelection()
+	{
+		InputModel.SelectedItems.Clear();
+		Reference?.NotifySelectionChanged();
 	}
 
 	private class PageModel

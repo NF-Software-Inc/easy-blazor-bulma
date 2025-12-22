@@ -25,7 +25,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	/// The collection of items to search when typing in the input.
 	/// </summary>
 	[Parameter]
-	[Required]
+	[EditorRequired]
 	public required IEnumerable<TValue> Items { get; set; }
 
 	/// <summary>
@@ -38,7 +38,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	/// A function to return the values to display in the drop-down list.
 	/// </summary>
 	[Parameter]
-	[Required]
+	[EditorRequired]
 	public required Func<TValue, string> DisplayValue { get; set; }
 
 	/// <summary>

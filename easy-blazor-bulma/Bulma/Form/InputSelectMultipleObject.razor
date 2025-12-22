@@ -4,8 +4,20 @@
 @typeparam TValue
 @inherits InputBase<List<TValue>>
 
+@if (ShowGroupButtons)
+{
+    <div class="columns">
+        <div class="column is-6">
+            <button type="button" class="@GroupButtonCssClass" @onclick='SelectAll'>Select All</button>
+        </div>
+        <div class="column is-6">
+            <button type="button" class="@GroupButtonCssClass" @onclick='ClearAll'>Clear All</button>
+        </div>
+    </div>
+}
+
 <div class='@MainCssClass'>
-    <select class='input' multiple size="@Size" @ref=Element @onkeyup='(x) => OnKeyUp(x)' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
+    <select class='input' multiple size="@Size" @key="RerenderKey" @ref=Element @onkeyup='(x) => OnKeyUp(x)' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
         @foreach (var item in Items.Select((x, i) => new { Value = x, Index = i }))
         {
             <option value="@DisplayValue(item.Value)" selected='@(Contains(Value, item.Value))' @onmousedown='(x) => OnMouseDown(item.Index, x)' @onmouseup='(x) => OnMouseUp(item.Index, x)'>@DisplayValue(item.Value)</option>

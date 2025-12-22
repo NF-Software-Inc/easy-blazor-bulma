@@ -27,7 +27,7 @@ public static class AttributeHelper
     /// </summary>
     /// <param name="attributes">The collection containing HTML attribute data.</param>
     /// <param name="selector">The HTML attribute name to return.</param>
-    [Obsolete("Nearly identitcal to GetValue, only prepends the returned CSS with a space.")]
+    [Obsolete("Nearly identical to GetValue, only prepends the returned CSS with a space.")]
     public static string? GetClass(this IReadOnlyDictionary<string, object>? attributes, string selector)
     {
         if (attributes == null)

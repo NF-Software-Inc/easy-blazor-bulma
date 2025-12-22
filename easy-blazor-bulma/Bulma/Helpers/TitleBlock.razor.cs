@@ -14,8 +14,8 @@ public partial class TitleBlock : ComponentBase
 	/// <summary>
 	/// The text to display in the bar.
 	/// </summary>
-	[Required]
 	[Parameter]
+	[EditorRequired]
 	public required string Title { get; set; }
 
 	/// <summary>

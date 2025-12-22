@@ -20,7 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
-			10.0.2 Improvements to Steps and Tabs components
+			10.0.2 Improvements to Steps and Tabs components, fix issues in InputSelectMultipleObject
 			10.0.0 Add support for .NET 10.0
 
 			1.4.0 Add new components, add new SASS classes, and improve JavaScript interop
