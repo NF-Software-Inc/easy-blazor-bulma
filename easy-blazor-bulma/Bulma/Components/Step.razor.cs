@@ -23,14 +23,14 @@ public partial class Step : ComponentBase, IAsyncDisposable
     [Parameter]
     public string? Icon { get; set; }
 
-    /// <summary>
-    /// Specifies the color to assign to the step marker.
-    /// </summary>
-    [Parameter]
+	/// <summary>
+	/// Specifies the color to assign to the step marker.
+	/// </summary>
+	[Parameter]
     public BulmaColors MarkerColor { get; set; }
 
     [CascadingParameter]
-    private Steps Parent { get; set; } = default!;
+    private Steps Parent { get; init; } = default!;
 
     /// <summary>
     /// Any additional attributes applied directly to the component.
@@ -38,9 +38,16 @@ public partial class Step : ComponentBase, IAsyncDisposable
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    internal readonly string[] Filter = new[] { "class", "marker-class", "content-class" };
-    internal bool IsActive => Name != null && Parent.Active == Name;
-    internal int Index;
+    internal readonly string[] Filter = ["class", "marker-class", "content-class"];
+    internal bool IsActive => Parent.ActiveIndex == Index;
+
+	/// <summary>
+	/// The index of this step within the parent <see cref="Steps"/> component.
+	/// </summary>
+	/// <remarks>
+	/// Serves as a unique identifier for the step within the parent component.
+	/// </remarks>
+	public int Index { get; internal set; }
 
     /// <inheritdoc/>
 	protected async override Task OnInitializedAsync()
