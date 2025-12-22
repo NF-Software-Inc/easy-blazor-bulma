@@ -11,6 +11,7 @@ namespace easy_blazor_bulma;
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
+/// There is 1 additional attribute that can be used: button-class. This applies CSS classes to the "Select All" and "Clear All" buttons.
 /// <see href="https://bulma.io/documentation/form/select/">Bulma Documentation</see>
 /// </remarks>
 public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
@@ -19,14 +20,14 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	/// The collection of items to display in the list.
 	/// </summary>
 	[Parameter]
-	[Required]
+	[EditorRequired]
 	public required List<TValue> Items { get; set; }
 
 	/// <summary>
 	/// A function to return the values to display in the drop-down list.
 	/// </summary>
 	[Parameter]
-	[Required]
+	[EditorRequired]
 	public required Func<TValue, string> DisplayValue { get; set; }
 
 	/// <summary>
@@ -49,6 +50,12 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	public int Size { get; set; } = 8;
 
 	/// <summary>
+	/// Specifies whether to show the "Select All" and "Clear All" buttons.
+	/// </summary>
+	[Parameter]
+	public bool ShowGroupButtons { get; set; }
+
+	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
 	/// May be <see langword="null"/> if accessed before the component is rendered.
@@ -57,20 +64,53 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
-	private readonly string[] Filter = new[] { "class" };
+	private readonly string[] Filter = ["class", "button-class"];
 
 	private int CurrentIndex = -1;
 	private int? StartIndex = null;
 	private int? EndIndex = null;
 	private bool CtrlMove;
 
+	private int RerenderKey;
+
+	private int OldHashCode = -1;
+	private int OldValueCount = -1;
+
 	private string MainCssClass => string.Join(' ', "select is-multiple", CssClass);
+	private string GroupButtonCssClass => string.Join(' ', "button is-small is-fullwidth mt-2", AdditionalAttributes.GetValue("button-class"));
 
 	/// <inheritdoc />
 	/// <exception cref="NotImplementedException"></exception>
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
 		throw new NotImplementedException();
+	}
+
+	/// <inheritdoc />
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (Value != null && (OldValueCount != Value.Count || OldHashCode != Value.GetHashCode()))
+		{
+			OldHashCode = Value.GetHashCode();
+			OldValueCount = Value.Count;
+			RerenderKey++;
+		}
+		else if (Value == null && (OldValueCount != -1 || OldHashCode != -1))
+		{
+			OldHashCode = -1;
+			OldValueCount = -1;
+			RerenderKey++;
+		}
+	}
+
+	/// <summary>
+	/// Notifies the component that the selection has changed externally and it should re-render.
+	/// </summary>
+	public void NotifySelectionChanged()
+	{
+		RerenderKey++;
 	}
 
 	private void OnMouseDown(int index, MouseEventArgs args)
@@ -217,11 +257,31 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 			(end, start) = (start, end);
 
 		for (var i = start; i <= end; i++)
-		{
 			Value.Remove(Items[i]);
-		}
 
 		_ = ValueChanged.InvokeAsync(Value);
 		EditContext?.NotifyFieldChanged(FieldIdentifier);
+	}
+
+	private void SelectAll()
+	{
+		Value ??= [];
+
+		Value.Clear();
+		Value.AddRange(Items);
+
+		_ = ValueChanged.InvokeAsync(Value);
+		EditContext?.NotifyFieldChanged(FieldIdentifier);
+		RerenderKey++;
+	}
+
+	private void ClearAll()
+	{
+		Value ??= [];
+		Value.Clear();
+
+		_ = ValueChanged.InvokeAsync(Value);
+		EditContext?.NotifyFieldChanged(FieldIdentifier);
+		RerenderKey++;
 	}
 }

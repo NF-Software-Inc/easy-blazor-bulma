@@ -20,14 +20,14 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 	/// The collection of items to display in the list.
 	/// </summary>
 	[Parameter]
-	[Required]
+	[EditorRequired]
 	public required IEnumerable<TValue> Items { get; set; }
 
 	/// <summary>
 	/// A function to return the values to display in the drop-down list.
 	/// </summary>
 	[Parameter]
-	[Required]
+	[EditorRequired]
 	public required Func<TValue, string> DisplayValue { get; set; }
 
 	/// <summary>
