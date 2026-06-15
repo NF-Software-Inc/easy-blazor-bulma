@@ -32,6 +32,7 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TEnum)) ?? typeof(TEnum);
 	private bool IsNullable;
 	private readonly string PropertyName = Guid.NewGuid().ToString("N");
+	private long[] EnumValues = [];
 
     private string MainCssClass
     {
@@ -58,6 +59,20 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must inherit {nameof(Enum)}.");
 		else if (Enum.GetUnderlyingType(UnderlyingType) == typeof(ulong))
 			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Does not support enums based on ulong.");
+
+        // Populate EnumValues with all non-zero enum values converted to long
+		var rawValues = Enum.GetValues(UnderlyingType);
+		var longValues = new List<long>(rawValues.Length);
+
+		foreach (var v in rawValues)
+		{
+			long l = Convert.ToInt64(v);
+
+			if (l != 0)
+				longValues.Add(l);
+		}
+
+		EnumValues = longValues.ToArray();
 	}
 
     /// <inheritdoc/>
@@ -95,18 +110,32 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 
     private void OnValueChanged(TEnum flag)
     {
-        var current = CurrentValue != null ? Convert.ToInt64(CurrentValue) : 0L;
-        var update = Convert.ToInt64(flag);
+        if (AdditionalAttributes.IsDisabled())
+            return;
 
-		if (AdditionalAttributes.IsDisabled())
-			return;
+        long current = CurrentValue != null ? Convert.ToInt64(CurrentValue) : 0L;
+        long update = Convert.ToInt64(flag);
 
-		if ((current & update) == update)
-            current &= ~update;
+        // if the flag is already set, unset it, also unset any flags that are dependent on it
+        if ((current & update) == update)
+        {
+            long removeMask = 0;
+
+            foreach (long enumValue in EnumValues)
+            {
+                // if the enum value has the bit represented by update toggled, add it to the remove mask
+                if ((enumValue & update) != 0)
+                    removeMask |= enumValue;
+            }
+
+            current &= ~removeMask; // unset the bits in the remove mask
+        }
         else
-            current |= update;
+        {
+            current |= update;  // set the bit represented by update
+        }
 
-        CurrentValueAsString = Enum.Parse(UnderlyingType, current.ToString()).ToString();
+        CurrentValueAsString = Enum.ToObject(UnderlyingType, current).ToString();
     }
 
     private bool IsFlagChecked(TEnum flag)
