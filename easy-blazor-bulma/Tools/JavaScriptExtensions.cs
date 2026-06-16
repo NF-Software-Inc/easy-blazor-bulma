@@ -127,4 +127,60 @@ public static class JavaScriptExtensions
 	{
 		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.WriteStorage", token ?? CancellationToken.None, name, JsonSerializer.Serialize(value, options));
 	}
+
+
+    #region Masonry Interop
+    /// <summary>
+    /// Initializes a Masonry instance for the specified element id.
+    /// </summary>
+    /// <param name="id">The id of the element to initialize Masonry on.</param>
+    /// <param name="options">The Masonry options object.</param>
+    /// <param name="token">A cancellation token to abort the request.</param>
+    public async static Task<bool> MasonryInitialize(this IJSRuntime jSRuntime, string id, object options, CancellationToken? token = null)
+    {
+        return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.initialize", token ?? CancellationToken.None, id, options);
+    }
+
+    /// <summary>
+    /// Triggers a layout update for the Masonry instance.
+    /// </summary>
+    /// <param name="id">The id of the Masonry container element.</param>
+    /// <param name="token">A cancellation token to abort the request.</param>
+    public async static Task<bool> MasonryLayout(this IJSRuntime jSRuntime, string id, CancellationToken? token = null)
+    {
+        return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.layout", token ?? CancellationToken.None, id);
+    }
+
+    /// <summary>
+    /// Reloads items for the Masonry instance.
+    /// </summary>
+    /// <param name="id">The id of the Masonry container element.</param>
+    /// <param name="token">A cancellation token to abort the request.</param>
+    public async static Task<bool> MasonryReloadItems(this IJSRuntime jSRuntime, string id, CancellationToken? token = null)
+    {
+        return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.reloadItems", token ?? CancellationToken.None, id);
+    }
+
+    /// <summary>
+    /// Appends matching items to the Masonry instance, then updates layout.
+    /// </summary>
+    /// <param name="id">The id of the Masonry container element.</param>
+    /// <param name="selector">A CSS selector for appended items.</param>
+    /// <param name="token">A cancellation token to abort the request.</param>
+    public async static Task<bool> MasonryAppended(this IJSRuntime jSRuntime, string id, string selector, CancellationToken? token = null)
+    {
+        return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.appended", token ?? CancellationToken.None, id, selector);
+    }
+
+    /// <summary>
+    /// Destroys a Masonry instance for the specified element id.
+    /// </summary>
+    /// <param name="id">The id of the Masonry container element.</param>
+    /// <param name="token">A cancellation token to abort the request.</param>
+    public async static Task<bool> MasonryDestroy(this IJSRuntime jSRuntime, string id, CancellationToken? token = null)
+    {
+        return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.destroy", token ?? CancellationToken.None, id);
+    }
+
+    #endregion
 }
