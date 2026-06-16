@@ -107,5 +107,100 @@ window.easyBlazorBulma = {
         }
 
         return false;
+    },
+
+    /**
+     * Wrapper functions around Masonry.js instances.
+     */
+    masonry: {
+        _instances: new Map(),
+
+        /**
+         * Initializes a Masonry.js instance on the element with the specified identity value and options.
+         * @param {any} id The identity value of the DOM element to initialize the Masonry.js instance on.
+         * @param {any} options The options to initialize the Masonry.js instance with.
+         * @returns {boolean} true when the instance is successfully initialized, otherwise false.
+         */
+        initialize: function (id, options) {
+            var element = document.getElementById(id);
+
+            if (element === null || typeof Masonry === "undefined")
+                return false;
+
+            this.destroy(id);
+
+            var instance = new Masonry(element, options || {});
+            this._instances.set(id, instance);
+            return true;
+        },
+
+        /**
+         * Triggers a layout on the Masonry.js instance with the specified identity value.
+         * @param {any} id The identity value of the Masonry.js instance to trigger a layout on.
+         * @returns {boolean} true when the layout is successfully triggered, otherwise false.
+         */
+        layout: function (id) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            instance.layout();
+            return true;
+        },
+
+        /**
+         * Triggers a reload of items on the Masonry.js instance with the specified identity value.
+         * @param {any} id The identity value of the Masonry.js instance to trigger a reload of items on.
+         * @returns {boolean} true when the reload of items is successfully triggered, otherwise false.
+         */
+        reloadItems: function (id) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            instance.reloadItems();
+            return true;
+        },
+
+        /**
+         * Triggers an appended layout on the Masonry.js instance with the specified identity value and selector.
+         * @param {any} id The identity value of the Masonry.js instance to trigger an appended layout on.
+         * @param {any} selector The selector to use to find the items to append. Defaults to ".masonry-item" if not provided.
+         * @returns {boolean} true when the appended layout is successfully triggered, otherwise false.
+         */
+        appended: function (id, selector) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            var root = document.getElementById(id);
+
+            if (root === null)
+                return false;
+
+            var items = root.querySelectorAll(selector || ".masonry-item");
+            instance.appended(items);
+            instance.layout();
+            return true;
+        },
+
+        /**
+         * Destroys the Masonry.js instance with the specified identity value.
+         * @param {any} id The identity value of the Masonry.js instance to destroy.
+         * @returns {boolean} true when the instance is successfully destroyed, otherwise false.
+         */
+        destroy: function (id) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            instance.destroy();
+            this._instances.delete(id);
+            return true;
+        }
     }
 }
