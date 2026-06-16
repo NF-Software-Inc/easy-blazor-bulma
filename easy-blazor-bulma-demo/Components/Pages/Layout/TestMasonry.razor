@@ -1,0 +1,85 @@
+@page "/masonry"
+@inherits ComponentBase
+
+<TitleBlock Title="Masonry Test" />
+
+<div class="container pt-3">
+	<Panel Title="Masonry + Optional Infinite Scroll" Color="BulmaColors.Blue">
+		<div class="mb-3">
+			<ButtonBase class="is-small is-link mr-2" DisplayText="Load 10 More" OnClick="@LoadMore" />
+			<ButtonBase class="is-small is-light" DisplayText="Manual Layout" OnClick="@ManualLayout" />
+		</div>
+
+		<MasonryInfiniteScroll OnLoadMore="@LoadMore" IsEnabled="true" IsBusy="@IsBusy">
+			<Masonry @ref="_masonry" ColumnWidth="240" Gutter="12" PercentPosition="true">
+				@foreach (var tile in Tiles)
+				{
+					<MasonryItem style="width:240px;">
+						<div class="box" style="@($"height:{tile.Height}px;")">
+							<p class="title is-6 mb-2">Item #@tile.Id</p>
+							<p class="is-size-7">@tile.Text</p>
+						</div>
+					</MasonryItem>
+				}
+			</Masonry>
+		</MasonryInfiniteScroll>
+	</Panel>
+</div>
+
+@code {
+	private Masonry? _masonry;
+	private readonly List<DemoTile> Tiles = [];
+	private readonly Random Random = new();
+	private bool IsBusy;
+	private bool _pendingAppend;
+	private int _nextId = 1;
+
+	protected override void OnInitialized()
+	{
+		AddTiles(20);
+		_pendingAppend = true;
+	}
+
+	protected async override Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (_pendingAppend && _masonry != null)
+		{
+			_pendingAppend = false;
+			await _masonry.Append();
+		}
+	}
+
+	private async Task LoadMore()
+	{
+		if (IsBusy)
+			return;
+
+		IsBusy = true;
+		AddTiles(10);
+		_pendingAppend = true;
+
+		StateHasChanged();
+		await Task.Yield();
+
+		IsBusy = false;
+	}
+
+	private async Task ManualLayout()
+	{
+		if (_masonry != null)
+			await _masonry.Layout();
+	}
+
+	private void AddTiles(int count)
+	{
+		for (var i = 0; i < count; i++)
+		{
+			Tiles.Add(new DemoTile(
+				_nextId++,
+				Random.Next(90, 240),
+				"Variable-height content to demonstrate Masonry layout behavior."));
+		}
+	}
+
+	private sealed record DemoTile(int Id, int Height, string Text);
+}
