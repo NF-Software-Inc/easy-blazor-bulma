@@ -68,8 +68,11 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 		{
 			long l = Convert.ToInt64(v);
 
-			if (l != 0)
-				longValues.Add(l);
+            // if the value is zero and HideZeroOption is true, skip it
+            if (l == 0 && HideZeroOption)
+                continue;
+
+            longValues.Add(l);
 		}
 
 		EnumValues = longValues.ToArray();
@@ -135,7 +138,7 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
             current |= update;  // set the bit represented by update
         }
 
-        CurrentValueAsString = Enum.ToObject(UnderlyingType, current).ToString();
+        CurrentValueAsString = Enum.Parse(UnderlyingType, current.ToString()).ToString();
     }
 
     private bool IsFlagChecked(TEnum flag)
