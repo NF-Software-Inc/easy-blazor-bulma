@@ -182,5 +182,28 @@ public static class JavaScriptExtensions
         return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.destroy", token ?? CancellationToken.None, id);
     }
 
+	/// <summary>
+	/// Starts observing a sentinel element for infinite scroll callbacks.
+	/// </summary>
+	/// <param name="sentinelId">The id of the sentinel element to observe.</param>
+	/// <param name="dotNetReference">A DotNetObjectReference used for JS-to-.NET callback.</param>
+	/// <param name="threshold">Intersection ratio required to trigger callback.</param>
+	/// <param name="rootMargin">Margin around the root used for intersection checks.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	public async static Task<bool> MasonryObserveInfiniteScroll(this IJSRuntime jSRuntime, string sentinelId, DotNetObjectReference<object> dotNetReference, double threshold, string rootMargin, CancellationToken? token = null)
+	{
+		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.observeInfiniteScroll", token ?? CancellationToken.None, sentinelId, dotNetReference, threshold, rootMargin);
+	}
+
+	/// <summary>
+	/// Stops observing a sentinel element for infinite scroll callbacks.
+	/// </summary>
+	/// <param name="sentinelId">The id of the sentinel element to stop observing.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	public async static Task<bool> MasonryUnobserveInfiniteScroll(this IJSRuntime jSRuntime, string sentinelId, CancellationToken? token = null)
+	{
+		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.unobserveInfiniteScroll", token ?? CancellationToken.None, sentinelId);
+	}
+
     #endregion
 }

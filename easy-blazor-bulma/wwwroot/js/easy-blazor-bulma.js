@@ -114,6 +114,7 @@ window.easyBlazorBulma = {
      */
     masonry: {
         _instances: new Map(),
+        _observers: new Map(),
 
         /**
          * Initializes a Masonry.js instance on the element with the specified identity value and options.
@@ -201,6 +202,53 @@ window.easyBlazorBulma = {
             instance.destroy();
             this._instances.delete(id);
             return true;
-        }
+        },
+
+        /**
+         * Observes the element with the specified identity value for intersection changes and invokes the provided .NET method when the element becomes visible.
+         * @param {any} sentinelId The identity value of the DOM element to observe for intersection changes.
+         * @param {any} dotNetRef The reference to the .NET object containing the method to invoke when the observed element becomes visible.
+         * @param {any} threshold The threshold value to use for the IntersectionObserver. Defaults to 0.1 if not provided.
+         * @param {any} rootMargin The root margin value to use for the IntersectionObserver. Defaults to "0px" if not provided.
+         * @returns {boolean} true when the observer is successfully created and observing the specified element, otherwise false.
+         */
+        observeInfiniteScroll: function (sentinelId, dotNetRef, threshold, rootMargin) {
+            var sentinel = document.getElementById(sentinelId);
+
+            if (sentinel === null || dotNetRef === null || typeof IntersectionObserver === "undefined")
+                return false;
+
+            this.unobserveInfiniteScroll(sentinelId);
+
+            var observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting)
+                        dotNetRef.invokeMethodAsync("OnSentinelVisible");
+                });
+            }, {
+                threshold: threshold ?? 0.1,
+                rootMargin: rootMargin ?? "0px"
+            });
+
+            observer.observe(sentinel);
+            this._observers.set(sentinelId, observer);
+            return true;
+        },
+
+        /**
+         * Stops observing the element with the specified identity value for intersection changes.
+         * @param {any} sentinelId The identity value of the DOM element to stop observing for intersection changes.
+         * @returns {boolean} true when the observer is successfully stopped and removed, otherwise false.
+         */
+        unobserveInfiniteScroll: function (sentinelId) {
+            var observer = this._observers.get(sentinelId);
+
+            if (!observer)
+                return false;
+
+            observer.disconnect();
+            this._observers.delete(sentinelId);
+            return true;
+        },
     }
 }
