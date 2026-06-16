@@ -190,9 +190,22 @@ public static class JavaScriptExtensions
 	/// <param name="threshold">Intersection ratio required to trigger callback.</param>
 	/// <param name="rootMargin">Margin around the root used for intersection checks.</param>
 	/// <param name="token">A cancellation token to abort the request.</param>
-	public async static Task<bool> MasonryObserveInfiniteScroll(this IJSRuntime jSRuntime, string sentinelId, DotNetObjectReference<object> dotNetReference, double threshold, string rootMargin, CancellationToken? token = null)
+	public async static Task<bool> MasonryObserveInfiniteScroll<TComponent>(
+		this IJSRuntime jSRuntime,
+		string sentinelId,
+		DotNetObjectReference<TComponent> dotNetReference,
+		double threshold,
+		string rootMargin,
+		CancellationToken? token = null)
+		where TComponent : class
 	{
-		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.observeInfiniteScroll", token ?? CancellationToken.None, sentinelId, dotNetReference, threshold, rootMargin);
+		return await jSRuntime.InvokeAsync<bool>(
+			"easyBlazorBulma.masonry.observeInfiniteScroll",
+			token ?? CancellationToken.None,
+			sentinelId,
+			dotNetReference,
+			threshold,
+			rootMargin);
 	}
 
 	/// <summary>
