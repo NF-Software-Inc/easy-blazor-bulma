@@ -6,87 +6,105 @@
 <TitleBlock Title="Input Flagged Enum Test" />
 
 <div class="columns p-3">
-	<div class="column is-4">
-		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">There are several additional attributes that can apply customization to the component:</p>
-			<div class="content">
-				<ul class="content">
-					<li>switch-class</li>
-					<li>label-class</li>
-				</ul>
-			</div>
-		</Message>
-	</div>
-	<div class="column is-8">
-		<EditForm Model="InputModel">
-			<div class="field">
-				<Label For="() => InputModel.EnumFlagTest" TooltipMode="TooltipDisplayMode" />
-				<div class="control has-icons-left has-icons-right">
-					<InputFlaggedEnum @bind-Value=InputModel.EnumFlagTest />
-				</div>
-			</div>
-			<div class="field">
-				<Label For="() => InputModel.NullableEnumFlagTest" TooltipMode="TooltipDisplayMode" />
-				<div class="control has-icons-left has-icons-right">
-					<InputFlaggedEnum @bind-Value=InputModel.NullableEnumFlagTest HideZeroOption=false />
-				</div>
-			</div>
-			<div class="field">
-				<Label For="() => InputModel.MultiEnumFlagTest" TooltipMode="TooltipDisplayMode" />
-				<div class="control has-icons-left has-icons-right">
-					<InputFlaggedEnum @bind-Value=InputModel.MultiEnumFlagTest HideZeroOption=false />
-				</div>
-			</div>
-		</EditForm>
-	</div>
+    <div class="column is-4">
+        <Message Title="Information" Color="BulmaColors.Cyan">
+            <p class="block">There are several additional attributes that can apply customization to the component:</p>
+            <div class="content">
+                <ul class="content">
+                    <li>switch-class</li>
+                    <li>label-class</li>
+                </ul>
+            </div>
+        </Message>
+    </div>
+    <div class="column is-8">
+        <EditForm Model="InputModel">
+            <div class="field">
+                <Label For="() => InputModel.EnumFlagTest" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left has-icons-right">
+                    <InputFlaggedEnum @bind-Value=InputModel.EnumFlagTest />
+                </div>
+            </div>
+            <div class="field">
+                <Label For="() => InputModel.NullableEnumFlagTest" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left has-icons-right">
+                    <InputFlaggedEnum @bind-Value=InputModel.NullableEnumFlagTest HideZeroOption=false />
+                </div>
+            </div>
+            <div class="field">
+                <Label For="() => InputModel.MultiEnumFlagTest" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left has-icons-right">
+                    <InputFlaggedEnum @bind-Value=InputModel.MultiEnumFlagTest HideZeroOption=false />
+                </div>
+            </div>
+            <div class="field">
+                <Label For="() => InputModel.CompositeEnumFlagTest" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left has-icons-right">
+                    <InputFlaggedEnum @bind-Value=InputModel.CompositeEnumFlagTest HideZeroOption=false />
+                </div>
+            </div>
+        </EditForm>
+    </div>
 </div>
 
 @code {
-	private readonly PageModel InputModel = new();
+    private readonly PageModel InputModel = new();
 
-	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
 
-	private class PageModel
-	{
-		[Display(Name = "Flagged Enum Test", Description = "Input to test modifying a non-nullable flagged enum value.")]
-		public TestFlags EnumFlagTest { get; set; } = TestFlags.One | TestFlags.Five | TestFlags.Six;
+    private class PageModel
+    {
+        [Display(Name = "Flagged Enum Test", Description = "Input to test modifying a non-nullable flagged enum value.")]
+        public TestFlags EnumFlagTest { get; set; } = TestFlags.One | TestFlags.Five | TestFlags.Six;
 
-		[Display(Name = "Nullable Flagged Enum Test", Description = "Input to test modifying a nullable flagged enum value.")]
-		public TestFlags? NullableEnumFlagTest { get; set; }
+        [Display(Name = "Nullable Flagged Enum Test", Description = "Input to test modifying a nullable flagged enum value.")]
+        public TestFlags? NullableEnumFlagTest { get; set; }
 
-		[Display(Name = "Multi-Flag Enum Test", Description = "Input to test modifying a multi-flagged enum value.")]
-		public TestMultiFlags? MultiEnumFlagTest { get; set; }
-	}
+        [Display(Name = "Multi-Flag Enum Test", Description = "Input to test modifying a multi-flagged enum value.")]
+        public TestMultiFlags? MultiEnumFlagTest { get; set; }
 
-	[Flags]
-	private enum TestFlags
-	{
-		None = 0b_00000000_00000000_00000000_00000000,
-		One = 0b_00000000_00000000_00000000_00000001,
-		Two = 0b_00000000_00000000_00000000_00000010,
-		Three = 0b_00000000_00000000_00000000_00000100,
-		Four = 0b_00000000_00000000_00000000_00001000,
-		Five = 0b_00000000_00000000_00000000_00010000,
-		Six = 0b_00000000_00000000_00000000_00100000,
-		Seven = 0b_00000000_00000000_00000000_01000000,
-		Eight = 0b_00000000_00000000_00000000_10000000
-	}
+        [Display(Name = "Composite Flagged Enum Test", Description = "Input to test modifying a flagged enum value with composite flags.")]
+        public TestCompositeFlags CompositeEnumFlagTest { get; set; } = TestCompositeFlags.A | TestCompositeFlags.C;
+    }
 
-	[Flags]
-	private enum TestMultiFlags
-	{
-		None = 0b_00000000_00000000_00000000_00000000,
-		One = 0b_00000000_00000000_00000000_00000001,
-		Two = 0b_00000000_00000000_00000000_00000010,
-		Three = 0b_00000000_00000000_00000000_00000100,
-		Four = 0b_00000000_00000000_00000000_00001000,
-		Five = 0b_00000000_00000000_00000000_00010000,
-		Six = 0b_00000000_00000000_00000000_00100000,
-		Seven = 0b_00000000_00000000_00000000_01000000,
-		Eight = 0b_00000000_00000000_00000000_10000000,
-		OneAndTwo = 0b_00000000_00000000_00000000_00000011,
-		ThreeAndFour = 0b_00000000_00000000_00000000_00001100,
-		FiveAndSix = 0b_00000000_00000000_00000000_00110000,
-		SevenAndEight = 0b_00000000_00000000_00000000_11000000
-	}
+    [Flags]
+    private enum TestFlags
+    {
+        None = 0b_00000000_00000000_00000000_00000000,
+        One = 0b_00000000_00000000_00000000_00000001,
+        Two = 0b_00000000_00000000_00000000_00000010,
+        Three = 0b_00000000_00000000_00000000_00000100,
+        Four = 0b_00000000_00000000_00000000_00001000,
+        Five = 0b_00000000_00000000_00000000_00010000,
+        Six = 0b_00000000_00000000_00000000_00100000,
+        Seven = 0b_00000000_00000000_00000000_01000000,
+        Eight = 0b_00000000_00000000_00000000_10000000
+    }
+
+    [Flags]
+    private enum TestMultiFlags
+    {
+        None = 0b_00000000_00000000_00000000_00000000,
+        One = 0b_00000000_00000000_00000000_00000001,
+        Two = 0b_00000000_00000000_00000000_00000010,
+        Three = 0b_00000000_00000000_00000000_00000100,
+        Four = 0b_00000000_00000000_00000000_00001000,
+        Five = 0b_00000000_00000000_00000000_00010000,
+        Six = 0b_00000000_00000000_00000000_00100000,
+        Seven = 0b_00000000_00000000_00000000_01000000,
+        Eight = 0b_00000000_00000000_00000000_10000000,
+        OneAndTwo = 0b_00000000_00000000_00000000_00000011,
+        ThreeAndFour = 0b_00000000_00000000_00000000_00001100,
+        FiveAndSix = 0b_00000000_00000000_00000000_00110000,
+        SevenAndEight = 0b_00000000_00000000_00000000_11000000
+    }
+
+    [Flags]
+    private enum TestCompositeFlags
+    {
+        A = 0b_00000000_00000000_00000000_00000001,
+        B = 0b_00000000_00000000_00000000_00000010,
+        C = 0b_00000000_00000000_00000000_00000110,
+        D = 0b_00000000_00000000_00000000_00001000
+    }
 }
