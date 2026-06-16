@@ -202,6 +202,7 @@ To use an icon just add a `<span>` with the desired icon text and the `.material
 | Bulma Tooltip | Submodule | MIT | [GitHub](https://github.com/CreativeBulma/bulma-tooltip) |
 | Bulma Jumbo Tiny | Submodule | MIT | [GitHub](https://github.com/NF-Software-Inc/Bulma-Jumbo-Tiny) |
 | Material Symbols | Embedded | Apache 2.0 | [GitHub](https://github.com/google/material-design-icons) |
+| Masonry.js | Bundled JS | MIT | [GitHub](https://github.com/desandro/masonry) |
 
 ## Authors
 
