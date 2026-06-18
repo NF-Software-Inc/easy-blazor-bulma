@@ -32,10 +32,17 @@
                     <button class="button is-danger" @onclick="() => Appointments.Clear()">Clear</button>
                 </div>
             </Panel>
+
+            <Panel class="pt-2 mb-0 is-size-7" Title="Click Events">
+                <p class="block"><strong>Month Title Clicks:</strong> @MonthHeaderClickCount</p>
+                <p class="block"><strong>Last Month Clicked:</strong> @(LastMonthHeaderClicked?.ToString("Y") ?? "None")</p>
+                <p class="block"><strong>Weekday Header Clicks:</strong> @WeekdayHeaderClickCount</p>
+                <p class="block"><strong>Last Weekday Clicked:</strong> @(LastWeekdayHeaderClicked?.ToString("dddd") ?? "None")</p>
+            </Panel>
         </div>
     </Left>
 	<Right>
-		<Calendar Months="Months.OrderBy(x => x).ToList()">
+		<Calendar Months="Months.OrderBy(x => x).ToList()" OnMonthTitleClicked="HandleMonthHeaderClicked" OnWeekdayHeaderClicked="HandleWeekdayHeaderClicked">
 			<Days>
 				<td>
 					<div>
@@ -63,6 +70,11 @@
 
 	private readonly List<DateOnly> Months = [DateTime.Today.ToDateOnly()];
 	private readonly List<Appointment> Appointments = [];
+
+	private DateOnly? LastMonthHeaderClicked;
+	private DateOnly? LastWeekdayHeaderClicked;
+	private int MonthHeaderClickCount;
+	private int WeekdayHeaderClickCount;
 
 	private static readonly List<string> ColorOptions = new List<string>
 	{
@@ -106,4 +118,18 @@
 
 	private string GetTagClass(string color) => $"tag is-{color} mr-2 mb-2-tiny";
 	private void ChangeMonth(bool increment) => SelectedDate = increment ? SelectedDate.AddMonths(1) : SelectedDate.AddMonths(-1);
+
+	private Task HandleMonthHeaderClicked(DateOnly clickedMonth)
+	{
+		LastMonthHeaderClicked = clickedMonth;
+		MonthHeaderClickCount++;
+		return Task.CompletedTask;
+	}
+
+	private Task HandleWeekdayHeaderClicked(DateOnly clickedDay)
+	{
+		LastWeekdayHeaderClicked = clickedDay;
+		WeekdayHeaderClickCount++;
+		return Task.CompletedTask;
+	}
 }

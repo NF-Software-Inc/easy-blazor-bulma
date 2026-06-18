@@ -7,7 +7,14 @@
 		<div class="@ColumnCssClass" @key=month>
 			@if (string.IsNullOrWhiteSpace(MonthFormat) == false)
 			{
-				<h2 class="is-size-4 has-text-centered">@month.ToString(MonthFormat)</h2>
+				@if (OnMonthTitleClicked.HasDelegate)
+				{
+					<h2 class="is-size-4 has-text-centered is-clickable" @onclick="() => HandleMonthTitleClickedAsync(month)">@month.ToString(MonthFormat)</h2>
+				}
+				else
+				{
+					<h2 class="is-size-4 has-text-centered">@month.ToString(MonthFormat)</h2>
+				}
 			}
 
 			<Table class="@TableCssClass">
@@ -15,7 +22,14 @@
 					<tr>
 						@foreach (var day in month.GetPreviousWeekday(StartOfWeek).ListDaysTo(month.GetPreviousWeekday(StartOfWeek).AddDays(6)))
 						{
-							<th style="width: 14%">@day.ToString(DayFormat)</th>
+							@if (OnWeekdayHeaderClicked.HasDelegate)
+							{
+								<th style="width: 14%" class="is-clickable" @onclick="() => HandleWeekdayHeaderClickedAsync(day)">@day.ToString(DayFormat)</th>
+							}
+							else
+							{
+								<th style="width: 14%">@day.ToString(DayFormat)</th>
+							}
 						}
 					</tr>
 				</TableHead>
