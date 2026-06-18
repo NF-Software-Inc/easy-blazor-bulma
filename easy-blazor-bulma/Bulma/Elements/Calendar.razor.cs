@@ -85,8 +85,7 @@ public partial class Calendar : ComponentBase
 	/// An event callback that is invoked when a weekday header cell is clicked.
 	/// </summary>
 	/// <remarks>
-	/// The payload is the specific date that represents that weekday column in the calendar header row,
-	/// derived from the week starting on <see cref="StartOfWeek"/> for the current month.
+	/// The payload is the specific date that represents that weekday column in the calendar header row, derived from the week starting on <see cref="StartOfWeek"/> for the current month.
 	/// When no delegate is assigned the weekday header cells are rendered as non-interactive table headings.
 	/// </remarks>
 	[Parameter]
