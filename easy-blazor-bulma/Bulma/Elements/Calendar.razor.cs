@@ -70,15 +70,15 @@ public partial class Calendar : ComponentBase
 	[Parameter]
 	public required RenderFragment<DateOnly> Days { get; set; }
 
-	/// <summary>
-	/// An event callback that is invoked when the month title is clicked.
-	/// </summary>
-	/// <remarks>
-	/// This callback is only invoked when <see cref="MonthFormat"/> is not null or whitespace and the user clicks the rendered month title.
-	/// The payload is the first day of the month being displayed, as it appears in <see cref="Months"/>.
-	/// When no delegate is assigned the month title is rendered as a non-interactive heading.
-	/// </remarks>
-	[Parameter]
+    /// <summary>
+    /// An event callback that is invoked when the month title is clicked.
+    /// </summary>
+    /// <remarks>
+    /// This callback is only invoked when <see cref="MonthFormat"/> is not null or whitespace and the user clicks the rendered month title.
+    /// The payload is the <see cref="T:System.DateOnly"/> value from <see cref="Months"/> that represents the month being displayed.
+    /// When no delegate is assigned the month title is rendered as a non-interactive heading.
+    /// </remarks>
+    [Parameter]
 	public EventCallback<DateOnly> OnMonthTitleClicked { get; set; }
 
 	/// <summary>
