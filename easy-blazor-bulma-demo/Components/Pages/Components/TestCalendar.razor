@@ -33,12 +33,14 @@
                 </div>
             </Panel>
 
-            <Panel class="pt-2 mb-0 is-size-7" Title="Click Events">
-                <p class="block"><strong>Month Title Clicks:</strong> @MonthHeaderClickCount</p>
-                <p class="block"><strong>Last Month Clicked:</strong> @(LastMonthHeaderClicked?.ToString("Y") ?? "None")</p>
-                <p class="block"><strong>Weekday Header Clicks:</strong> @WeekdayHeaderClickCount</p>
-                <p class="block"><strong>Last Weekday Clicked:</strong> @(LastWeekdayHeaderClicked?.ToString("dddd") ?? "None")</p>
-            </Panel>
+			<Panel class="pt-2 mb-0 is-size-7" Title="Click Events">
+				<Level class="is-flex is-flex-direction-column is-size-5" style="gap: 0.5rem;">
+					<LevelItem class="has-text-centered" Heading="Month Title Clicks" Title="@MonthHeaderClickCount.ToString()" />
+					<LevelItem class="has-text-centered" Heading="Weekday Header Clicks" Title="@WeekdayHeaderClickCount.ToString()" />
+					<LevelItem class="has-text-centered" Heading="Last Month Clicked" Title="@(LastMonthHeaderClicked?.ToString("Y") ?? "None")" />
+					<LevelItem class="has-text-centered" Heading="Last Weekday Clicked" Title="@(LastWeekdayHeaderClicked?.ToString("dddd") ?? "None")" />
+				</Level>
+			</Panel>
         </div>
     </Left>
 	<Right>
