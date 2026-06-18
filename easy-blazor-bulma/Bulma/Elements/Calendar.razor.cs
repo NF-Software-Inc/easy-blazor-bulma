@@ -12,6 +12,45 @@ namespace easy_blazor_bulma;
 /// </remarks>
 public partial class Calendar : ComponentBase
 {
+	private static readonly char[] ClassSeparators = [' ', '\t', '\r', '\n'];
+
+	private static readonly HashSet<string> ColumnWidthValues = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+		"11",
+		"12",
+		"full",
+		"half",
+		"one-third",
+		"two-thirds",
+		"one-quarter",
+		"three-quarters",
+		"one-fifth",
+		"two-fifths",
+		"three-fifths",
+		"four-fifths"
+	};
+
+	private static readonly HashSet<string> ResponsiveBreakpoints = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"mobile",
+		"tablet",
+		"touch",
+		"desktop",
+		"widescreen",
+		"fullhd",
+		"4k"
+	};
+
 	/// <summary>
 	/// A collection of dates within the months to be displayed.
 	/// </summary>
@@ -84,13 +123,13 @@ public partial class Calendar : ComponentBase
 		{
 			var css = "";
 			var customColumnClass = AdditionalAttributes.GetValue("column-class");
-			var hasCustomColumnClass = string.IsNullOrWhiteSpace(customColumnClass) == false;
+			var hasCustomColumnWidthClass = HasCustomColumnWidthClass(customColumnClass);
 
 			if (Months.Count > 1)
 			{
 				css += " column";
 
-				if (hasCustomColumnClass == false)
+				if (hasCustomColumnWidthClass == false)
 					css += " is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
 			}
 
@@ -101,6 +140,53 @@ public partial class Calendar : ComponentBase
 
 			return string.Join(' ', css, customColumnClass);
 		}
+	}
+
+	private static bool HasCustomColumnWidthClass(string? classes)
+	{
+		if (string.IsNullOrWhiteSpace(classes))
+			return false;
+
+		foreach (var token in classes.Split(ClassSeparators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		{
+			if (IsBulmaColumnWidthClass(token))
+				return true;
+		}
+
+		return false;
+	}
+
+	private static bool IsBulmaColumnWidthClass(string token)
+	{
+		if (token.StartsWith("is-offset-", StringComparison.OrdinalIgnoreCase))
+			return HasWidthValue(token["is-offset-".Length..]);
+
+		if (token.Equals("is-narrow", StringComparison.OrdinalIgnoreCase))
+			return true;
+
+		if (token.StartsWith("is-narrow-", StringComparison.OrdinalIgnoreCase))
+			return ResponsiveBreakpoints.Contains(token["is-narrow-".Length..]);
+
+		if (token.StartsWith("is-", StringComparison.OrdinalIgnoreCase) == false)
+			return false;
+
+		return HasWidthValue(token["is-".Length..]);
+	}
+
+	private static bool HasWidthValue(string value)
+	{
+		if (ColumnWidthValues.Contains(value))
+			return true;
+
+		var suffixIndex = value.LastIndexOf('-');
+
+		if (suffixIndex <= 0)
+			return false;
+
+		var widthValue = value[..suffixIndex];
+		var breakpoint = value[(suffixIndex + 1)..];
+
+		return ResponsiveBreakpoints.Contains(breakpoint) && ColumnWidthValues.Contains(widthValue);
 	}
 
 	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetValue("table-class"));

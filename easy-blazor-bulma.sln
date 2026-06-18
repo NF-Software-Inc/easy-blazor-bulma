@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{0749B6
 		.github\workflows\publish.yml = .github\workflows\publish.yml
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "easy-blazor-bulma.Tests", "easy-blazor-bulma.Tests\easy-blazor-bulma.Tests.csproj", "{4AA789AA-9176-4DC0-9357-7D129D437C81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{E72E1064-1DF5-4CAF-B920-DCEA31DEDECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E72E1064-1DF5-4CAF-B920-DCEA31DEDECB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E72E1064-1DF5-4CAF-B920-DCEA31DEDECB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{4AA789AA-9176-4DC0-9357-7D129D437C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AA789AA-9176-4DC0-9357-7D129D437C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AA789AA-9176-4DC0-9357-7D129D437C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AA789AA-9176-4DC0-9357-7D129D437C81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -34,16 +34,9 @@
 
                 <div class="field">
                     <label class="label mb-1">Column Class Override</label>
-                    <div class="control">
-                        <div class="select is-fullwidth">
-                            <select value="@SelectedColumnClass" @onchange="OnColumnClassChanged">
-                                @foreach (var option in ColumnClassOptions)
-                                {
-                                    <option value="@option">@GetColumnClassLabel(option)</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
+                    <div class="control has-icons-left is-expanded">
+						<InputSelectObject class="is-fullwidth" @bind-Value="SelectedColumnClass" DisplayValue="GetColumnClassLabel" Items="ColumnClassOptions" />
+					</div>
                     <p class="help">Selected column-class: @(string.IsNullOrWhiteSpace(SelectedColumnClass) ? "(default)" : SelectedColumnClass)</p>
                 </div>
             </Panel>
@@ -132,5 +125,4 @@
 	private void ChangeMonth(bool increment) => SelectedDate = increment ? SelectedDate.AddMonths(1) : SelectedDate.AddMonths(-1);
 
 	private static string GetColumnClassLabel(string value) => string.IsNullOrWhiteSpace(value) ? "(default)" : value;
-	private void OnColumnClassChanged(ChangeEventArgs e) => SelectedColumnClass = e.Value?.ToString() ?? "";
 }
