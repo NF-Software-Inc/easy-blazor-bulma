@@ -109,6 +109,27 @@ public partial class Calendar : ComponentBase
 	[Parameter]
 	public required RenderFragment<DateOnly> Days { get; set; }
 
+    /// <summary>
+    /// An event callback that is invoked when the month title is clicked.
+    /// </summary>
+    /// <remarks>
+    /// This callback is only invoked when <see cref="MonthFormat"/> is not null or whitespace and the user clicks the rendered month title.
+    /// The payload is the <see cref="T:System.DateOnly"/> value from <see cref="Months"/> that represents the month being displayed.
+    /// When no delegate is assigned the month title is rendered as a non-interactive heading.
+    /// </remarks>
+    [Parameter]
+	public EventCallback<DateOnly> OnMonthTitleClicked { get; set; }
+
+	/// <summary>
+	/// An event callback that is invoked when a weekday header cell is clicked.
+	/// </summary>
+	/// <remarks>
+	/// The payload is the specific date that represents that weekday column in the calendar header row, derived from the week starting on <see cref="StartOfWeek"/> for the current month.
+	/// When no delegate is assigned the weekday header cells are rendered as non-interactive table headings.
+	/// </remarks>
+	[Parameter]
+	public EventCallback<DateOnly> OnWeekdayHeaderClicked { get; set; }
+
 	/// <summary>
 	/// Any additional attributes applied directly to the component.
 	/// </summary>
@@ -201,5 +222,17 @@ public partial class Calendar : ComponentBase
 			yield return current;
 			current = current.AddDays(7);
 		} while (current < last);
+	}
+
+	private async Task HandleMonthTitleClickedAsync(DateOnly month)
+	{
+		if (OnMonthTitleClicked.HasDelegate)
+			await OnMonthTitleClicked.InvokeAsync(month);
+	}
+
+	private async Task HandleWeekdayHeaderClickedAsync(DateOnly day)
+	{
+		if (OnWeekdayHeaderClicked.HasDelegate)
+			await OnWeekdayHeaderClicked.InvokeAsync(day);
 	}
 }
