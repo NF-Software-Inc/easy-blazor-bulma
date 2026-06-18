@@ -144,13 +144,12 @@ public partial class Calendar : ComponentBase
 		{
 			var css = "";
 			var customColumnClass = AdditionalAttributes.GetValue("column-class");
-			var hasCustomColumnWidthClass = HasCustomColumnWidthClass(customColumnClass);
 
 			if (Months.Count > 1)
 			{
 				css += " column";
 
-				if (hasCustomColumnWidthClass == false)
+				if (HasCustomColumnWidthClass(customColumnClass) == false)
 					css += " is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
 			}
 
