@@ -83,16 +83,23 @@ public partial class Calendar : ComponentBase
 		get
 		{
 			var css = "";
+			var customColumnClass = AdditionalAttributes.GetValue("column-class");
+			var hasCustomColumnClass = string.IsNullOrWhiteSpace(customColumnClass) == false;
 
 			if (Months.Count > 1)
-				css += " column is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
+			{
+				css += " column";
+
+				if (hasCustomColumnClass == false)
+					css += " is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
+			}
 
 			if (PrintSinglePage)
 				css += " is-break-after is-fullwidth-print";
 			else
 				css += " is-break-avoid";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("column-class"));
+			return string.Join(' ', css, customColumnClass);
 		}
 	}
 

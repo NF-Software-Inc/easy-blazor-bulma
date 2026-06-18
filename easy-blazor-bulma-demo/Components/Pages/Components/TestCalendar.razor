@@ -31,11 +31,26 @@
                     <button class="button" @onclick="AddRandomAppointment">Add Random Appointment</button>
                     <button class="button is-danger" @onclick="() => Appointments.Clear()">Clear</button>
                 </div>
+
+                <div class="field">
+                    <label class="label mb-1">Column Class Override</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select value="@SelectedColumnClass" @onchange="OnColumnClassChanged">
+                                @foreach (var option in ColumnClassOptions)
+                                {
+                                    <option value="@option">@GetColumnClassLabel(option)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <p class="help">Selected column-class: @(string.IsNullOrWhiteSpace(SelectedColumnClass) ? "(default)" : SelectedColumnClass)</p>
+                </div>
             </Panel>
         </div>
     </Left>
 	<Right>
-		<Calendar Months="Months.OrderBy(x => x).ToList()">
+		<Calendar Months="Months.OrderBy(x => x).ToList()" column-class="@SelectedColumnClass">
 			<Days>
 				<td>
 					<div>
@@ -63,6 +78,15 @@
 
 	private readonly List<DateOnly> Months = [DateTime.Today.ToDateOnly()];
 	private readonly List<Appointment> Appointments = [];
+	private string SelectedColumnClass { get; set; } = "";
+	private static readonly List<string> ColumnClassOptions =
+	[
+		"",
+		"is-12",
+		"is-6",
+		"is-4",
+		"is-3"
+	];
 
 	private static readonly List<string> ColorOptions = new List<string>
 	{
@@ -106,4 +130,7 @@
 
 	private string GetTagClass(string color) => $"tag is-{color} mr-2 mb-2-tiny";
 	private void ChangeMonth(bool increment) => SelectedDate = increment ? SelectedDate.AddMonths(1) : SelectedDate.AddMonths(-1);
+
+	private static string GetColumnClassLabel(string value) => string.IsNullOrWhiteSpace(value) ? "(default)" : value;
+	private void OnColumnClassChanged(ChangeEventArgs e) => SelectedColumnClass = e.Value?.ToString() ?? "";
 }
