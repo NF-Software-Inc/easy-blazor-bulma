@@ -38,7 +38,7 @@
 				<div class="control has-icons-left is-expanded">
 					<InputSelectObject class="is-fullwidth" @bind-Value="SelectedColumnClass" DisplayValue="GetColumnClassLabel" Items="ColumnClassOptions" />
 				</div>
-				<p class="help">Selected column-class: @(string.IsNullOrWhiteSpace(SelectedColumnClass) ? "(default)" : SelectedColumnClass)</p>
+				<p class="help">@GetColumnClassTooltip(SelectedColumnClass)</p>
 			</Panel>
 
 			<Panel class="pt-2 mb-0 is-size-7" Title="Click Events">
@@ -80,15 +80,33 @@
 
 	private readonly List<DateOnly> Months = [DateTime.Today.ToDateOnly()];
 	private readonly List<Appointment> Appointments = [];
-	private string SelectedColumnClass { get; set; } = "";
-	private static readonly List<string> ColumnClassOptions =
+
+	/// <summary>
+	/// Represents a preset for the column-class attribute of the Calendar component, including its value, label, and tooltip.
+	/// </summary>
+	/// <param name="Value">The value of the column-class preset.</param>
+	/// <param name="Label">The user-facing label for the preset.</param>
+	/// <param name="Tooltip">The tooltip text for the preset.</param>
+	private sealed record ColumnClassPreset(string Value, string Label, string Tooltip);
+
+	/// <summary>
+	/// A list of predefined column-class presets for the Calendar component, each with a value, label, and tooltip.
+	/// </summary>
+	private static readonly List<ColumnClassPreset> ColumnClassPresets =
 	[
-		"",
-		"is-12",
-		"is-6",
-		"is-4",
-		"is-3"
+		new("", "(default)", "Use Calendar defaults: is-12-desktop is-12-widescreen is-6-fullhd is-4-4k."),
+		new("is-12-desktop is-12-widescreen is-6-fullhd is-4-4k", "Conservative (1/1/2/3)", "1 column on desktop/widescreen, 2 on Full HD, 3 on 4K."),
+		new("is-12-desktop is-6-widescreen is-6-fullhd is-4-4k", "Safe (1/2/2/3)", "1 column on desktop, 2 on widescreen/full HD, 3 on 4K."),
+		new("is-12-desktop is-6-widescreen is-4-fullhd is-3-4k", "Balanced (1/2/3/4)", "1 column on desktop, 2 on widescreen, 3 on Full HD, 4 on 4K."),
+		new("is-12", "Fixed Full Width", "Always full width (single column).")
 	];
+
+	private static readonly Dictionary<string, ColumnClassPreset> ColumnClassPresetLookup =
+		ColumnClassPresets.ToDictionary(x => x.Value, x => x);
+
+	private static readonly List<string> ColumnClassOptions = ColumnClassPresets.Select(x => x.Value).ToList();
+
+	private string SelectedColumnClass { get; set; } = ColumnClassPresets[3].Value; // Start with a balanced responsive preset to reduce overlap at mid-size viewport widths.
 
 	private DateOnly? LastMonthHeaderClicked;
 	private DateOnly? LastWeekdayHeaderClicked;
@@ -141,7 +159,21 @@
 	private string GetTagClass(string color) => $"tag is-{color} mr-2 mb-2-tiny";
 	private void ChangeMonth(bool increment) => SelectedDate = increment ? SelectedDate.AddMonths(1) : SelectedDate.AddMonths(-1);
 
-	private static string GetColumnClassLabel(string value) => string.IsNullOrWhiteSpace(value) ? "(default)" : value;
+	/// <summary>
+	/// Retrieves the label for a given column-class value.
+	/// </summary>
+	/// <param name="value">The value of the column-class preset.</param>
+	/// <returns>The label of the column-class preset if found; otherwise, the original value.</returns>
+	private static string GetColumnClassLabel(string value)
+		=> ColumnClassPresetLookup.TryGetValue(value, out var preset) ? preset.Label : value;
+
+	/// <summary>
+    /// Retrieves the tooltip for a given column-class value.
+	/// </summary>
+	/// <param name="value">The value of the column-class preset.</param>
+	/// <returns>The tooltip of the column-class preset if found; otherwise, the original value.</returns>
+	private static string GetColumnClassTooltip(string value)
+		=> ColumnClassPresetLookup.TryGetValue(value, out var preset) ? preset.Tooltip : value;
 
 	private void ClearAll()
 	{
