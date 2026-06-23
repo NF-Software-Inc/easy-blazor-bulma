@@ -12,44 +12,41 @@ namespace easy_blazor_bulma;
 /// </remarks>
 public partial class Calendar : ComponentBase
 {
-	private static readonly char[] ClassSeparators = [' ', '\t', '\r', '\n'];
+    /// <summary>
+    /// Separators used to split the class attribute into individual tokens for analysis.
+    /// </summary>
+    private static readonly char[] ClassSeparators = [' ', '\t', '\r', '\n'];
 
-	private static readonly HashSet<string> ColumnWidthValues = new(StringComparer.OrdinalIgnoreCase)
-	{
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"10",
-		"11",
-		"12",
-		"full",
-		"half",
-		"one-third",
-		"two-thirds",
-		"one-quarter",
-		"three-quarters",
-		"one-fifth",
-		"two-fifths",
-		"three-fifths",
-		"four-fifths"
-	};
-
-	private static readonly HashSet<string> ResponsiveBreakpoints = new(StringComparer.OrdinalIgnoreCase)
-	{
-		"mobile",
-		"tablet",
-		"touch",
-		"desktop",
-		"widescreen",
-		"fullhd",
-		"4k"
-	};
+    /// <summary>
+    /// A collection of known Bulma column width class prefixes.
+    /// </summary>
+    private static readonly string[] ColumnWidthClassPrefixes =
+	[
+		"is-1",
+		"is-2",
+		"is-3",
+		"is-4",
+		"is-5",
+		"is-6",
+		"is-7",
+		"is-8",
+		"is-9",
+		"is-10",
+		"is-11",
+		"is-12",
+		"is-full",
+		"is-half",
+		"is-one-third",
+		"is-two-thirds",
+		"is-one-quarter",
+		"is-three-quarters",
+		"is-one-fifth",
+		"is-two-fifths",
+		"is-three-fifths",
+		"is-four-fifths",
+		"is-offset-",
+		"is-narrow"
+	];
 
 	/// <summary>
 	/// A collection of dates within the months to be displayed.
@@ -162,51 +159,23 @@ public partial class Calendar : ComponentBase
 		}
 	}
 
-	private static bool HasCustomColumnWidthClass(string? classes)
+    /// <summary>
+    /// Checks if the provided CSS classes contain any known Bulma column width classes.
+    /// </summary>
+    /// <param name="classes">The CSS classes to check.</param>
+    /// <returns>True if any known Bulma column width classes are found; otherwise, false.</returns>
+    private static bool HasCustomColumnWidthClass(string? classes)
 	{
 		if (string.IsNullOrWhiteSpace(classes))
 			return false;
 
 		foreach (var token in classes.Split(ClassSeparators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
 		{
-			if (IsBulmaColumnWidthClass(token))
+			if (ColumnWidthClassPrefixes.Any(prefix => token.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
 				return true;
 		}
 
 		return false;
-	}
-
-	private static bool IsBulmaColumnWidthClass(string token)
-	{
-		if (token.StartsWith("is-offset-", StringComparison.OrdinalIgnoreCase))
-			return HasWidthValue(token["is-offset-".Length..]);
-
-		if (token.Equals("is-narrow", StringComparison.OrdinalIgnoreCase))
-			return true;
-
-		if (token.StartsWith("is-narrow-", StringComparison.OrdinalIgnoreCase))
-			return ResponsiveBreakpoints.Contains(token["is-narrow-".Length..]);
-
-		if (token.StartsWith("is-", StringComparison.OrdinalIgnoreCase) == false)
-			return false;
-
-		return HasWidthValue(token["is-".Length..]);
-	}
-
-	private static bool HasWidthValue(string value)
-	{
-		if (ColumnWidthValues.Contains(value))
-			return true;
-
-		var suffixIndex = value.LastIndexOf('-');
-
-		if (suffixIndex <= 0)
-			return false;
-
-		var widthValue = value[..suffixIndex];
-		var breakpoint = value[(suffixIndex + 1)..];
-
-		return ResponsiveBreakpoints.Contains(breakpoint) && ColumnWidthValues.Contains(widthValue);
 	}
 
 	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetValue("table-class"));
