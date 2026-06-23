@@ -17,10 +17,11 @@ public partial class Calendar : ComponentBase
     /// </summary>
     private static readonly char[] ClassSeparators = [' ', '\t', '\r', '\n'];
 
-    /// <summary>
-    /// A collection of known Bulma column width class prefixes.
-    /// </summary>
-    private static readonly string[] ColumnWidthClassPrefixes =
+	/// <summary>
+	/// Bulma column width base tokens that should match either exactly (e.g. is-6)
+	/// or as a responsive variant with a dash suffix (e.g. is-6-desktop).
+	/// </summary>
+	private static readonly string[] ColumnWidthClassPrefixes =
 	[
 		"is-1",
 		"is-2",
@@ -44,8 +45,15 @@ public partial class Calendar : ComponentBase
 		"is-two-fifths",
 		"is-three-fifths",
 		"is-four-fifths",
-		"is-offset-",
 		"is-narrow"
+	];
+
+	/// <summary>
+	/// Prefix-only patterns that are valid by design (e.g. is-offset-6, is-offset-3-desktop).
+	/// </summary>
+	private static readonly string[] ColumnWidthPrefixPatterns =
+	[
+		"is-offset-"
 	];
 
 	/// <summary>
@@ -159,19 +167,45 @@ public partial class Calendar : ComponentBase
 		}
 	}
 
-    /// <summary>
+	/// <summary>
     /// Checks if the provided CSS classes contain any known Bulma column width classes.
-    /// </summary>
-    /// <param name="classes">The CSS classes to check.</param>
+	/// </summary>
+	/// <param name="classes">The CSS classes to check.</param>
     /// <returns>True if any known Bulma column width classes are found; otherwise, false.</returns>
-    private static bool HasCustomColumnWidthClass(string? classes)
+	private static bool HasCustomColumnWidthClass(string? classes)
 	{
 		if (string.IsNullOrWhiteSpace(classes))
 			return false;
 
 		foreach (var token in classes.Split(ClassSeparators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
 		{
-			if (ColumnWidthClassPrefixes.Any(prefix => token.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
+			if (IsColumnWidthToken(token))
+				return true;
+		}
+
+		return false;
+	}
+
+    /// <summary>
+    /// Determines if a given token is a known Bulma column width class or a responsive variant of one.
+	/// true prefix patterns (like "is-offset-") are checked with StartsWith,
+	/// while base tokens (like "is-6") are checked for exact matches or responsive variants (like "is-6-desktop").
+    /// </summary>
+    /// <param name="token">The CSS class token to check.</param>
+    /// <returns>True if the token is a known Bulma column width class or a responsive variant; otherwise, false.</returns>
+    private static bool IsColumnWidthToken(string token)
+	{
+		if (ColumnWidthPrefixPatterns.Any(prefix => token.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
+			return true;
+
+		foreach (var baseToken in ColumnWidthClassPrefixes)
+		{
+			if (token.Equals(baseToken, StringComparison.OrdinalIgnoreCase))
+				return true;
+
+			if (token.StartsWith(baseToken, StringComparison.OrdinalIgnoreCase)
+				&& token.Length > baseToken.Length
+				&& token[baseToken.Length] == '-')
 				return true;
 		}
 
