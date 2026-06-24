@@ -21,7 +21,7 @@
 	</div>
 </div>
 
-@if (CurrentValue?.Any() == true)
+@if (CurrentValue != null)
 {
 	<div class="is-flex is-flex-wrap-wrap is-gap-1 mt-1">
 		@foreach (var item in CurrentValue.Select((x, i) => new { Item = x, Index = i }))

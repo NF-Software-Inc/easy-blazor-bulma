@@ -20,7 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
-			10.0.4 Add click functions to Calendar component
+			10.0.4 Add click functions to Calendar component, Add InputAutocompleteMultiple component
 			10.0.3 Fix for composite flagged enum values in InputFlaggedEnum component
 			10.0.2 Improvements to Steps and Tabs components, fix issues in InputSelectMultipleObject
 			10.0.0 Add support for .NET 10.0

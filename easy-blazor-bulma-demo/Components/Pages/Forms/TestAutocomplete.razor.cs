@@ -98,7 +98,7 @@ public partial class TestAutocomplete : ComponentBase
 		[Display(Name = "Accountant Applicant with AutoSelect on Exit", Description = "Select an applicant in the drop down with arrow keys and press tab")]
 		public DemoAutocomplete? SelectedItem3 { get; set; }
 
-		[Display(Name = "Accountant Applicants (Multiple)", Description = "Select one or more applicants from the drop down.")]
+		[Display(Name = "Interview Selections", Description = "Select one or more applicants from the drop down.")]
 		public List<DemoAutocomplete> SelectedItems4 { get; set; } = [];
 	}
 

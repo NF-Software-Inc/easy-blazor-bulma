@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 namespace easy_blazor_bulma;
 
@@ -148,7 +146,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private string DropDownMenuCssClass => string.Join(' ', "dropdown-menu p-0", AdditionalAttributes.GetValue("dropdown-menu-class"));
 
-	private string TagCssClass => string.Join(' ', "tag is-success", AdditionalAttributes.GetValue("tag-class"));
+	private string TagCssClass => string.Join(' ', "tag is-success mr-1", AdditionalAttributes.GetValue("tag-class"));
 
 	/// <inheritdoc />
 	protected override void OnInitialized()
@@ -181,15 +179,16 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 			Options &= ~InputAutocompleteOptions.AutoSelectClosest;
 
 		// Set starting values
-		if (CurrentValue is { Count: > 0 })
-			HighlightedValue = CurrentValue[^1];
+		if (Value != null && Value.Count > 0)
+			HighlightedValue = Value[^1];
 	}
 
 	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
-		result = CurrentValue ?? [];
+		result = Value ?? [];
 		validationErrorMessage = null;
+
 		return true;
 	}
 
@@ -203,6 +202,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	{
 		if (OnBlurPreventDefault)
 			return;
+
 		IsPopoutDisplayed = false;
 	}
 
@@ -281,18 +281,19 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		{
 			CurrentValue ??= [];
 
-			var hasMatch = CurrentValue.Any(x => AreEqual(x, value));
-			if (hasMatch == false || Options.HasFlag(InputAutocompleteOptions.AllowSameItem))
+			if (Options.HasFlag(InputAutocompleteOptions.AllowSameItem) || Value!.Any(x => AreEqual(x, value)) == false)
 			{
-				CurrentValue.Add(value);
+				Value!.Add(value);
 				HighlightedValue = value;
+
 				changed = true;
 			}
 		}
 
 		InputValue = null;
-		if (changed && CurrentValue != null)
-			_ = ValueChanged.InvokeAsync(CurrentValue);
+
+		if (changed && Value != null)
+			_ = ValueChanged.InvokeAsync(Value);
 
 		EditContext.Validate();
 		EditContext.NotifyFieldChanged(FieldIdentifier);
@@ -309,11 +310,11 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private void OnItemRemoved(int index)
 	{
-		if (CurrentValue == null || index < 0 || index >= CurrentValue.Count)
+		if (Value == null || index < 0 || index >= Value.Count)
 			return;
 
-		CurrentValue.RemoveAt(index);
-		_ = ValueChanged.InvokeAsync(CurrentValue);
+		Value.RemoveAt(index);
+		_ = ValueChanged.InvokeAsync(Value);
 
 		EditContext.NotifyFieldChanged(FieldIdentifier);
 
@@ -432,7 +433,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		if (HighlightedValue != null && AreEqual(item, HighlightedValue))
 			css += " has-background-default";
 
-		if (CurrentValue?.Any(x => AreEqual(item, x)) == true)
+		if (Value?.Any(x => AreEqual(item, x)) == true)
 			css += " has-text-success";
 
 		return string.Join(' ', css, AdditionalAttributes.GetValue("dropdown-item-class"));

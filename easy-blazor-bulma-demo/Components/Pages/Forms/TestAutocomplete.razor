@@ -59,7 +59,7 @@
             <div class="field">
                 <Label For="() => InputModel.SelectedItems4" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
-                    <InputAutocompleteMultiple dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItems4" DisplayValue='x => x?.Name ?? string.Empty' DisplayFilter='(x, y) => x != null && x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" DisplayCount="5" Options="Options4" />
+                    <InputAutocompleteMultiple dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItems4" DisplayValue='x => x?.Name ?? string.Empty' DisplayFilter='(x, y) => x != null && x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" Options="Options4" />
                 </div>
             </div>
         </EditForm>
@@ -86,19 +86,21 @@
                         </ul>
                     </div>
                 </div>
+                <div class="column">
+                    <p class="block">The people to be interviewed for the Accountant position are:</p>
+                    <div class="content">
+                        <ul>
+                            @foreach (var item in InputModel.SelectedItems4)
+                            {
+                                <li>@item.Name (@item.Position)</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <div class="content">
                 <p class="block">@SubmitMessage</p>
-            </div>
-            <div class="content">
-                <p class="block">Multiple selected applicants:</p>
-                <ul>
-                    @foreach (var item in InputModel.SelectedItems4)
-                    {
-                        <li>@item.Name (@item.Position)</li>
-                    }
-                </ul>
             </div>
         </Message>
     </div>
