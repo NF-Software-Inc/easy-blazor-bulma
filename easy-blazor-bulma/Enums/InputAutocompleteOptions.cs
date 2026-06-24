@@ -74,5 +74,10 @@ public enum InputAutocompleteOptions
     /// <summary>
     /// Automatically selects a the item whose display text is closest to the input when exiting the component.
     /// </summary>
-    AutoSelectClosest = 0b_00000000_00000000_00010000_00000000
+    AutoSelectClosest = 0b_00000000_00000000_00010000_00000000,
+
+	/// <summary>
+	/// Allows selecting the same item more than once in <see cref="InputAutocompleteMultiple{TValue}"/>.
+	/// </summary>
+	AllowSameItem = 0b_00000000_00000000_00100000_00000000
 }
