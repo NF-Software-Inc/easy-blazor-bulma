@@ -1,6 +1,4 @@
-﻿@using easy_core
-
-@page "/calendar"
+﻿@page "/calendar"
 @inherits ComponentBase
 
 <TitleBlock Title="Calendar Test" />
@@ -34,6 +32,16 @@
                 </div>
             </Panel>
 
+			<Panel class="pt-2 mb-0 is-size-7" Title="Column Class Override">
+				<div class="field">
+					<label class="label is-size-6">Select Calendar Layout</label>
+					<div class="control has-icons-left is-expanded">
+						<InputSelectObject class="is-fullwidth" @bind-Value="SelectedColumnClass" DisplayValue="x => ColumnClassPresetLookup[x].Label" Items="ColumnClassPresets.Select(x => x.Value).ToList()" />
+					</div>
+					<p class="help">@ColumnClassPresetLookup[SelectedColumnClass].Tooltip</p>
+				</div>
+			</Panel>
+
 			<Panel class="pt-2 mb-0 is-size-7" Title="Click Events">
 				<Level class="is-flex is-flex-direction-column is-size-5" style="gap: 0.5rem;">
 					<LevelItem class="has-text-centered" Heading="Month Title Clicks" Title="@MonthHeaderClickCount.ToString()" />
@@ -45,7 +53,7 @@
         </div>
     </Left>
 	<Right>
-		<Calendar Months="Months.OrderBy(x => x).ToList()" OnMonthTitleClicked="HandleMonthHeaderClicked" OnWeekdayHeaderClicked="HandleWeekdayHeaderClicked">
+		<Calendar column-class="@SelectedColumnClass" Months="Months.OrderBy(x => x).ToList()" OnMonthTitleClicked="HandleMonthHeaderClicked" OnWeekdayHeaderClicked="HandleWeekdayHeaderClicked">
 			<Days>
 				<td>
 					<div>
@@ -65,84 +73,3 @@
 		</Calendar>
 	</Right>
 </TwoColumns>
-
-@code
-{
-	private DateTime SelectedDate { get; set; } = DateTime.Today;
-	private DayOfWeek StartOfWeek { get; init; } = DayOfWeek.Monday;
-
-	private readonly List<DateOnly> Months = [DateTime.Today.ToDateOnly()];
-	private readonly List<Appointment> Appointments = [];
-
-	private DateOnly? LastMonthHeaderClicked;
-	private DateOnly? LastWeekdayHeaderClicked;
-	private int MonthHeaderClickCount;
-	private int WeekdayHeaderClickCount;
-
-	private static readonly List<string> ColorOptions = new List<string>
-	{
-		"link",
-		"info",
-		"secondary",
-		"tertiary",
-		"highlight",
-		"success",
-		"warning",
-		"danger"
-	};
-
-	private class Appointment
-	{
-		public string Color { get; init; } = ColorOptions[Random.Shared.Next(0, ColorOptions.Count)];
-		public DateTime Date { get; set; }
-		public string Title { get; set; } = "Meeting";
-	}
-
-	private void AddAppointment()
-	{
-		Appointments.Add(new Appointment
-        {
-            Date = SelectedDate,
-            Title = $"Appointment {Appointments.Count + 1}"
-        });
-
-		if (Months.Any(x => x.Year == SelectedDate.Year && x.Month == SelectedDate.Month) == false)
-			Months.Add(DateOnly.FromDateTime(SelectedDate));
-	}
-
-	private void AddRandomAppointment()
-	{
-		var first = new DateTime(SelectedDate.Year, SelectedDate.Month, 1, SelectedDate.Hour, SelectedDate.Minute, 0);
-		var offset = Random.Shared.Next(0, DateTime.DaysInMonth(SelectedDate.Year, SelectedDate.Month));
-		var appointment = new Appointment { Date = first.AddDays(offset), Title = "Appointment" };
-
-		Appointments.Add(appointment);
-
-		if (Months.Any(x => x.Year == SelectedDate.Year && x.Month == SelectedDate.Month) == false)
-			Months.Add(DateOnly.FromDateTime(SelectedDate));
-	}
-
-	private string GetTagClass(string color) => $"tag is-{color} mr-2 mb-2-tiny";
-	private void ChangeMonth(bool increment) => SelectedDate = increment ? SelectedDate.AddMonths(1) : SelectedDate.AddMonths(-1);
-
-	private void ClearAll()
-	{
-		Appointments.Clear();
-		Months.Clear();
-		Months.Add(DateTime.Today.ToDateOnly());
-	}
-
-	private Task HandleMonthHeaderClicked(DateOnly clickedMonth)
-	{
-		LastMonthHeaderClicked = clickedMonth;
-		MonthHeaderClickCount++;
-		return Task.CompletedTask;
-	}
-
-	private Task HandleWeekdayHeaderClicked(DateOnly clickedDay)
-	{
-		LastWeekdayHeaderClicked = clickedDay;
-		WeekdayHeaderClickCount++;
-		return Task.CompletedTask;
-	}
-}
