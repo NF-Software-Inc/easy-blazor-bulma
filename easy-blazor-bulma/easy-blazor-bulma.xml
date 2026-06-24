@@ -1265,6 +1265,75 @@
         <member name="M:easy_blazor_bulma.InputAutocomplete`1.FormatValueAsString(`0)">
             <inheritdoc />
         </member>
+        <member name="T:easy_blazor_bulma.InputAutocompleteMultiple`1">
+            <summary>
+            An input component for selecting multiple values from a list of options.
+            </summary>
+            <typeparam name="TValue"></typeparam>
+            <remarks>
+            There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class. Each of which apply CSS classes to the resulting elements as per their names.
+            <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
+            </remarks>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.Items">
+            <summary>
+            The collection of items to search when typing in the input.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.DisplayCount">
+            <summary>
+            Limits the number of items displayed in the drop-down list when set.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.DisplayValue">
+            <summary>
+            A function to return the values to display in the drop-down list.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.DisplayFilter">
+            <summary>
+            A function to filter the display items.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.AreEqual">
+            <summary>
+            A function to determine whether two items are equal.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.Icon">
+            <summary>
+            An icon to display within the input.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.DisplayStatus">
+            <summary>
+            Applies styles to the input according to the selected options.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.Options">
+            <summary>
+            The configuration options to apply to the component.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.OnItemsRequested">
+            <summary>
+            Fires with the oninput event just before updating the value of the input.
+            </summary>
+        </member>
+        <member name="P:easy_blazor_bulma.InputAutocompleteMultiple`1.Element">
+            <summary>
+            Gets or sets the associated <see cref="T:Microsoft.AspNetCore.Components.ElementReference"/>.
+            <para>
+            May be <see langword="null"/> if accessed before the component is rendered.
+            </para>
+            </summary>
+        </member>
+        <member name="M:easy_blazor_bulma.InputAutocompleteMultiple`1.OnInitialized">
+            <inheritdoc />
+        </member>
+        <member name="M:easy_blazor_bulma.InputAutocompleteMultiple`1.TryParseValueFromString(System.String,System.Collections.Generic.List{`0}@,System.String@)">
+            <inheritdoc />
+        </member>
         <member name="T:easy_blazor_bulma.InputCharacter`1">
             <summary>
             An input component for editing date and time values. Supported types are <see cref="T:System.Char"/>.
@@ -2498,6 +2567,11 @@
         <member name="F:easy_blazor_bulma.InputAutocompleteOptions.AutoSelectClosest">
             <summary>
             Automatically selects a the item whose display text is closest to the input when exiting the component.
+            </summary>
+        </member>
+        <member name="F:easy_blazor_bulma.InputAutocompleteOptions.AllowSameItem">
+            <summary>
+            Allows selecting the same item more than once in <see cref="T:easy_blazor_bulma.InputAutocompleteMultiple`1"/>.
             </summary>
         </member>
         <member name="T:easy_blazor_bulma.InputDateTimeOptions">

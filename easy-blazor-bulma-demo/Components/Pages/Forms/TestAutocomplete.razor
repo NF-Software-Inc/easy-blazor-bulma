@@ -59,7 +59,7 @@
             <div class="field">
                 <Label For="() => InputModel.SelectedItems4" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
-                    <InputAutocompleteMultiple dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItems4" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" DisplayCount="5" Options="Options4" />
+                    <InputAutocompleteMultiple dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItems4" DisplayValue='x => x?.Name ?? string.Empty' DisplayFilter='(x, y) => x != null && x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" DisplayCount="5" Options="Options4" />
                 </div>
             </div>
         </EditForm>

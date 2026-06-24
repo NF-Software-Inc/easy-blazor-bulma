@@ -186,10 +186,11 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	}
 
 	/// <inheritdoc />
-	/// <exception cref="NotImplementedException"></exception>
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
-		throw new NotImplementedException();
+		result = CurrentValue ?? [];
+		validationErrorMessage = null;
+		return true;
 	}
 
 	private void OnFocus(FocusEventArgs args)
