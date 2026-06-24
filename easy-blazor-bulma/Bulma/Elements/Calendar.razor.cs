@@ -13,6 +13,37 @@ namespace easy_blazor_bulma;
 public partial class Calendar : ComponentBase
 {
 	/// <summary>
+	/// Bulma column width base tokens that should match either exactly (e.g. is-6)
+	/// or as a responsive variant with a dash suffix (e.g. is-6-desktop).
+	/// </summary>
+	private static readonly string[] ColumnWidthClassPrefixes =
+	[
+		"is-1",
+		"is-2",
+		"is-3",
+		"is-4",
+		"is-5",
+		"is-6",
+		"is-7",
+		"is-8",
+		"is-9",
+		"is-10",
+		"is-11",
+		"is-12",
+		"is-full",
+		"is-half",
+		"is-one-third",
+		"is-two-thirds",
+		"is-one-quarter",
+		"is-three-quarters",
+		"is-one-fifth",
+		"is-two-fifths",
+		"is-three-fifths",
+		"is-four-fifths",
+		"is-narrow"
+	];
+
+	/// <summary>
 	/// A collection of dates within the months to be displayed.
 	/// </summary>
 	/// <remarks>
@@ -103,17 +134,22 @@ public partial class Calendar : ComponentBase
 	{
 		get
 		{
-			var css = "";
+			var css = AdditionalAttributes.GetValue("column-class");
 
 			if (Months.Count > 1)
-				css += " column is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
+			{
+				css += " column";
+
+				if (css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => ColumnWidthClassPrefixes.Any(y => x.StartsWith(y))) == false)
+					css += " is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
+			}
 
 			if (PrintSinglePage)
 				css += " is-break-after is-fullwidth-print";
 			else
 				css += " is-break-avoid";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("column-class"));
+			return css;
 		}
 	}
 
