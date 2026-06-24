@@ -30,7 +30,7 @@
 				@DisplayValue(item.Item)
 				@if (AdditionalAttributes.IsDisabled() == false)
 				{
-					<button class="delete is-small" tabindex="-1" @onclick='() => OnItemRemoved(item.Index)'></button>
+					<button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemRemoved(item.Index)'></button>
 				}
 			</span>
 		}
