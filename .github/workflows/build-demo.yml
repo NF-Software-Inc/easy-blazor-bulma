@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: build-demo
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  GitHubUsername: NF-Software-Inc
+
+jobs:
+  build:
+    name: Build Easy Blazor Bulma Demo ${{ matrix.framework }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: windows-2022
+          framework: net10.0-android
+          workloads: maui-android
+          build-arguments: ''
+        - os: windows-2022
+          framework: net10.0-windows10.0.19041.0
+          workloads: maui-windows
+          build-arguments: -p:WindowsPackageType=None
+        - os: macos-15
+          framework: net10.0-ios
+          workloads: maui-ios
+          build-arguments: -p:EnableCodeSigning=false
+        - os: macos-15
+          framework: net10.0-maccatalyst
+          workloads: maui-maccatalyst
+          build-arguments: -p:EnableCodeSigning=false -p:EnablePackageSigning=false -p:CreatePackage=false
+    steps:
+    - uses: actions/checkout@v4.2.2
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4.3.1
+      with:
+        dotnet-version: |
+          10.0.x
+          9.0.x
+          8.0.x
+    - name: Install MAUI workloads
+      run: dotnet workload install ${{ matrix.workloads }}
+      working-directory: ./easy-blazor-bulma-demo
+    - name: Select Xcode
+      if: runner.os == 'macOS'
+      run: |
+        sudo xcode-select -s /Applications/Xcode_16.2.app
+        sudo xcode-select -switch /Applications/Xcode_16.2.app/Contents/Developer
+    - name: Install dependencies
+      run: dotnet restore -p:TargetFramework=${{ matrix.framework }}
+      working-directory: ./easy-blazor-bulma-demo
+    - name: Build
+      run: dotnet build --configuration Release --framework ${{ matrix.framework }} --no-restore ${{ matrix.build-arguments }}
+      working-directory: ./easy-blazor-bulma-demo
