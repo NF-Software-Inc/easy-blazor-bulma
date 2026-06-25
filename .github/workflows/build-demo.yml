@@ -25,19 +25,15 @@ jobs:
         include:
         - os: windows-2022
           framework: net10.0-android
-          workloads: maui-android
           build-arguments: ''
         - os: windows-2022
           framework: net10.0-windows10.0.19041.0
-          workloads: maui-windows
           build-arguments: -p:WindowsPackageType=None
         - os: macos-15
           framework: net10.0-ios
-          workloads: maui-ios
           build-arguments: -p:EnableCodeSigning=false
         - os: macos-15
           framework: net10.0-maccatalyst
-          workloads: maui-maccatalyst
           build-arguments: -p:EnableCodeSigning=false -p:EnablePackageSigning=false -p:CreatePackage=false
     steps:
     - uses: actions/checkout@v4.2.2
@@ -51,7 +47,7 @@ jobs:
           9.0.x
           8.0.x
     - name: Install MAUI workloads
-      run: dotnet workload install ${{ matrix.workloads }}
+      run: dotnet workload install maui
       working-directory: ./easy-blazor-bulma-demo
     - name: Select Xcode
       if: runner.os == 'macOS'
