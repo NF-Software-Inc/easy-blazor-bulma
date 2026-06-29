@@ -37,14 +37,16 @@ jobs:
       with:
         node-version: '24'
     - name: Install build tools
-      run: npm install -g sass terser
+      run: npm install -g sass@1 terser@5
     - name: Compile SASS files
       run: |
         mkdir -p easy-blazor-bulma/wwwroot/css
         sass easy-blazor-bulma/Sass/easy-blazor-bulma.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma.css
-        sass --style=compressed easy-blazor-bulma/Sass/easy-blazor-bulma.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma.min.css
+        sass --style=compressed easy-blazor-bulma/Sass/easy-blazor-bulma.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma.min.css
+
         sass easy-blazor-bulma/Sass/easy-blazor-bulma-dark.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma-dark.css
-        sass --style=compressed easy-blazor-bulma/Sass/easy-blazor-bulma-dark.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma-dark.min.css
+        sass --style=compressed easy-blazor-bulma/Sass/easy-blazor-bulma-dark.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma-dark.min.css
+
     - name: Bundle and minify JavaScript
       run: |
         mkdir -p easy-blazor-bulma/wwwroot/js
