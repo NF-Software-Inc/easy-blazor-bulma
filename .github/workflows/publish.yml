@@ -51,40 +51,8 @@ jobs:
             echo "Build=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
             echo "Deploy=${{ github.event_name == 'release' }}" >> "$GITHUB_OUTPUT"
           fi
-  build-assets:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install build tools
-        run: npm install -g sass terser
-      - name: Create output directories
-        run: |
-          mkdir -p easy-blazor-bulma/wwwroot/css
-          mkdir -p easy-blazor-bulma/wwwroot/js
-      - name: Compile SASS files
-        run: |
-          sass easy-blazor-bulma/Sass/easy-blazor-bulma.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma.css
-          sass easy-blazor-bulma/Sass/easy-blazor-bulma-dark.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma-dark.css
-      - name: Bundle and minify JavaScript
-        run: |
-          cp easy-blazor-bulma/JavaScript/easy-blazor-bulma.js easy-blazor-bulma/wwwroot/js/easy-blazor-bulma.js
-          terser easy-blazor-bulma/JavaScript/easy-blazor-bulma.js -c -m -o easy-blazor-bulma/wwwroot/js/easy-blazor-bulma.min.js
-      - name: Upload assets artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: compiled-assets
-          path: easy-blazor-bulma/wwwroot/
-          retention-days: 1
   android:
-    needs: [ prepare, build-assets ]
+    needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android') }}
     permissions:
       contents: write
@@ -94,7 +62,7 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   ios:
-    needs: [ prepare, build-assets ]
+    needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS') }}
     permissions:
       contents: write
@@ -104,7 +72,7 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   nuget:
-    needs: [ prepare, build-assets ]
+    needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
     permissions:
       contents: write
@@ -115,7 +83,7 @@ jobs:
       deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
     secrets: inherit
   mac-catalyst:
-    needs: [ prepare, build-assets ]
+    needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Mac Catalyst') }}
     permissions:
       contents: write
@@ -125,7 +93,7 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   windows-arm64:
-    needs: [ prepare, build-assets ]
+    needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
     permissions:
       contents: write
@@ -136,7 +104,7 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   windows-x64:
-    needs: [ prepare, build-assets ]
+    needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
     permissions:
       contents: write
