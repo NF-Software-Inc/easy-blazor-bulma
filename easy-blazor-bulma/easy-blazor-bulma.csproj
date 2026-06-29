@@ -9,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>10.0.4</Version>
-		<AssemblyVersion>10.0.4.0</AssemblyVersion>
-		<FileVersion>10.0.4.0</FileVersion>
+		<Version>10.0.5</Version>
+		<AssemblyVersion>10.0.5.0</AssemblyVersion>
+		<FileVersion>10.0.5.0</FileVersion>
 		<PackageId>Easy.Blazor.Bulma</PackageId>
 		<PackageTags>blazor bulma components inputs layout forms icons</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/easy-blazor-bulma</RepositoryUrl>
@@ -20,6 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
+			10.0.5 Add InputTextMultiple component
 			10.0.4 Add click functions to Calendar component, Fix custom column issue in Calendar component, Add InputAutocompleteMultiple component
 			10.0.3 Fix for composite flagged enum values in InputFlaggedEnum component
 			10.0.2 Improvements to Steps and Tabs components, fix issues in InputSelectMultipleObject

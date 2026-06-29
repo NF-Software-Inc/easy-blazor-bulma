@@ -1,0 +1,27 @@
+@namespace easy_blazor_bulma
+@inherits InputBase<List<string>>
+
+<div class="field has-addons mb-0">
+	<div class="control is-expanded">
+		<input type="text" class='@MainCssClass' value="@InputValue" @ref=Element @oninput='OnInput' @onkeydown='OnKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+	</div>
+	<div class="control">
+		<button type="button" class='@ButtonCssClass' disabled='@(AdditionalAttributes.IsDisabled() || string.IsNullOrWhiteSpace(InputValue))' @onclick='OnAddClicked'>Add</button>
+	</div>
+</div>
+
+@if (CurrentValue != null)
+{
+	<div class="is-flex is-flex-wrap-wrap is-gap-1 mt-1">
+		@foreach (var item in CurrentValue.Select((x, i) => new { Item = x, Index = i }))
+		{
+			<span class='@TagCssClass'>
+				@item.Item
+				@if (AdditionalAttributes.IsDisabled() == false)
+				{
+					<button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemRemoved(item.Index)'></button>
+				}
+			</span>
+		}
+	</div>
+}
