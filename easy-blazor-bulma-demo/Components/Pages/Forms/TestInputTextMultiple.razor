@@ -1,0 +1,67 @@
+﻿@using System.ComponentModel.DataAnnotations
+
+@page "/inputTextMultiple"
+@inherits ComponentBase
+
+<TitleBlock Title="Input Text Multiple Test" />
+
+<div class="columns p-3">
+	<div class="column is-4">
+		<Message Title="Information" Color="BulmaColors.Cyan">
+			<p class="block">Use the Add button or press Enter to add the current text value to the list.</p>
+
+			<p class="block">There are several additional attributes that can apply customization to the component:</p>
+			<div class="content">
+				<ul class="content">
+					<li>button-class</li>
+					<li>tag-class</li>
+				</ul>
+			</div>
+
+			<p class="block">The first input prevents duplicate values. The second input allows duplicate values.</p>
+		</Message>
+	</div>
+	<div class="column is-8">
+		<EditForm Model="InputModel" OnSubmit="OnSubmit">
+			<div class="field">
+				<Label For="() => InputModel.RequiredSkills" TooltipMode="TooltipDisplayMode" />
+				<InputTextMultiple class="is-fullwidth" button-class="is-primary" tag-class="is-warning" placeholder="Add a required skill" @bind-Value="InputModel.RequiredSkills" />
+			</div>
+			<div class="field">
+				<Label For="() => InputModel.InterviewKeywords" TooltipMode="TooltipDisplayMode" />
+				<InputTextMultiple class="is-fullwidth" button-class="is-info" placeholder="Add an interview keyword" @bind-Value="InputModel.InterviewKeywords" AllowDuplicates=true />
+			</div>
+		</EditForm>
+
+		<Message class="mt-3" Title="Current Values" Color="BulmaColors.Green">
+			<div class="columns">
+				<div class="column">
+					<p class="block">Required skills:</p>
+					<div class="content">
+						<ul>
+							@foreach (var item in InputModel.RequiredSkills)
+							{
+								<li>@item</li>
+							}
+						</ul>
+					</div>
+				</div>
+				<div class="column">
+					<p class="block">Interview keywords:</p>
+					<div class="content">
+						<ul>
+							@foreach (var item in InputModel.InterviewKeywords)
+							{
+								<li>@item</li>
+							}
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="content">
+				<p class="block">@SubmitMessage</p>
+			</div>
+		</Message>
+	</div>
+</div>
