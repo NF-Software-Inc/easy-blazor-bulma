@@ -31,6 +31,6 @@ jobs:
         dotnet restore
       working-directory: ./easy-blazor-bulma-demo
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release
       working-directory: ./easy-blazor-bulma-demo
     
