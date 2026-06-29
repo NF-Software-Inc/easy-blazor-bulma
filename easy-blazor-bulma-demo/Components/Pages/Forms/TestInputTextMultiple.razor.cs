@@ -8,7 +8,8 @@ public partial class TestInputTextMultiple : ComponentBase
 {
 	private readonly PageModel InputModel = new()
 	{
-		RequiredSkills = ["C#", "Blazor"],
+		RequiredSkills1 = ["C#", "Blazor", "blazor"],
+		RequiredSkills2 = ["C#", "Blazor"],
 		InterviewKeywords = ["Team Player", "Team Player"]
 	};
 
@@ -22,10 +23,13 @@ public partial class TestInputTextMultiple : ComponentBase
 
 	private class PageModel
 	{
-		[Display(Name = "Required Skills", Description = "Add one or more required skills. Duplicate entries are ignored.")]
-		public List<string> RequiredSkills { get; set; } = [];
+		[Display(Name = "Required Skills 1", Description = "Add one or more required skills. Duplicate entries are ignored. Case sensitive.")]
+		public List<string> RequiredSkills1 { get; set; } = [];
 
-		[Display(Name = "Interview Keywords", Description = "Add one or more keywords. Duplicate entries are allowed in this example.")]
+		[Display(Name = "Required Skills 2", Description = "Add one or more required skills. Duplicate entries are ignored. Case insensitive.")]
+		public List<string> RequiredSkills2 { get; set; } = [];
+
+		[Display(Name = "Interview Keywords 1", Description = "Add one or more keywords. Duplicate entries are allowed in this example.")]
 		public List<string> InterviewKeywords { get; set; } = [];
 	}
 }

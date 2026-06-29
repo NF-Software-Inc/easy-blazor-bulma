@@ -21,6 +21,12 @@ public partial class InputTextMultiple : InputBase<List<string>>
 	public bool AllowDuplicates { get; set; }
 
 	/// <summary>
+	/// Specifies the <see cref="StringComparer"/> to use when comparing values for duplicates.
+	/// </summary>
+	[Parameter]
+	public StringComparer ComparisonMode { get; set; } = StringComparer.Ordinal;
+
+	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
 	/// May be <see langword="null"/> if accessed before the component is rendered.
@@ -38,7 +44,7 @@ public partial class InputTextMultiple : InputBase<List<string>>
 
 	private string ButtonCssClass => string.Join(' ', "button is-info", AdditionalAttributes.GetValue("button-class"));
 
-	private string TagCssClass => string.Join(' ', "tag is-success", AdditionalAttributes.GetValue("tag-class"));
+	private string TagCssClass => string.Join(' ', "tag is-success mr-1 mb-1", AdditionalAttributes.GetValue("tag-class"));
 
 	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<string> result, [NotNullWhen(false)] out string? validationErrorMessage)
@@ -82,7 +88,7 @@ public partial class InputTextMultiple : InputBase<List<string>>
 
 		Value ??= [];
 
-		if (AllowDuplicates || Value.Contains(changed, StringComparer.Ordinal) == false)
+		if (AllowDuplicates || Value.Contains(changed, ComparisonMode) == false)
 		{
 			Value.Add(changed);
 			InputValue = null;
