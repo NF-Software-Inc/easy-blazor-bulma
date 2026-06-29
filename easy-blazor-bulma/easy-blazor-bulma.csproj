@@ -112,7 +112,7 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
-		<PackageReference Include="BuildWebCompiler2022" Version="1.14.10" PrivateAssets="all" />
+		<PackageReference Include="BuildWebCompiler2022" Version="1.14.15" PrivateAssets="all" />
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" PrivateAssets="all" />
 	</ItemGroup>
 
