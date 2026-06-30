@@ -34,8 +34,7 @@ jobs:
         submodules: true
     - name: Configure Environment
       run: |
-        mkdir ${{ env.TempDirectory }}
-        mkdir ${{ env.TempDirectory }}/CSS
+        mkdir -p "${{ env.TempDirectory }}/CSS"
     - name: Compile SASS
       uses: gha-utilities/sass-build@v0.6.1
       with:
