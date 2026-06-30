@@ -32,22 +32,29 @@ jobs:
     - uses: actions/checkout@v4.2.2
       with:
         submodules: true
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Configure Environment
+      run: |
+        mkdir ${{ env.TempDirectory }}
+        mkdir ${{ env.TempDirectory }}/CSS
+    - name: Compile SASS
+      uses: gha-utilities/sass-build@v0.6.1
       with:
-        node-version: '24'
-    - name: Install build tools
-      run: npm install -g sass terser
-    - name: Compile SASS files
+        source: |
+          ${{ github.workspace }}/easy-blazor-bulma/Sass/easy-blazor-bulma.sass
+          ${{ github.workspace }}/easy-blazor-bulma/Sass/easy-blazor-bulma-dark.sass
+        destination: |
+          ${{ env.TempDirectory }}/CSS/easy-blazor-bulma.css
+          ${{ env.TempDirectory }}/CSS/easy-blazor-bulma-dark.css
+    - name: Bundle Assets
       run: |
-        mkdir -p easy-blazor-bulma/wwwroot/css
-        sass easy-blazor-bulma/Sass/easy-blazor-bulma.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma.css
-        sass easy-blazor-bulma/Sass/easy-blazor-bulma-dark.sass easy-blazor-bulma/wwwroot/css/easy-blazor-bulma-dark.css
-    - name: Bundle and minify JavaScript
-      run: |
-        mkdir -p easy-blazor-bulma/wwwroot/js
-        cp easy-blazor-bulma/JavaScript/easy-blazor-bulma.js easy-blazor-bulma/wwwroot/js/easy-blazor-bulma.js
-        terser easy-blazor-bulma/JavaScript/easy-blazor-bulma.js -c -m -o easy-blazor-bulma/wwwroot/js/easy-blazor-bulma.min.js
+        mkdir -p ${{ github.workspace }}/easy-blazor-bulma/wwwroot/css
+        mkdir -p ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js
+
+        cp ${{ env.TempDirectory }}/CSS/easy-blazor-bulma.css ${{ github.workspace }}/easy-blazor-bulma/wwwroot/css/
+        cp ${{ env.TempDirectory }}/CSS/easy-blazor-bulma-dark.css ${{ github.workspace }}/easy-blazor-bulma/wwwroot/css/
+
+        cp JavaScript/easy-blazor-bulma.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
+      working-directory: easy-blazor-bulma
     - name: Setup .NET
       uses: actions/setup-dotnet@v4.3.1
       with:
@@ -58,7 +65,6 @@ jobs:
     - name: Install Dependencies
       run: dotnet restore
       working-directory: ./easy-blazor-bulma
-    - run: mkdir ${{ env.TempDirectory }}
     - name: Build & Pack
       run: |
         dotnet build --configuration Release
