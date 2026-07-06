@@ -13,10 +13,10 @@
 		<Company>NF Software Inc.</Company>
 		<Product>Easy Logger Parser</Product>
 		<Copyright>Copyright 2024 $(Company)</Copyright>
-		<AssemblyVersion>10.0.5.0</AssemblyVersion>
-		<FileVersion>10.0.5.0</FileVersion>
-		<Version>10.0.5</Version>
-		<MauiVersion>10.0.71</MauiVersion>
+		<AssemblyVersion>10.1.0.0</AssemblyVersion>
+		<FileVersion>10.1.0.0</FileVersion>
+		<Version>10.1.0</Version>
+		<MauiVersion>10.0.80</MauiVersion>
 
 		<!-- Display name -->
 		<ApplicationTitle>Easy Blazor Bulma</ApplicationTitle>
@@ -26,8 +26,8 @@
 		<ApplicationIdGuid>033431F0-FF8E-466E-ACE0-C8C426AE0242</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>10.0.5</ApplicationDisplayVersion>
-		<ApplicationVersion>3</ApplicationVersion>
+		<ApplicationDisplayVersion>10.1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>4</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -70,8 +70,12 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
 		<ProjectReference Include="..\easy-blazor-bulma\easy-blazor-bulma.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Easy.Blazor.Bulma" Version="10.1.*" />
 	</ItemGroup>
 
 </Project>

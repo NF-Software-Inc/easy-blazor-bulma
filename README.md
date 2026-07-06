@@ -134,7 +134,7 @@ The following example provides a complete use case. This example makes use of th
 In your index.html file add the following line. You must do this even if you just want to use the components, they need this too.
 
 ```html
-<link rel="stylesheet" href="_content/Easy.Blazor.Bulma/css/easy-blazor-bulma.min.css" />
+<link rel="stylesheet" href="_content/Easy.Blazor.Bulma/css/easy-blazor-bulma.css" />
 ```
 
 This will link the CSS style pack and Google Material Symbols icon font.
@@ -159,8 +159,8 @@ To use the dark theme, just add a secondary stylesheet reference in your index.h
 ```html
 <head>
     <!-- Your head content -->
-    <link rel="stylesheet" href="_content/Easy.Blazor.Bulma/css/easy-blazor-bulma.min.css" id="easy-blazor-bulma" media="(prefers-color-scheme: light)" />
-    <link rel="stylesheet" href="_content/Easy.Blazor.Bulma/css/easy-blazor-bulma-dark.min.css" id="easy-blazor-bulma-dark" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="_content/Easy.Blazor.Bulma/css/easy-blazor-bulma.css" id="easy-blazor-bulma" media="(prefers-color-scheme: light)" />
+    <link rel="stylesheet" href="_content/Easy.Blazor.Bulma/css/easy-blazor-bulma-dark.css" id="easy-blazor-bulma-dark" media="(prefers-color-scheme: dark)" />
 </head>
 
 <body>
