@@ -18,9 +18,10 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   GitHubUsername: NF-Software-Inc
+  NuGetDirectory: ${{ github.workspace }}/Temp-NuGet
   PackageName: ${{ github.workspace }}\Temp-NuGet\Easy.Blazor.Bulma.${{ inputs.version }}.nupkg
   PublishVersion: ${{ inputs.version }}.${{ inputs.build }}
-  TempDirectory: ${{ github.workspace }}/Temp-NuGet
+  TempDirectory: ${{ github.workspace }}/Temp-Easy-Blazor-Bulma
 
 jobs:
   package:
@@ -34,7 +35,9 @@ jobs:
         submodules: true
     - name: Configure Environment
       run: |
-        mkdir -p "${{ env.TempDirectory }}/CSS"
+        mkdir -p ${{ env.NuGetDirectory }}
+        mkdir -p ${{ env.TempDirectory }}
+        mkdir -p ${{ env.TempDirectory }}/CSS
     - name: Compile SASS
       uses: gha-utilities/sass-build@v0.6.1
       with:
@@ -67,14 +70,14 @@ jobs:
     - name: Build & Pack
       run: |
         dotnet build --configuration Release
-        dotnet pack --configuration Release --output ${{ env.TempDirectory }} /p:AssemblyVersion=${{ env.PublishVersion }} /p:Version=${{ inputs.version }} /p:FileVersion=${{ env.PublishVersion }}
+        dotnet pack --configuration Release --output ${{ env.NuGetDirectory }} /p:AssemblyVersion=${{ env.PublishVersion }} /p:Version=${{ inputs.version }} /p:FileVersion=${{ env.PublishVersion }}
       working-directory: ./easy-blazor-bulma
     - uses: actions/upload-artifact@v4.6.2
       with:
         name: NuGet-Unsigned
         if-no-files-found: error
         retention-days: 2
-        path: ${{ env.TempDirectory }}/*.nupkg
+        path: ${{ env.NuGetDirectory }}/*.nupkg
   deploy:
     name: Deploy To NuGet & GitHub
     runs-on: windows-2022
@@ -86,11 +89,13 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - run: New-Item -Type Directory -Path ${{ env.TempDirectory }}
+      - run: |
+          New-Item -Type Directory -Path ${{ env.NuGetDirectory }}
+          New-Item -Type Directory -Path ${{ env.TempDirectory }}
       - uses: actions/download-artifact@v4.2.1
         with:
           name: NuGet-Unsigned
-          path: ${{ env.TempDirectory }}
+          path: ${{ env.NuGetDirectory }}
       - name: Setup .NET
         uses: actions/setup-dotnet@v4.3.1
         with:
