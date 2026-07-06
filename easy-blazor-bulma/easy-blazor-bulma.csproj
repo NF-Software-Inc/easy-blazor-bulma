@@ -156,7 +156,7 @@
 
 	<!-- Debug -->
 	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
-		<PackageReference Include="BuildWebCompiler2022" Version="1.14.10" PrivateAssets="all" />
+		<PackageReference Include="BuildWebCompiler2022" Version="1.14.15" PrivateAssets="all" />
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Debug'">
