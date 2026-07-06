@@ -9,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>10.0.4</Version>
-		<AssemblyVersion>10.0.4.0</AssemblyVersion>
-		<FileVersion>10.0.4.0</FileVersion>
+		<Version>10.1.0</Version>
+		<AssemblyVersion>10.1.0.0</AssemblyVersion>
+		<FileVersion>10.1.0.0</FileVersion>
 		<PackageId>Easy.Blazor.Bulma</PackageId>
 		<PackageTags>blazor bulma components inputs layout forms icons</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/easy-blazor-bulma</RepositoryUrl>
@@ -20,6 +20,8 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
+			10.1.0 Remove obsolete content, remove minified JavaScript, remove BuildBundlerMinifier package, remove tracked wwwroot CSS and JS assets
+
 			10.0.4 Add click functions to Calendar component, Fix custom column issue in Calendar component, Add InputAutocompleteMultiple component
 			10.0.3 Fix for composite flagged enum values in InputFlaggedEnum component
 			10.0.2 Improvements to Steps and Tabs components, fix issues in InputSelectMultipleObject
@@ -97,37 +99,12 @@
 		<NoWarn>IDE0130</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
-		<DocumentationFile>$(ProjectDir)$(AssemblyName).xml</DocumentationFile>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageIcon>icon.png</PackageIcon>
-		<RepositoryType>git</RepositoryType>
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
-	</PropertyGroup>
-
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
-		<PackageReference Include="BuildWebCompiler2022" Version="1.14.10" PrivateAssets="all" />
-		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" PrivateAssets="all" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(Configuration)' == 'Release'">
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.*" PrivateAssets="All" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<Compile Remove="external\**" />
 		<Content Remove="external\**" />
 		<None Remove="external\**" />
-		<Content Remove="bundleconfig.json" />
 		<Content Remove="compilerconfig.json" />
 		<Content Remove="JavaScript\easy-blazor-bulma.js" />
-		<None Include="bundleconfig.json" />
 		<None Include="compilerconfig.json" />
 		<None Include="JavaScript\easy-blazor-bulma.js" />
 	</ItemGroup>
@@ -175,5 +152,36 @@
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
+
+	<!-- Debug -->
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageReference Include="BuildWebCompiler2022" Version="1.14.10" PrivateAssets="all" />
+	</ItemGroup>
+
+	<Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Debug'">
+		<MakeDir Directories="$(ProjectDir)wwwroot\js" />
+		<MakeDir Directories="$(ProjectDir)wwwroot\css" />
+
+		<Copy SourceFiles="$(ProjectDir)JavaScript\easy-blazor-bulma.js" DestinationFiles="$(ProjectDir)wwwroot\js\easy-blazor-bulma.js" />
+	</Target>
+
+	<!-- Release -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.*" PrivateAssets="All" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DocumentationFile>$(ProjectDir)$(AssemblyName).xml</DocumentationFile>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageIcon>icon.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<CopyDebugSymbolFilesFromPackages>true</CopyDebugSymbolFilesFromPackages>
+	</PropertyGroup>
 
 </Project>
