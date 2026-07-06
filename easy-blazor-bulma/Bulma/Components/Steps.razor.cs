@@ -56,13 +56,6 @@ public partial class Steps : ComponentBase
 	public bool IsClickable { get; set; } = true;
 
 	/// <summary>
-	/// Event that occurs when an item in the steps component is clicked.
-	/// </summary>
-	[Parameter]
-	[Obsolete("Use OnStepClicked instead.")]
-	public Func<string?, Task>? OnItemClicked { get; set; }
-
-	/// <summary>
 	/// Event that occurs when a step in the steps component is clicked.
 	/// </summary>
 	[Parameter]
@@ -197,9 +190,6 @@ public partial class Steps : ComponentBase
 	{
 		if (IsClickable == false)
 			return;
-
-		if (OnItemClicked != null)
-			await OnItemClicked.Invoke(step.Name);
 
 		if (OnStepClicked.HasDelegate)
 			await OnStepClicked.InvokeAsync(step);
