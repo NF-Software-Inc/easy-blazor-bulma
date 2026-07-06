@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: build-demo
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v4.2.2
+      with:
+        submodules: true
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4.3.1
+      with:
+        dotnet-version: 10.0.x
+    - name: Install MAUI workload
+      run: |
+        dotnet workload install maui
+        dotnet restore
+      working-directory: ./easy-blazor-bulma-demo
+    - name: Build
+      run: dotnet build --configuration Release
+      working-directory: ./easy-blazor-bulma-demo
+    

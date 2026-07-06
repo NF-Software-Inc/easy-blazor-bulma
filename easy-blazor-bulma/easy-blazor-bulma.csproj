@@ -22,6 +22,7 @@
 		<PackageReleaseNotes>
 			10.1.0 Remove obsolete content, remove minified JavaScript, remove BuildBundlerMinifier package, remove tracked wwwroot CSS and JS assets
 
+			10.0.5 Add InputTextMultiple component
 			10.0.4 Add click functions to Calendar component, Fix custom column issue in Calendar component, Add InputAutocompleteMultiple component
 			10.0.3 Fix for composite flagged enum values in InputFlaggedEnum component
 			10.0.2 Improvements to Steps and Tabs components, fix issues in InputSelectMultipleObject
