@@ -1,0 +1,38 @@
+﻿@namespace easy_blazor_bulma
+@typeparam TValue
+@inherits InputBase<List<TValue>>
+
+<div class='@DropDownCssClass'>
+	<div class='@DropDownTriggerCssClass'>
+		<input type="search" class='@MainCssClass' placeholder="Search..." autocomplete="off" value="@InputValue" @ref=Element @oninput='OnInput' @onclick='OnClick' @onfocus='OnFocus' @onblur='OnBlur' @onkeydown='OnKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+
+		@if (string.IsNullOrWhiteSpace(Icon) == false)
+		{
+			<span class="material-icons icon is-left">@Icon</span>
+		}
+	</div>
+	<div class='@DropDownMenuCssClass'>
+		<div class="dropdown-content">
+			@foreach (var item in GetDisplayItems())
+			{
+				<div @key=item class='@GetDropDownItemCssClass(item)' @onmousedown='OnMouseDown' @onmouseup='OnMouseUp' @onclick='x => OnItemSelected(item)'>@DisplayValue(item)</div>
+			}
+		</div>
+	</div>
+</div>
+
+@if (CurrentValue != null)
+{
+	<div class="is-flex is-flex-wrap-wrap is-gap-1 mt-1">
+		@foreach (var item in CurrentValue.Select((x, i) => new { Item = x, Index = i }))
+		{
+			<span class='@TagCssClass'>
+				@DisplayValue(item.Item)
+				@if (AdditionalAttributes.IsDisabled() == false)
+				{
+					<button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemRemoved(item.Index)'></button>
+				}
+			</span>
+		}
+	</div>
+}

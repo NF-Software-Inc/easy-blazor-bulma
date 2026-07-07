@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
@@ -94,7 +93,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
-	private readonly string[] Filter = new[] { "class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class" };
+	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
@@ -106,7 +105,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "ArrowDown", "ArrowUp", "Enter" };
+	private readonly string[] DefaultKeys = ["Escape", "ArrowDown", "ArrowUp", "Enter"];
 
 	private string MainCssClass
 	{
@@ -280,6 +279,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		if (OnBlurPreventDefault)
 			return;
+
 		IsPopoutDisplayed = false;
 	}
 

@@ -43,8 +43,6 @@ public partial class BooleanIcon : ComponentBase
     [Parameter]
     public BulmaColors FalseColor { get; set; } = BulmaColors.Red;
 
-// Removed unused fields DefaultTrueIcon, DefaultFalseIcon, DefaultTrueColor, and DefaultFalseColor.
-
     private readonly string[] Filter = new[] { "class" };
 
     private string MainCssClass

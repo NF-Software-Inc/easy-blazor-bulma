@@ -23,22 +23,6 @@ public static class AttributeHelper
     }
 
     /// <summary>
-    /// Looks for the provided HTML attribute value and returns its value.
-    /// </summary>
-    /// <param name="attributes">The collection containing HTML attribute data.</param>
-    /// <param name="selector">The HTML attribute name to return.</param>
-    [Obsolete("Nearly identical to GetValue, only prepends the returned CSS with a space.")]
-    public static string? GetClass(this IReadOnlyDictionary<string, object>? attributes, string selector)
-    {
-        if (attributes == null)
-            return null;
-        else if (attributes.TryGetValue(selector, out var css) && string.IsNullOrWhiteSpace(Convert.ToString(css, CultureInfo.InvariantCulture)) == false)
-            return $" {css}";
-        else
-            return null;
-    }
-
-    /// <summary>
     /// Returns all values in the provided collection except those with keys specified in the filter.
     /// </summary>
     /// <param name="attributes">The collection containing HTML attribute data.</param>

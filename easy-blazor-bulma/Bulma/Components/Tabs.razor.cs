@@ -55,13 +55,6 @@ public partial class Tabs : ComponentBase
     [Parameter]
 	public bool IsRounded { get; set; } = true;
 
-    /// <summary>
-    /// Event that occurs when an item in the tab bar is clicked.
-    /// </summary>
-    [Parameter]
-	[Obsolete("Use OnTabClicked instead.")]
-    public Func<string?, Task>? OnItemClicked { get; set; }
-
 	/// <summary>
 	/// Event that occurs when an item in the tab bar is clicked.
 	/// </summary>
@@ -199,9 +192,6 @@ public partial class Tabs : ComponentBase
 	{
 		if (tab.AdditionalAttributes != null && tab.AdditionalAttributes.Any(x => x.Key == "disabled" && (x.Value.ToString() == "disabled" || x.Value.ToString() == "true")))
 			return;
-
-        if (OnItemClicked != null)
-            await OnItemClicked.Invoke(tab.Name);
 
 		if (OnTabClicked.HasDelegate)
 			await OnTabClicked.InvokeAsync(tab);

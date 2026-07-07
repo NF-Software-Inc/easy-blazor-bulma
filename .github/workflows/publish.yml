@@ -51,26 +51,6 @@ jobs:
             echo "Build=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
             echo "Deploy=${{ github.event_name == 'release' }}" >> "$GITHUB_OUTPUT"
           fi
-  android:
-    needs: [ prepare ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android') }}
-    permissions:
-      contents: write
-    uses: ./.github/workflows/publish-android.yml
-    with:
-      build: ${{ needs.prepare.outputs.Build }}
-      version: ${{ needs.prepare.outputs.Version }}
-    secrets: inherit
-  ios:
-    needs: [ prepare ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS') }}
-    permissions:
-      contents: write
-    uses: ./.github/workflows/publish-ios.yml
-    with:
-      build: ${{ needs.prepare.outputs.Build }}
-      version: ${{ needs.prepare.outputs.Version }}
-    secrets: inherit
   nuget:
     needs: [ prepare ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'NuGet') }}
@@ -82,8 +62,62 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
       deploy: ${{ needs.prepare.outputs.Deploy == 'true' }}
     secrets: inherit
+  nuget-wait:
+    needs: [ prepare, nuget ]
+    if: always()
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Wait for NuGet package indexing
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ needs.prepare.outputs.Targets }}" != *"All"* && "${{ needs.prepare.outputs.Targets }}" != *"NuGet"* ]]; then
+            echo "NuGet deployment not requested, skipping wait."
+            exit 0
+          fi
+
+          echo "Waiting for package Easy.Blazor.Bulma version ${{ needs.prepare.outputs.Version }}"
+
+          for i in {1..20}; do
+            if curl -fsSL "https://api.nuget.org/v3-flatcontainer/Easy.Blazor.Bulma/index.json" | jq -e --arg version "${{ needs.prepare.outputs.Version }}" '.versions | index($version)' >/dev/null
+            then
+              echo "Package version ${{ needs.prepare.outputs.Version }} is available."
+              exit 0
+            fi
+
+            echo "Attempt $i/20 - version not yet indexed."
+            sleep 15
+          done
+
+          echo "Timed out waiting for version ${{ needs.prepare.outputs.Version }} to appear."
+          exit 1
+  android:
+    needs: [ prepare, nuget-wait ]
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android') }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-android.yml
+    with:
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
+    secrets: inherit
+  ios:
+    needs: [ prepare, nuget-wait ]
+    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS') }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-ios.yml
+    with:
+      build: ${{ needs.prepare.outputs.Build }}
+      version: ${{ needs.prepare.outputs.Version }}
+    secrets: inherit
   mac-catalyst:
-    needs: [ prepare ]
+    needs: [ prepare, nuget-wait ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Mac Catalyst') }}
     permissions:
       contents: write
@@ -93,7 +127,7 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   windows-arm64:
-    needs: [ prepare ]
+    needs: [ prepare, nuget-wait ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
     permissions:
       contents: write
@@ -104,7 +138,7 @@ jobs:
       version: ${{ needs.prepare.outputs.Version }}
     secrets: inherit
   windows-x64:
-    needs: [ prepare ]
+    needs: [ prepare, nuget-wait ]
     if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
     permissions:
       contents: write
