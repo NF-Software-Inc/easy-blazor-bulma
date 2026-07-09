@@ -92,7 +92,14 @@
 		if (_pendingAppend && _masonry != null)
 		{
 			_pendingAppend = false;
-			await _masonry.Append();
+            await _masonry.Append();    // Trigger the Masonry component to append new items and recalculate the layout.
+
+            // If we were busy loading more items, we can now mark that we're no longer busy and trigger a UI update.
+			if (IsBusy)
+			{
+				IsBusy = false;
+                StateHasChanged();  // Trigger a UI update to reflect that the loading operation has completed.
+			}
 		}
 	}
 
@@ -113,9 +120,6 @@
         _pendingAppend = true;  // Mark that we need to append new items to the masonry layout.
 
 		StateHasChanged();
-        await Task.Yield(); // Ensures the UI updates before the masonry layout is recalculated.
-
-		IsBusy = false;
 	}
 
 	/// <summary>

@@ -144,7 +144,14 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (JsRuntime == null || IsInitialized == false)
 			return false;
 
-		return await JsRuntime.MasonryAppended(ContainerId, ItemSelector);
+		// Reloading items before layout is more robust for virtual DOM updates,
+		// especially when multiple existing and new items are present.
+		var reloaded = await JsRuntime.MasonryReloadItems(ContainerId);
+
+		if (reloaded == false)
+			return false;
+
+		return await JsRuntime.MasonryLayout(ContainerId);
 	}
 
     /// <summary>
