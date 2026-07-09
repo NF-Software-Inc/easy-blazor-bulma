@@ -106,13 +106,12 @@
 		if (_pendingAppend && _masonry != null)
 		{
 			_pendingAppend = false;
-            await _masonry.Append();    // Trigger the Masonry component to append new items and recalculate the layout.
+            await _masonry.Append();
 
-            // If we were busy loading more items, we can now mark that we're no longer busy and trigger a UI update.
 			if (IsBusy)
 			{
 				IsBusy = false;
-                StateHasChanged();  // Trigger a UI update to reflect that the loading operation has completed.
+                StateHasChanged();
 			}
 		}
 	}
@@ -131,7 +130,7 @@
 		// Simulates a short API/database fetch so the demo feels realistic.
 		await Task.Delay(250);
 		AddTiles(10);
-        _pendingAppend = true;  // Mark that we need to append new items to the masonry layout.
+        _pendingAppend = true;
 
 		StateHasChanged();
 	}
@@ -154,7 +153,7 @@
 	{
 		for (var i = 0; i < count; i++)
 		{
-			var template = Catalog[_nextId % Catalog.Count];    // Use modulo to loop through the catalog if we exceed its size.
+			var template = Catalog[_nextId % Catalog.Count];
 			var id = _nextId + 1;
 			_nextId++;
 
