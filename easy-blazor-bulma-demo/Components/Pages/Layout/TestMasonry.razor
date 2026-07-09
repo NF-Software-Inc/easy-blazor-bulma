@@ -8,7 +8,6 @@
         <Level class="mb-3">
             <LevelItem class="is-justify-content-flex-start">
                 <div class="buttons">
-                    <button class="button is-primary" @onclick="LoadMore" disabled="@IsBusy">Load More</button>
 					<button class="button is-info" title="Recalculate item positions" @onclick="RefreshLayout" disabled="@IsBusy">Refresh Layout</button>
                 </div>
             </LevelItem>
@@ -34,6 +33,21 @@
 				}
 			</Masonry>
 		</MasonryInfiniteScroll>
+
+		@if (UseInfiniteScroll == false)
+		{
+			<div class="has-text-centered mt-4">
+				<button class="button is-primary" @onclick="LoadMore" disabled="@IsBusy">Load More</button>
+				@if (IsBusy)
+				{
+					<p class="is-size-7 has-text-grey mt-2">Loading more...</p>
+				}
+			</div>
+		}
+		else if (IsBusy)
+		{
+			<p class="is-size-7 has-text-grey mt-3 has-text-centered">Loading more...</p>
+		}
 	</Panel>
 </div>
 
