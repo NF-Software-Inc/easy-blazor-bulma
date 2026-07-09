@@ -136,10 +136,11 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		return await JsRuntime.MasonryReloadItems(ContainerId);
 	}
 
-	/// <summary>
-	/// Appends items matching <see cref="ItemSelector"/> and applies layout.
-	/// </summary>
-	public async Task<bool> Append()
+    /// <summary>
+    /// Reloads items then re-reads item elements and recalculates item positions.
+    /// </summary>
+    /// <returns>True if the operation was successful; otherwise, false.</returns>
+    public async Task<bool> Append()
 	{
 		if (JsRuntime == null || IsInitialized == false)
 			return false;
