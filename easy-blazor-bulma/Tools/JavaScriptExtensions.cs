@@ -134,9 +134,9 @@ public static class JavaScriptExtensions
     /// Initializes a Masonry instance for the specified element id.
     /// </summary>
     /// <param name="id">The id of the element to initialize Masonry on.</param>
-    /// <param name="options">The Masonry options object.</param>
+    /// <param name="options">The Masonry options object. Default is null.</param>
     /// <param name="token">A cancellation token to abort the request.</param>
-    public async static Task<bool> MasonryInitialize(this IJSRuntime jSRuntime, string id, object options, CancellationToken? token = null)
+    public async static Task<bool> MasonryInitialize(this IJSRuntime jSRuntime, string id, object? options = null, CancellationToken? token = null)
     {
         return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.initialize", token ?? CancellationToken.None, id, options);
     }
@@ -176,15 +176,15 @@ public static class JavaScriptExtensions
 	/// </summary>
 	/// <param name="sentinelId">The id of the sentinel element to observe.</param>
 	/// <param name="dotNetReference">A DotNetObjectReference used for JS-to-.NET callback.</param>
-	/// <param name="threshold">Intersection ratio required to trigger callback.</param>
-	/// <param name="rootMargin">Margin around the root used for intersection checks.</param>
+	/// <param name="threshold">Intersection ratio required to trigger callback. Default is 0.1.</param>
+	/// <param name="rootMargin">Margin around the root used for intersection checks. Default is "0px".</param>
 	/// <param name="token">A cancellation token to abort the request.</param>
 	public async static Task<bool> MasonryObserveInfiniteScroll<TComponent>(
 		this IJSRuntime jSRuntime,
 		string sentinelId,
 		DotNetObjectReference<TComponent> dotNetReference,
-		double threshold,
-		string rootMargin,
+		double threshold = 0.1,
+		string rootMargin = "0px",
 		CancellationToken? token = null)
 		where TComponent : class
 	{
