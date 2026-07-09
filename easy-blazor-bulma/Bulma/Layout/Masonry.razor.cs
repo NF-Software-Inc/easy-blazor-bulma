@@ -17,7 +17,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// CSS selector used by Masonry.js to identify layout items.
 	/// </summary>
 	[Parameter]
-	public string ItemSelector { get; set; } = ".masonry-item";
+	public string ItemSelector { get; set; } = MasonryItem.DefaultSelector;
 
 	/// <summary>
 	/// Fixed column width in pixels.

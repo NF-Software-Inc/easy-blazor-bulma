@@ -162,17 +162,6 @@ public static class JavaScriptExtensions
     }
 
     /// <summary>
-    /// Appends matching items to the Masonry instance, then updates layout.
-    /// </summary>
-    /// <param name="id">The id of the Masonry container element.</param>
-    /// <param name="selector">A CSS selector for appended items.</param>
-    /// <param name="token">A cancellation token to abort the request.</param>
-    public async static Task<bool> MasonryAppended(this IJSRuntime jSRuntime, string id, string selector, CancellationToken? token = null)
-    {
-        return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.masonry.appended", token ?? CancellationToken.None, id, selector);
-    }
-
-    /// <summary>
     /// Destroys a Masonry instance for the specified element id.
     /// </summary>
     /// <param name="id">The id of the Masonry container element.</param>

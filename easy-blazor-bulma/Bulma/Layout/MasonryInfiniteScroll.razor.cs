@@ -55,9 +55,13 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	private IJSRuntime? JsRuntime;
 	private DotNetObjectReference<MasonryInfiniteScroll>? DotNetReference;
 	private bool IsObserving;
+    /// <summary>
+    /// Flag to indicate whether a load operation is currently in progress. This prevents multiple concurrent load requests when the sentinel becomes visible.
+    /// </summary>
+    private int _loadInProgress;
 
-	/// <inheritdoc />
-	protected override void OnInitialized()
+    /// <inheritdoc />
+    protected override void OnInitialized()
 	{
 		JsRuntime = ServiceProvider.GetService<IJSRuntime>();
 		DotNetReference = DotNetObjectReference.Create(this);
@@ -84,17 +88,34 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 		}
 	}
 
-	/// <summary>
-	/// JS callback invoked when the sentinel becomes visible.
-	/// </summary>
-	[JSInvokable]
+    /// <summary>
+    /// JS callback invoked when the sentinel becomes visible in the viewport.
+	/// This method invokes the <see cref="OnLoadMore"/> callback if infinite scrolling is enabled and no load operation is currently in progress.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [JSInvokable]
 	public async Task OnSentinelVisible()
 	{
-		if (IsEnabled == false || IsBusy || OnLoadMore.HasDelegate == false)
-			return;
+        if (IsEnabled == false || OnLoadMore.HasDelegate == false)
+            return;
 
-		await OnLoadMore.InvokeAsync();
-	}
+        // Set a flag indicating that a load is in progress.
+        if (Interlocked.Exchange(ref _loadInProgress, 1) == 1)
+            return;
+
+        try
+        {
+            if (IsBusy)
+                return;
+
+            await OnLoadMore.InvokeAsync();
+        }
+        finally
+        {
+            // Reset the load-in-progress flag to allow future load requests.
+            Volatile.Write(ref _loadInProgress, 0);
+        }
+    }
 
 	/// <inheritdoc />
 	public async ValueTask DisposeAsync()

@@ -166,29 +166,6 @@ window.easyBlazorBulma = {
         },
 
         /**
-         * Triggers an appended layout on the Masonry.js instance with the specified identity value and selector.
-         * @param {any} id The identity value of the Masonry.js instance to trigger an appended layout on.
-         * @param {any} selector The selector to use to find the items to append. Defaults to ".masonry-item" if not provided.
-         * @returns {boolean} true when the appended layout is successfully triggered, otherwise false.
-         */
-        appended: function (id, selector) {
-            var instance = this._instances.get(id);
-
-            if (!instance)
-                return false;
-
-            var root = document.getElementById(id);
-
-            if (root === null)
-                return false;
-
-            var items = root.querySelectorAll(selector || ".masonry-item");
-            instance.appended(items);
-            instance.layout();
-            return true;
-        },
-
-        /**
          * Destroys the Masonry.js instance with the specified identity value.
          * @param {any} id The identity value of the Masonry.js instance to destroy.
          * @returns {boolean} true when the instance is successfully destroyed, otherwise false.
