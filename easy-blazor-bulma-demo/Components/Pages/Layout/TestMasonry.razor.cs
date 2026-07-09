@@ -7,7 +7,6 @@ public partial class TestMasonry : ComponentBase
 {
     private Masonry? _masonry;
     private readonly List<DemoTile> Tiles = [];
-    private readonly Random Random = new();
     private bool UseInfiniteScroll = true;
     private bool IsBusy;
     private bool _pendingAppend;
