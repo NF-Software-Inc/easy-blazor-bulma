@@ -91,13 +91,13 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	[Inject]
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
-    private readonly string[] Filter = ["class", "id"];
+	private readonly string[] Filter = ["class"];
 	private readonly string GeneratedId = $"masonry-{Guid.NewGuid().ToHtmlId()}";
 	private bool IsInitialized;
 
 	private string MainCssClass => string.Join(' ', "masonry", AdditionalAttributes.GetValue("class"));
 
-	private string ContainerId => AdditionalAttributes.GetValue("id") ?? GeneratedId;
+	private string ContainerId => GeneratedId;
 
 	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)

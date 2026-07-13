@@ -10,14 +10,21 @@ namespace easy_blazor_bulma;
 public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 {
 	/// <summary>
-	/// Intersection ratio required to trigger <see cref="OnLoadMore"/>.
+	/// Intersection ratio that triggers <see cref="OnLoadMore"/>.
 	/// </summary>
+	/// <remarks>
+	/// Use a value from 0 to 1. Lower values trigger earlier.
+	/// </remarks>
 	[Parameter]
 	public double Threshold { get; set; } = 0.1;
 
 	/// <summary>
-	/// Margin around the observer root.
+	/// Margin around the viewport used by the intersection observer.
 	/// </summary>
+	/// <remarks>
+	/// Accepts CSS margin syntax such as <c>"0px"</c> or <c>"200px 0px"</c>.
+	/// Positive values trigger earlier; negative values trigger later.
+	/// </remarks>
 	[Parameter]
 	public string RootMargin { get; set; } = "0px";
 
@@ -49,7 +56,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
     private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid().ToHtmlId()}";
-	private DotNetObjectReference<MasonryInfiniteScroll>? DotNetReference;
+	private DotNetObjectReference<SentinelCallbackBridge>? DotNetReference;
 	private bool IsObserving;
     /// <summary>
     /// Flag to indicate whether a load operation is currently in progress. This prevents multiple concurrent load requests when the sentinel becomes visible.
@@ -59,7 +66,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
-		DotNetReference = DotNetObjectReference.Create(this);
+		DotNetReference = DotNetObjectReference.Create(new SentinelCallbackBridge(this));
 	}
 
 	/// <inheritdoc />
@@ -86,12 +93,11 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	}
 
     /// <summary>
-    /// JS callback invoked when the sentinel becomes visible in the viewport.
-	/// This method invokes the <see cref="OnLoadMore"/> callback if infinite scrolling is enabled and no load operation is currently in progress.
+    /// Called when the sentinel becomes visible in the viewport.
+    /// This method invokes the <see cref="OnLoadMore"/> callback if infinite scrolling is enabled and no load operation is currently in progress.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
-    [JSInvokable]
-	public async Task OnSentinelVisible()
+    internal async Task OnSentinelVisibleAsync()
 	{
         if (IsEnabled == false || OnLoadMore.HasDelegate == false)
             return;
@@ -123,4 +129,32 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 		DotNetReference?.Dispose();
 		GC.SuppressFinalize(this);
 	}
+
+
+    /// <summary>
+    /// A bridge class to handle JS callbacks for the sentinel visibility.
+    /// </summary>
+    /// <remarks>
+    /// This class is used to decouple the JS callback from the main component, allowing for better encapsulation and easier testing.
+    /// </remarks>
+    internal sealed class SentinelCallbackBridge
+    {
+        /// <summary>
+        /// Reference to the owning <see cref="MasonryInfiniteScroll"/> component.
+        /// </summary>
+        private readonly MasonryInfiniteScroll _owner;
+
+        public SentinelCallbackBridge(MasonryInfiniteScroll owner)
+        {
+            _owner = owner;
+        }
+
+        /// <summary>
+        /// JSInvokable method called when the sentinel becomes visible in the viewport.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        [JSInvokable]
+        public Task OnSentinelVisible()
+            => _owner.OnSentinelVisibleAsync();
+    }
 }
