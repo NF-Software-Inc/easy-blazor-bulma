@@ -112,7 +112,7 @@ window.easyBlazorBulma = {
     /**
      * Wrapper functions around Masonry.js instances.
      */
-    masonry: {
+    Masonry: {
         _instances: new Map(),
         _observers: new Map(),
 
@@ -122,13 +122,13 @@ window.easyBlazorBulma = {
          * @param {any} options The options to initialize the Masonry.js instance with.
          * @returns {boolean} true when the instance is successfully initialized, otherwise false.
          */
-        initialize: function (id, options) {
+        Initialize: function (id, options) {
             var element = document.getElementById(id);
 
             if (element === null || typeof Masonry === "undefined")
                 return false;
 
-            this.destroy(id);
+            this.Destroy(id);
 
             var instance = new Masonry(element, options || {});
             this._instances.set(id, instance);
@@ -140,7 +140,7 @@ window.easyBlazorBulma = {
          * @param {any} id The identity value of the Masonry.js instance to trigger a layout on.
          * @returns {boolean} true when the layout is successfully triggered, otherwise false.
          */
-        layout: function (id) {
+        Layout: function (id) {
             var instance = this._instances.get(id);
 
             if (!instance)
@@ -155,7 +155,7 @@ window.easyBlazorBulma = {
          * @param {any} id The identity value of the Masonry.js instance to trigger a reload of items on.
          * @returns {boolean} true when the reload of items is successfully triggered, otherwise false.
          */
-        reloadItems: function (id) {
+        ReloadItems: function (id) {
             var instance = this._instances.get(id);
 
             if (!instance)
@@ -170,7 +170,7 @@ window.easyBlazorBulma = {
          * @param {any} id The identity value of the Masonry.js instance to destroy.
          * @returns {boolean} true when the instance is successfully destroyed, otherwise false.
          */
-        destroy: function (id) {
+        Destroy: function (id) {
             var instance = this._instances.get(id);
 
             if (!instance)
@@ -189,13 +189,13 @@ window.easyBlazorBulma = {
          * @param {any} rootMargin The root margin value to use for the IntersectionObserver. Defaults to "0px" if not provided.
          * @returns {boolean} true when the observer is successfully created and observing the specified element, otherwise false.
          */
-        observeInfiniteScroll: function (sentinelId, dotNetRef, threshold, rootMargin) {
+        ObserveInfiniteScroll: function (sentinelId, dotNetRef, threshold, rootMargin) {
             var sentinel = document.getElementById(sentinelId);
 
             if (sentinel === null || dotNetRef === null || typeof IntersectionObserver === "undefined")
                 return false;
 
-            this.unobserveInfiniteScroll(sentinelId);
+            this.UnobserveInfiniteScroll(sentinelId);
 
             var observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -217,7 +217,7 @@ window.easyBlazorBulma = {
          * @param {any} sentinelId The identity value of the DOM element to stop observing for intersection changes.
          * @returns {boolean} true when the observer is successfully stopped and removed, otherwise false.
          */
-        unobserveInfiniteScroll: function (sentinelId) {
+        UnobserveInfiniteScroll: function (sentinelId) {
             var observer = this._observers.get(sentinelId);
 
             if (!observer)

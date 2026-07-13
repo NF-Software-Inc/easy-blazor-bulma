@@ -52,3 +52,7 @@ bld/
 
 # XML Documentation file
 easy-blazor-bulma/easy-blazor-bulma.xml
+
+# Static Assets
+/easy-blazor-bulma/wwwroot/css
+/easy-blazor-bulma/wwwroot/js

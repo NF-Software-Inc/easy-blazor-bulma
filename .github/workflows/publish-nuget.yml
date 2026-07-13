@@ -56,6 +56,7 @@ jobs:
         cp ${{ env.TempDirectory }}/CSS/easy-blazor-bulma-dark.css ${{ github.workspace }}/easy-blazor-bulma/wwwroot/css/
 
         cp JavaScript/easy-blazor-bulma.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
+        cp JavaScript/masonry.pkgd.min.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
       working-directory: easy-blazor-bulma
     - name: Setup .NET
       uses: actions/setup-dotnet@v4.3.1

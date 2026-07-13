@@ -110,7 +110,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 			return false;
 
 		var options = BuildOptions();
-		IsInitialized = await JsRuntime.MasonryInitialize(ContainerId, options);
+		IsInitialized = await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Initialize", CancellationToken.None, ContainerId, options);
 		return IsInitialized;
 	}
 
@@ -122,7 +122,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (JsRuntime == null || IsInitialized == false)
 			return false;
 
-		return await JsRuntime.MasonryLayout(ContainerId);
+		return await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Layout", CancellationToken.None, ContainerId);
 	}
 
 	/// <summary>
@@ -133,7 +133,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (JsRuntime == null || IsInitialized == false)
 			return false;
 
-		return await JsRuntime.MasonryReloadItems(ContainerId);
+		return await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.ReloadItems", CancellationToken.None, ContainerId);
 	}
 
     /// <summary>
@@ -145,12 +145,12 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (JsRuntime == null || IsInitialized == false)
 			return false;
 
-		var reloaded = await JsRuntime.MasonryReloadItems(ContainerId);
+		var reloaded = await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.ReloadItems", CancellationToken.None, ContainerId);
 
 		if (reloaded == false)
 			return false;
 
-		return await JsRuntime.MasonryLayout(ContainerId);
+		return await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Layout", CancellationToken.None, ContainerId);
 	}
 
     /// <summary>
@@ -181,7 +181,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	public async ValueTask DisposeAsync()
 	{
 		if (JsRuntime != null && IsInitialized)
-			await JsRuntime.MasonryDestroy(ContainerId);
+			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Destroy", CancellationToken.None, ContainerId);
 
 		GC.SuppressFinalize(this);
 	}

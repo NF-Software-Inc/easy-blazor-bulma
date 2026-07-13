@@ -106,8 +106,10 @@
 		<None Remove="external\**" />
 		<Content Remove="compilerconfig.json" />
 		<Content Remove="JavaScript\easy-blazor-bulma.js" />
+		<Content Remove="JavaScript\masonry.pkgd.min.js" />
 		<None Include="compilerconfig.json" />
 		<None Include="JavaScript\easy-blazor-bulma.js" />
+		<None Include="JavaScript\masonry.pkgd.min.js" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -164,6 +166,7 @@
 		<MakeDir Directories="$(ProjectDir)wwwroot\css" />
 
 		<Copy SourceFiles="$(ProjectDir)JavaScript\easy-blazor-bulma.js" DestinationFiles="$(ProjectDir)wwwroot\js\easy-blazor-bulma.js" />
+		<Copy SourceFiles="$(ProjectDir)JavaScript\masonry.pkgd.min.js" DestinationFiles="$(ProjectDir)wwwroot\js\masonry.pkgd.min.js" />
 	</Target>
 
 	<!-- Release -->
