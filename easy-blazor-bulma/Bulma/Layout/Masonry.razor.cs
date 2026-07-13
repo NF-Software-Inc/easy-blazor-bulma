@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using easy_core;
+using System.Globalization;
 
 namespace easy_blazor_bulma;
 
@@ -13,22 +15,33 @@ namespace easy_blazor_bulma;
 /// </remarks>
 public partial class Masonry : ComponentBase, IAsyncDisposable
 {
+    /// <summary>
+    /// Default column width in pixels when neither <see cref="ColumnWidth"/> nor <see cref="ColumnWidthSelector"/> is specified.
+    /// </summary>
+    private const int DefaultColumnWidth = 240;
+
 	/// <summary>
 	/// CSS selector used by Masonry.js to identify layout items.
 	/// </summary>
 	[Parameter]
 	public string ItemSelector { get; set; } = MasonryItem.DefaultSelector;
 
-	/// <summary>
-	/// Fixed column width in pixels.
-	/// </summary>
-	[Parameter]
+    /// <summary>
+    /// Fixed column width in pixels.
+    /// </summary>
+    /// <remarks>
+    /// Use when columns are fixed-size in the Masonry layout. Don't combine with <see cref="ColumnWidthSelector"/>.
+    /// </remarks>
+    [Parameter]
 	public int? ColumnWidth { get; set; }
 
-	/// <summary>
-	/// CSS selector for an element used to size columns.
-	/// </summary>
-	[Parameter]
+    /// <summary>
+    /// CSS selector for a sizing element (e.g. <c>.grid-sizer</c>) used by Masonry.js to calculate column width.
+    /// </summary>
+    /// <remarks>
+    /// Element must be inside the Masonry container. Don't combine with <see cref="ColumnWidth"/>.
+    /// </remarks>
+    [Parameter]
 	public string? ColumnWidthSelector { get; set; }
 
 	/// <summary>
@@ -37,10 +50,13 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	[Parameter]
 	public int Gutter { get; set; }
 
-	/// <summary>
-	/// Uses percentage-based positioning when true.
-	/// </summary>
-	[Parameter]
+    /// <summary>
+    /// Whether to use percentage-based positioning.
+    /// </summary>
+	/// <remarks>
+	/// Typically true for responsive layouts (recommended with <see cref="ColumnWidthSelector"/>).
+	/// </remarks>
+    [Parameter]
 	public bool PercentPosition { get; set; } = true;
 
 	/// <summary>
@@ -53,7 +69,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// CSS transition duration for layout changes.
 	/// </summary>
 	[Parameter]
-	public string TransitionDuration { get; set; } = "0.4s";
+	public TimeSpan TransitionDuration { get; set; } = TimeSpan.FromMilliseconds(400);
 
 	/// <summary>
 	/// Automatically initializes Masonry on first render when true.
@@ -80,7 +96,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private readonly string[] Filter = ["class", "id"];
-	private readonly string GeneratedId = $"masonry-{Guid.NewGuid():N}";
+	private readonly string GeneratedId = $"masonry-{Guid.NewGuid().ToHtmlId()}";
 	private IJSRuntime? JsRuntime;
 	private bool IsInitialized;
 
@@ -159,9 +175,11 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
     /// <returns>A dictionary containing the Masonry.js options.</returns>
     private Dictionary<string, object?> BuildOptions()
 	{
-		object? columnWidth = null;
+		object? columnWidth = DefaultColumnWidth;
 
-		if (string.IsNullOrWhiteSpace(ColumnWidthSelector) == false)
+        // Determine the column width based on the provided parameters.
+        // If ColumnWidthSelector is specified, it takes precedence over ColumnWidth.
+        if (string.IsNullOrWhiteSpace(ColumnWidthSelector) == false)
 			columnWidth = ColumnWidthSelector;
 		else if (ColumnWidth.HasValue)
 			columnWidth = ColumnWidth.Value;
@@ -173,8 +191,18 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 			["gutter"] = Gutter,
 			["percentPosition"] = PercentPosition,
 			["horizontalOrder"] = HorizontalOrder,
-			["transitionDuration"] = TransitionDuration
+			["transitionDuration"] = ToCssDuration(TransitionDuration)
 		};
+	}
+
+    /// <summary>
+    /// Converts a TimeSpan to a CSS-compatible duration string in milliseconds.
+    /// </summary>
+    /// <param name="duration">The duration to convert.</param>
+    /// <returns>A CSS-compatible duration string in milliseconds.</returns>
+    private static string ToCssDuration(TimeSpan duration)
+	{
+		return $"{duration.TotalMilliseconds.ToString("0.###", CultureInfo.InvariantCulture)}ms";
 	}
 
 	/// <inheritdoc />

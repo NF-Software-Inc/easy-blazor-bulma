@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using easy_core;
 
 namespace easy_blazor_bulma;
 
@@ -51,7 +52,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
     [Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
-	private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid():N}";
+    private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid().ToHtmlId()}";
 	private IJSRuntime? JsRuntime;
 	private DotNetObjectReference<MasonryInfiniteScroll>? DotNetReference;
 	private bool IsObserving;
