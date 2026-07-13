@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using easy_core;
 using System.Globalization;
@@ -89,26 +88,16 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    /// <summary>
-    /// Service provider for resolving dependencies. Used to obtain an <see cref="IJSRuntime"/> instance for JavaScript interop.
-    /// </summary>
-    [Inject]
-	private IServiceProvider ServiceProvider { get; init; } = default!;
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
 
-	private readonly string[] Filter = ["class", "id"];
+    private readonly string[] Filter = ["class", "id"];
 	private readonly string GeneratedId = $"masonry-{Guid.NewGuid().ToHtmlId()}";
-	private IJSRuntime? JsRuntime;
 	private bool IsInitialized;
 
 	private string MainCssClass => string.Join(' ', "masonry", AdditionalAttributes.GetValue("class"));
 
 	private string ContainerId => AdditionalAttributes.GetValue("id") ?? GeneratedId;
-
-	/// <inheritdoc />
-	protected override void OnInitialized()
-	{
-		JsRuntime = ServiceProvider.GetService<IJSRuntime>();
-	}
 
 	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
@@ -122,9 +111,6 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task<bool> Initialize()
 	{
-		if (JsRuntime == null)
-			return false;
-
 		var options = BuildOptions();
 		IsInitialized = await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Initialize", CancellationToken.None, ContainerId, options);
 		return IsInitialized;
@@ -135,7 +121,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task<bool> Layout()
 	{
-		if (JsRuntime == null || IsInitialized == false)
+		if (IsInitialized == false)
 			return false;
 
 		return await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Layout", CancellationToken.None, ContainerId);
@@ -146,7 +132,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// </summary>
 	public async Task<bool> ReloadItems()
 	{
-		if (JsRuntime == null || IsInitialized == false)
+		if (IsInitialized == false)
 			return false;
 
 		return await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.ReloadItems", CancellationToken.None, ContainerId);
@@ -158,7 +144,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
     /// <returns>True if the operation was successful; otherwise, false.</returns>
     public async Task<bool> Append()
 	{
-		if (JsRuntime == null || IsInitialized == false)
+		if (IsInitialized == false)
 			return false;
 
 		var reloaded = await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.ReloadItems", CancellationToken.None, ContainerId);
@@ -208,7 +194,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
-		if (JsRuntime != null && IsInitialized)
+		if (IsInitialized)
 			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.Destroy", CancellationToken.None, ContainerId);
 
 		GC.SuppressFinalize(this);

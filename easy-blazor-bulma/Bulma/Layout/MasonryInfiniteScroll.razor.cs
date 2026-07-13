@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using easy_core;
 
@@ -46,14 +45,10 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	[Parameter]
 	public RenderFragment? ChildContent { get; set; }
 
-    /// <summary>
-    /// Service provider for resolving JS runtime. This is injected to avoid direct dependency on IJSRuntime.
-    /// </summary>
-    [Inject]
-	private IServiceProvider ServiceProvider { get; init; } = default!;
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
 
     private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid().ToHtmlId()}";
-	private IJSRuntime? JsRuntime;
 	private DotNetObjectReference<MasonryInfiniteScroll>? DotNetReference;
 	private bool IsObserving;
     /// <summary>
@@ -61,17 +56,16 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
     /// </summary>
     private int _loadInProgress;
 
-    /// <inheritdoc />
-    protected override void OnInitialized()
+	/// <inheritdoc />
+	protected override void OnInitialized()
 	{
-		JsRuntime = ServiceProvider.GetService<IJSRuntime>();
 		DotNetReference = DotNetObjectReference.Create(this);
 	}
 
 	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (JsRuntime == null || DotNetReference == null)
+		if (DotNetReference == null)
 			return;
 
 		if (IsEnabled && IsObserving == false)
@@ -123,7 +117,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	/// <inheritdoc />
 	public async ValueTask DisposeAsync()
 	{
-		if (JsRuntime != null && IsObserving)
+		if (IsObserving)
 			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.UnobserveInfiniteScroll", CancellationToken.None, SentinelId);
 
 		DotNetReference?.Dispose();
