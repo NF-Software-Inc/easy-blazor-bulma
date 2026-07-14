@@ -5,23 +5,71 @@
 
 <div class="container pt-3">
 	<Panel Title="Masonry + Optional Infinite Scroll" Color="BulmaColors.Blue">
-        <Level class="mb-3">
-            <LevelItem class="is-justify-content-flex-start">
-                <div class="buttons">
-					<button class="button is-info" title="Recalculate item positions" @onclick="RefreshLayout" disabled="@IsBusy">Refresh Layout</button>
-                </div>
-            </LevelItem>
+		<div class="columns is-variable is-4 mb-3">
+			<div class="column is-12-mobile is-8-tablet">
+				<Panel Title="Options">
+					<div class="columns is-multiline">
+						<div class="column is-12-mobile is-4-tablet">
+							<label class="label is-size-7" title="Fixed width in pixels for each masonry column.">Column Width (px)</label>
+							<input class="input" type="number" min="80" step="1" @bind="MasonryColumnWidth" />
+						</div>
 
-            <LevelItem class="is-justify-content-flex-end">
-                <InputSwitch @bind-Value="UseInfiniteScroll" Label="Infinite Scroll" IsBoxed="false" />
-            </LevelItem>
-        </Level>
+						<div class="column is-12-mobile is-4-tablet">
+							<label class="label is-size-7" title="Animation duration for item movement when layout updates.">Transition (ms)</label>
+							<input class="input" type="number" min="0" step="25" @bind="MasonryTransitionMs" />
+						</div>
+
+						<div class="column is-12-mobile is-4-tablet">
+							<label class="label is-size-7" title="Spacing in pixels between masonry items.">Gutter (px)</label>
+							<input class="input" type="number" min="0" step="1" @bind="MasonryGutter" />
+						</div>
+						<div class="column is-12-mobile is-8-tablet">
+							<label class="label is-size-7" title="CSS selector used by Masonry to find items. Keep this aligned with the item class.">Item Selector</label>
+							<input class="input" type="text" @bind="MasonryItemSelector" />
+							<p class="help">Default is <code>.masonry-item</code>. If this selector does not match item elements, layout will fail.</p>
+						</div>
+						<div class="column is-12-mobile is-4-tablet">
+							<div title="Places items left-to-right instead of top-to-bottom packing order." class="mb-3">
+								<InputSwitch class="is-small" @bind-Value="MasonryHorizontalOrder" Label="Horizontal Order" IsBoxed="false" />
+							</div>
+							<div title="Uses percentage-based positioning. Usually best for responsive layouts.">
+								<InputSwitch class="is-small" @bind-Value="MasonryPercentPosition" Label="Percent Position" IsBoxed="false" />
+							</div>
+						</div>
+						<div class="column is-12-mobile">
+							<div class="buttons mt-2 is-justify-content-center">
+								<button class="button is-link is-small" title="Apply current option values to Masonry" @onclick="ApplyMasonryOptions" disabled="@IsBusy">Apply Options</button>
+							</div>
+						</div>
+					</div>
+				</Panel>
+			</div>
+
+			<div class="column is-12-mobile is-4-tablet">
+				<Panel Title="Actions">
+					<div class="is-flex is-justify-content-space-between is-align-items-center" style="gap:0.75rem;">
+						<div class="buttons mb-0">
+							<button class="button is-info" title="Recalculate item positions" @onclick="RefreshLayout" disabled="@IsBusy">Refresh Layout</button>
+						</div>
+						<div title="Automatically loads more tiles when the sentinel enters the viewport.">
+							<InputSwitch @bind-Value="UseInfiniteScroll" Label="Infinite Scroll" IsBoxed="false" />
+						</div>
+					</div>
+				</Panel>
+			</div>
+		</div>
 
 		<MasonryInfiniteScroll OnLoadMore="@LoadMore" IsEnabled="@UseInfiniteScroll" IsBusy="@IsBusy">
-			<Masonry @ref="_masonry" ColumnWidth="240" Gutter="12" PercentPosition="true">
+			<Masonry @ref="_masonry"
+					 ItemSelector="@MasonryItemSelector"
+					 ColumnWidth="@MasonryColumnWidth"
+					 Gutter="@MasonryGutter"
+					 PercentPosition="@MasonryPercentPosition"
+					 HorizontalOrder="@MasonryHorizontalOrder"
+					 TransitionDuration="@TimeSpan.FromMilliseconds(MasonryTransitionMs)">
 				@foreach (var tile in Tiles)
 				{
-					<MasonryItem style="width:240px;">
+					<MasonryItem style="@($"width:{MasonryColumnWidth}px;")">
 						<div class="box p-2">
 							<figure class="image mb-2" style="overflow:hidden; border-radius:0.5rem;">
 								<img src="@tile.ImageUrl" alt="@tile.Title" style="width:100%;height:auto;display:block;" loading="lazy" @onload="OnImageLoaded" />

@@ -67,6 +67,9 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// <summary>
 	/// CSS transition duration for layout changes.
 	/// </summary>
+	/// <remarks>
+	/// Typically used to animate item repositioning when the layout changes.
+	/// </remarks>
 	[Parameter]
 	public TimeSpan TransitionDuration { get; set; } = TimeSpan.FromMilliseconds(400);
 
@@ -88,22 +91,62 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	[Inject]
+    /// <summary>
+    /// Provides access to JavaScript interop functionality for initializing and managing the Masonry.js layout.
+    /// </summary>
+    [Inject]
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
-	private readonly string[] Filter = ["class"];
-	private readonly string GeneratedId = $"masonry-{Guid.NewGuid().ToHtmlId():N}";
-	private bool IsInitialized;
+    /// <summary>
+    /// CSS classes to filter out from AdditionalAttributes to avoid duplication in the main container.
+    /// </summary>
+    private readonly string[] Filter = ["class"];
 
-	private string MainCssClass => string.Join(' ', "masonry", AdditionalAttributes.GetValue("class"));
+    /// <summary>
+    /// Unique identifier for the Masonry container, generated to ensure no conflicts with other elements on the page.
+    /// </summary>
+    private readonly string GeneratedId = $"masonry-{Guid.NewGuid().ToHtmlId():N}";
 
-	private string ContainerId => GeneratedId;
+    /// <summary>
+    /// Indicates whether the Masonry layout has been initialized. Used to prevent redundant initialization and manage state.
+    /// </summary>
+    private bool IsInitialized;
+
+    /// <summary>
+    /// Stores the last known configuration fingerprint to detect changes in options.
+    /// </summary>
+    private string? LastOptionsFingerprint;
+
+    /// <summary>
+    /// Combines the base "masonry" class with any additional classes provided in AdditionalAttributes, ensuring proper styling and layout behavior.
+    /// </summary>
+    private string MainCssClass => string.Join(' ', "masonry", AdditionalAttributes.GetValue("class"));
+
+    /// <summary>
+    /// Gets the unique identifier for the Masonry container, which is used in JavaScript interop calls to reference the correct DOM element.
+    /// </summary>
+    private string ContainerId => GeneratedId;
 
 	/// <inheritdoc />
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && InitializeOnRender)
 			await Initialize();
+	}
+
+	/// <inheritdoc />
+	protected async override Task OnParametersSetAsync()
+	{
+		if (IsInitialized == false)
+			return;
+
+		var fingerprint = BuildOptionsFingerprint();
+
+        // If the fingerprint hasn't changed, no need to update options.
+        if (string.Equals(LastOptionsFingerprint, fingerprint, StringComparison.Ordinal))
+			return;
+
+		await UpdateOptions();
 	}
 
     /// <summary>
@@ -118,7 +161,30 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 
 		var options = BuildOptions();
 		IsInitialized = await JsRuntime.MasonryInitialize(ContainerId, options);
+
+		if (IsInitialized)
+			LastOptionsFingerprint = BuildOptionsFingerprint();
+
 		return IsInitialized;
+	}
+
+	/// <summary>
+	/// Applies current option values to the existing Masonry instance.
+	/// </summary>
+	/// <param name="relayout">When true, recalculates item positions after options are applied.</param>
+	/// <returns>True if the operation was successful; otherwise, false.</returns>
+	public async Task<bool> UpdateOptions(bool relayout = true)
+	{
+		if (IsInitialized == false)
+			return false;
+
+		var options = BuildOptions();
+		var updated = await JsRuntime.MasonryUpdateOptions(ContainerId, options, relayout);
+
+		if (updated)
+			LastOptionsFingerprint = BuildOptionsFingerprint();
+
+		return updated;
 	}
 
 	/// <summary>
@@ -194,6 +260,26 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
     private static string ToCssDuration(TimeSpan duration)
 	{
 		return $"{duration.TotalMilliseconds.ToString("0.###", CultureInfo.InvariantCulture)}ms";
+	}
+
+    /// <summary>
+    /// Builds a fingerprint string representing the current configuration options.
+    /// </summary>
+    /// <returns>A string representing the current configuration options.</returns>
+    private string BuildOptionsFingerprint()
+	{
+        // Use ColumnWidthSelector if specified; otherwise, use ColumnWidth or the default value.
+        var columnWidth = string.IsNullOrWhiteSpace(ColumnWidthSelector)
+			? (ColumnWidth.HasValue ? ColumnWidth.Value.ToString(CultureInfo.InvariantCulture) : DefaultColumnWidth.ToString(CultureInfo.InvariantCulture))
+			: $"selector:{ColumnWidthSelector}";
+
+		return string.Join("|",
+			ItemSelector,
+			columnWidth,
+			Gutter.ToString(CultureInfo.InvariantCulture),
+			PercentPosition,
+			HorizontalOrder,
+			ToCssDuration(TransitionDuration));
 	}
 
 	/// <inheritdoc />

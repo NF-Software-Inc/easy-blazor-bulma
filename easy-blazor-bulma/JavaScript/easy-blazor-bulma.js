@@ -273,6 +273,31 @@ window.easyBlazorBulma = {
         },
 
         /**
+         * Updates options for an existing Masonry.js instance.
+         * @param {any} id The identity value of the Masonry.js instance to update.
+         * @param {any} options The options to apply.
+         * @param {boolean} relayout When true, triggers layout after applying options.
+         * @returns {boolean} true when options are applied, otherwise false.
+         */
+        UpdateOptions: function (id, options, relayout) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            instance.option(options || {});
+
+            // Re-read item elements/sizes after option changes (e.g. column width updates)
+            // before running layout to avoid stale positioning.
+            instance.reloadItems();
+
+            if (relayout !== false)
+                instance.layout();
+
+            return true;
+        },
+
+        /**
          * Destroys the Masonry.js instance with the specified identity value.
          * @param {any} id The identity value of the Masonry.js instance to destroy.
          * @returns {boolean} true when the instance is successfully destroyed, otherwise false.

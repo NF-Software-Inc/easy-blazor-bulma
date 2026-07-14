@@ -172,6 +172,18 @@ public static class JavaScriptExtensions
         return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.ReloadItems", token ?? CancellationToken.None, id);
     }
 
+	/// <summary>
+	/// Updates options for an existing Masonry instance.
+	/// </summary>
+	/// <param name="id">The id of the Masonry container element.</param>
+	/// <param name="options">The options object to apply.</param>
+	/// <param name="relayout">When true, triggers layout after applying options.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> MasonryUpdateOptions(this IJSRuntime jSRuntime, string id, object? options = null, bool relayout = true, CancellationToken? token = null)
+	{
+		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.UpdateOptions", token ?? CancellationToken.None, id, options, relayout);
+	}
+
     /// <summary>
     /// Destroys a Masonry instance for the specified element id.
     /// </summary>

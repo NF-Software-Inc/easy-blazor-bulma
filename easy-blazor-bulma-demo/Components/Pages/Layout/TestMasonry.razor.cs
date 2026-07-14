@@ -9,7 +9,45 @@ public partial class TestMasonry : ComponentBase
     private readonly List<DemoTile> Tiles = [];
     private bool UseInfiniteScroll = true;
     private bool IsBusy;
+
+    /// <summary>
+    /// CSS selector used by Masonry.js to identify layout items.
+    /// </summary>
+    private string MasonryItemSelector = MasonryItem.DefaultSelector;
+
+    /// <summary>
+    /// Fixed column width in pixels.
+    /// </summary>
+    private int MasonryColumnWidth = 240;
+
+    /// <summary>
+    /// Space between items in pixels.
+    /// </summary>
+    private int MasonryGutter = 12;
+
+    /// <summary>
+    /// Whether to use percentage-based positioning.
+    /// </summary>
+    private bool MasonryPercentPosition = true;
+
+    /// <summary>
+    /// Whether to order items horizontally instead of vertically.
+    /// </summary>
+    private bool MasonryHorizontalOrder;
+
+    /// <summary>
+    /// The duration of the transition animation in milliseconds.
+    /// </summary>
+    private int MasonryTransitionMs = 400;
+
+    /// <summary>
+    /// Indicates whether a pending append operation is waiting to be processed after the next render.
+    /// </summary>
     private bool _pendingAppend;
+
+    /// <summary>
+    /// Keeps track of the next unique ID to assign to a new tile.
+    /// </summary>
     private int _nextId;
 
     /// <summary>
@@ -94,6 +132,16 @@ public partial class TestMasonry : ComponentBase
     {
         if (_masonry != null)
             await _masonry.Layout();
+    }
+
+    /// <summary>
+    /// Applies the current Masonry option values without reinitializing the component.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task ApplyMasonryOptions()
+    {
+        if (_masonry != null)
+            await _masonry.UpdateOptions();
     }
 
     /// <summary>
