@@ -204,7 +204,7 @@ To use an icon just add a `<span>` with the desired icon text and the `.material
 | Material Symbols | Embedded | Apache 2.0 | [GitHub](https://github.com/google/material-design-icons) |
 | Masonry.js | Bundled JS | MIT | [GitHub](https://github.com/desandro/masonry) |
 
- > Note: To use Masonry components, include `_content/Easy.Blazor.Bulma/js/masonry.pkgd.min.js` before `easy-blazor-bulma.js`.
+ > Note: Masonry components lazy-load `_content/Easy.Blazor.Bulma/js/masonry.pkgd.min.js` when needed.
 
 ## Authors
 

@@ -110,11 +110,118 @@ window.easyBlazorBulma = {
     },
 
     /**
+     * A map to track the loading state of scripts by their URL.
+     * Each entry in the map corresponds to a script URL and its associated Promise that resolves when the script is loaded and the expected global symbol is available.
+     */
+    _scriptLoads: new Map(),
+
+    /**
+     * Ensures a script is loaded once and waits for a global symbol to become available.
+     * @param {string} url The script URL to load.
+     * @param {string} globalName The expected global symbol exposed by the script.
+     * @param {number} timeoutMs Maximum wait time in milliseconds.
+     * @returns {Promise<boolean>} true when the script/global is available; otherwise false.
+     */
+    EnsureScript: async function (url, globalName, timeoutMs) {
+        if (!url || !globalName)
+            return false;
+
+        if (typeof window[globalName] !== "undefined")
+            return true;
+
+        var pending = this._scriptLoads.get(url);
+
+        if (pending)
+            return await pending;
+
+        var timeout = timeoutMs ?? 1000;
+        var self = this;
+
+        var loadTask = new Promise(resolve => {
+            var isDone = false;
+            var startedAt = Date.now();
+
+            // Wait for the global symbol to become available or for the timeout to expire.
+            var finish = function (success) {
+                if (isDone)
+                    return;
+
+                isDone = true;
+                resolve(success);
+            };
+
+            // Check for the global symbol every 25ms until it is found or the timeout expires.
+            var checkReady = function () {
+                if (typeof window[globalName] !== "undefined") {
+                    finish(true);
+                    return;
+                }
+
+                if ((Date.now() - startedAt) >= timeout) {
+                    console.error("Timed out waiting for script global.", {
+                        url: url,
+                        globalName: globalName,
+                        timeoutMs: timeout
+                    });
+                    finish(false);
+                    return;
+                }
+
+                window.setTimeout(checkReady, 25);
+            };
+
+            // If the script is already present, no need to add it again.
+            var script = document.querySelector('script[src="' + url + '"]');
+
+            // If not present, create a new script element and append it to the document head.
+            if (!script) {
+                script = document.createElement("script");
+                script.src = url;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            }
+
+            script.addEventListener("load", checkReady, { once: true });
+            script.addEventListener("error", () => {
+                console.error("Failed to load script.", {
+                    url: url,
+                    globalName: globalName
+                });
+
+                finish(false);
+            }, { once: true });
+
+            checkReady();
+        }).then(success => {
+            if (success === false)
+                self._scriptLoads.delete(url);
+
+            return success;
+        });
+
+        self._scriptLoads.set(url, loadTask);
+        return await loadTask;
+    },
+
+    /**
      * Wrapper functions around Masonry.js instances.
      */
     Masonry: {
         _instances: new Map(),
         _observers: new Map(),
+
+        /**
+         * Ensures the Masonry script is loaded and available.
+         * @param {number} timeoutMs Maximum wait time in milliseconds.
+         * @returns {Promise<boolean>} true when Masonry is available; otherwise false.
+         */
+        EnsureScript: async function (timeoutMs) {
+            if (typeof window.Masonry !== "undefined")
+                return true;
+
+            return await window.easyBlazorBulma.EnsureScript("_content/Easy.Blazor.Bulma/js/masonry.pkgd.min.js", "Masonry", timeoutMs ?? 1000);
+        },
 
         /**
          * Initializes a Masonry.js instance on the element with the specified identity value and options.

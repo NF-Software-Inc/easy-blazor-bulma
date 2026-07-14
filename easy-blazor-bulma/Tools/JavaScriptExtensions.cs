@@ -131,6 +131,17 @@ public static class JavaScriptExtensions
 
     #region Internal Masonry Interop
     /// <summary>
+	/// Ensures the Masonry script is loaded and available.
+	/// </summary>
+	/// <param name="timeout">Maximum wait time.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> LoadMasonryScriptIfMissing(this IJSRuntime jSRuntime, TimeSpan timeout, CancellationToken? token = null)
+	{
+		var timeoutMs = (int)Math.Ceiling(timeout.TotalMilliseconds);
+		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.EnsureScript", token ?? CancellationToken.None, timeoutMs);
+	}
+
+	/// <summary>
     /// Initializes a Masonry instance for the specified element id.
     /// </summary>
     /// <param name="id">The id of the element to initialize Masonry on.</param>

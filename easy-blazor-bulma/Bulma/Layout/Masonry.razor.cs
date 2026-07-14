@@ -106,11 +106,16 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 			await Initialize();
 	}
 
-	/// <summary>
-	/// Initializes Masonry.js on this container.
-	/// </summary>
-	private async Task<bool> Initialize()
+    /// <summary>
+    /// Initializes the Masonry.js layout by loading the script if necessary and applying the configuration options.
+    /// </summary>
+    private async Task<bool> Initialize()
 	{
+		var scriptReady = await JsRuntime.LoadMasonryScriptIfMissing(TimeSpan.FromSeconds(1));
+
+		if (scriptReady == false)
+			return false;
+
 		var options = BuildOptions();
 		IsInitialized = await JsRuntime.MasonryInitialize(ContainerId, options);
 		return IsInitialized;
