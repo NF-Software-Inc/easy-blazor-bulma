@@ -55,7 +55,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	[Inject]
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
-    private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid().ToHtmlId()}";
+	private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid().ToHtmlId():N}";
 	private DotNetObjectReference<SentinelCallbackBridge>? DotNetReference;
 	private bool IsObserving;
     /// <summary>
@@ -77,9 +77,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 
 		if (IsEnabled && IsObserving == false)
 		{
-			IsObserving = await JsRuntime.InvokeAsync<bool>(
-				"easyBlazorBulma.Masonry.ObserveInfiniteScroll",
-				CancellationToken.None,
+			IsObserving = await JsRuntime.MasonryObserveInfiniteScroll(
 				SentinelId,
 				DotNetReference,
 				Threshold,
@@ -87,7 +85,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 		}
 		else if (IsEnabled == false && IsObserving)
 		{
-			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.UnobserveInfiniteScroll", CancellationToken.None, SentinelId);
+			await JsRuntime.MasonryUnobserveInfiniteScroll(SentinelId);
 			IsObserving = false;
 		}
 	}
@@ -124,7 +122,7 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	public async ValueTask DisposeAsync()
 	{
 		if (IsObserving)
-			await JsRuntime.InvokeAsync<bool>("easyBlazorBulma.Masonry.UnobserveInfiniteScroll", CancellationToken.None, SentinelId);
+			await JsRuntime.MasonryUnobserveInfiniteScroll(SentinelId);
 
 		DotNetReference?.Dispose();
 		GC.SuppressFinalize(this);
