@@ -102,12 +102,22 @@ public partial class TestMasonry : ComponentBase
     {
         if (_pendingAppend && _masonry != null)
         {
-            _pendingAppend = false;
-            await _masonry.Append();
+            var appended = await _masonry.Append();
+
+            if (appended)
+                _pendingAppend = false;
 
             if (IsBusy)
             {
-                IsBusy = false;
+                if (appended)
+                {
+                    IsBusy = false;
+                    StateHasChanged();
+                }
+            }
+            else if (appended == false)
+            {
+                // Retry on next render when append fails (e.g., Masonry not fully ready yet).
                 StateHasChanged();
             }
         }
