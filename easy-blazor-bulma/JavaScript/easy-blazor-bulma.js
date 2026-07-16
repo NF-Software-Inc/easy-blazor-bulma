@@ -126,10 +126,21 @@ window.easyBlazorBulma = {
         if (!url || !globalName)
             return false;
 
+        var normalizedUrl = url;
+
+        try {
+            // Normalize the URL to an absolute URL using the document's base URI.
+            normalizedUrl = new URL(url, document.baseURI).href;
+        }
+        catch {
+            // Fall back to the provided URL when normalization fails.
+            normalizedUrl = url;
+        }
+
         if (typeof window[globalName] !== "undefined")
             return true;
 
-        var pending = this._scriptLoads.get(url);
+        var pending = this._scriptLoads.get(normalizedUrl);
 
         if (pending)
             return await pending;
@@ -140,6 +151,7 @@ window.easyBlazorBulma = {
         var loadTask = new Promise(resolve => {
             var isDone = false;
             var startedAt = Date.now();
+            var retryTimeoutId = null;
 
             // Wait for the global symbol to become available or for the timeout to expire.
             var finish = function (success) {
@@ -147,11 +159,20 @@ window.easyBlazorBulma = {
                     return;
 
                 isDone = true;
+
+                if (retryTimeoutId !== null) {
+                    window.clearTimeout(retryTimeoutId);
+                    retryTimeoutId = null;
+                }
+
                 resolve(success);
             };
 
             // Check for the global symbol every 25ms until it is found or the timeout expires.
             var checkReady = function () {
+                if (isDone)
+                    return;
+
                 if (typeof window[globalName] !== "undefined") {
                     finish(true);
                     return;
@@ -167,16 +188,22 @@ window.easyBlazorBulma = {
                     return;
                 }
 
-                window.setTimeout(checkReady, 25);
+                retryTimeoutId = window.setTimeout(checkReady, 25);
             };
 
-            // If the script is already present, no need to add it again.
-            var script = document.querySelector('script[src="' + url + '"]');
+            // Check if the script is already present in the document by comparing the src attribute.
+            var script = null;
+            for (var i = 0; i < document.scripts.length; i++) {
+                if (document.scripts[i].src === normalizedUrl) {
+                    script = document.scripts[i];
+                    break;
+                }
+            }
 
             // If not present, create a new script element and append it to the document head.
             if (!script) {
                 script = document.createElement("script");
-                script.src = url;
+                script.src = normalizedUrl;
                 script.async = true;
                 script.defer = true;
                 document.head.appendChild(script);
@@ -195,12 +222,12 @@ window.easyBlazorBulma = {
             checkReady();
         }).then(success => {
             if (success === false)
-                self._scriptLoads.delete(url);
+                self._scriptLoads.delete(normalizedUrl);
 
             return success;
         });
 
-        self._scriptLoads.set(url, loadTask);
+        self._scriptLoads.set(normalizedUrl, loadTask);
         return await loadTask;
     },
 
@@ -331,8 +358,15 @@ window.easyBlazorBulma = {
 
             var observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting)
-                        dotNetRef.invokeMethodAsync("OnSentinelVisible");
+                    if (!entry.isIntersecting)
+                        return;
+
+                    dotNetRef.invokeMethodAsync("OnSentinelVisible").catch(error => {
+                        console.debug("Infinite scroll callback (OnSentinelVisible) failed.", {
+                            sentinelId: sentinelId,
+                            error: error
+                        });
+                    });
                 });
             }, {
                 threshold: threshold ?? 0.1,
