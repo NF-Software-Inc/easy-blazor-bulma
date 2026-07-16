@@ -123,6 +123,16 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	private bool PendingOptionsUpdate;
 
     /// <summary>
+    /// SemaphoreSlim used to ensure that layout operations do not overlap, preventing potential race conditions and ensuring thread safety.
+    /// </summary>
+    private readonly SemaphoreSlim LayoutGate = new(1, 1);
+
+	/// <summary>
+	/// Tracks pending layout requests so parallel callers can be collapsed into a single rerun.
+	/// </summary>
+	private int PendingLayoutRequests;
+
+    /// <summary>
     /// Combines the base "masonry" class with any additional classes provided in AdditionalAttributes, ensuring proper styling and layout behavior.
     /// </summary>
     private string MainCssClass => string.Join(' ', "masonry", AdditionalAttributes.GetValue("class"));
@@ -206,7 +216,28 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (IsInitialized == false)
 			return false;
 
-		return await JsRuntime.MasonryLayout(ContainerId);
+        // Increment the pending layout requests counter
+        Interlocked.Increment(ref PendingLayoutRequests);
+
+        // Wait for exclusive access to the layout operation to prevent overlapping executions.
+        await LayoutGate.WaitAsync();
+		try
+		{
+            // Check if there are pending layout requests, perform layout. Reset counter to zero.
+            while (Interlocked.Exchange(ref PendingLayoutRequests, 0) > 0)
+            {
+				var laidOut = await JsRuntime.MasonryLayout(ContainerId);
+
+				if (laidOut == false)
+					return false;
+			}
+
+			return true;
+		}
+		finally
+		{
+			LayoutGate.Release();
+		}
 	}
 
 	/// <summary>
@@ -298,6 +329,8 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	{
 		if (IsInitialized)
 			await JsRuntime.MasonryDestroy(ContainerId);
+
+		LayoutGate.Dispose();
 
 		GC.SuppressFinalize(this);
 	}
