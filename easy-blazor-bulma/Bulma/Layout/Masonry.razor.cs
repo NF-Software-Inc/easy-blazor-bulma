@@ -117,6 +117,11 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
     /// </summary>
     private string? LastOptionsFingerprint;
 
+	/// <summary>
+	/// Indicates whether options changed during parameter binding and should be applied after render.
+	/// </summary>
+	private bool PendingOptionsUpdate;
+
     /// <summary>
     /// Combines the base "masonry" class with any additional classes provided in AdditionalAttributes, ensuring proper styling and layout behavior.
     /// </summary>
@@ -132,10 +137,16 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	{
 		if (firstRender && InitializeOnRender)
 			await Initialize();
+
+		if (PendingOptionsUpdate && IsInitialized)
+		{
+			PendingOptionsUpdate = false;
+			await UpdateOptions();
+		}
 	}
 
 	/// <inheritdoc />
-	protected async override Task OnParametersSetAsync()
+	protected override void OnParametersSet()
 	{
 		if (IsInitialized == false)
 			return;
@@ -146,8 +157,8 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
         if (string.Equals(LastOptionsFingerprint, fingerprint, StringComparison.Ordinal))
 			return;
 
-		await UpdateOptions();
-	}
+		PendingOptionsUpdate = true;
+    }
 
     /// <summary>
     /// Initializes the Masonry.js layout by loading the script if necessary and applying the configuration options.
