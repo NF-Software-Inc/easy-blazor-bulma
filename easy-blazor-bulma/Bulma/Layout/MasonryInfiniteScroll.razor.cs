@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using easy_core;
+using System.Globalization;
 
 namespace easy_blazor_bulma;
 
@@ -56,8 +57,23 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
 	private readonly string SentinelId = $"masonry-infinite-scroll-{Guid.NewGuid().ToHtmlId():N}";
-	private DotNetObjectReference<SentinelCallbackBridge>? DotNetReference;
-	private bool IsObserving;
+
+    /// <summary>
+    /// A reference to the .NET object that will be passed to JavaScript for callback invocation.
+	/// It is used to handle the sentinel visibility event from the IntersectionObserver.
+    /// </summary>
+    private DotNetObjectReference<SentinelCallbackBridge>? DotNetReference;
+
+    /// <summary>
+    /// Indicates whether the IntersectionObserver is currently observing the sentinel element.
+    /// </summary>
+    private bool IsObserving;
+
+    /// <summary>
+    /// Stores a fingerprint of the current observer configuration (Threshold and RootMargin) to detect changes and reinitialize the observer if necessary.
+    /// </summary>
+    private string? ObserverConfigFingerprint;
+
     /// <summary>
     /// Flag to indicate whether a load operation is currently in progress. This prevents multiple concurrent load requests when the sentinel becomes visible.
     /// </summary>
@@ -75,19 +91,54 @@ public partial class MasonryInfiniteScroll : ComponentBase, IAsyncDisposable
 		if (DotNetReference == null)
 			return;
 
-		if (IsEnabled && IsObserving == false)
+        // Build a fingerprint of the current observer configuration to detect changes.
+        var configFingerprint = BuildObserverConfigFingerprint();
+
+        // If infinite scrolling is enabled, observer is not observing, start observing the sentinel.
+        if (IsEnabled && IsObserving == false)
 		{
 			IsObserving = await JsRuntime.MasonryObserveInfiniteScroll(
 				SentinelId,
 				DotNetReference,
 				Threshold,
 				RootMargin);
+
+			if (IsObserving)
+				ObserverConfigFingerprint = configFingerprint;
 		}
-		else if (IsEnabled == false && IsObserving)
+
+        // If infinite scrolling is enabled, observer is observing, but configuration has changed, reinitialize observer with new configuration.
+        else if (IsEnabled && IsObserving && string.Equals(ObserverConfigFingerprint, configFingerprint, StringComparison.Ordinal) == false)
+		{
+			await JsRuntime.MasonryUnobserveInfiniteScroll(SentinelId);
+
+			IsObserving = await JsRuntime.MasonryObserveInfiniteScroll(
+				SentinelId,
+				DotNetReference,
+				Threshold,
+				RootMargin);
+
+			ObserverConfigFingerprint = IsObserving ? configFingerprint : null;
+		}
+
+        // If infinite scrolling is disabled, observer is observing, stop observing the sentinel.
+        else if (IsEnabled == false && IsObserving)
 		{
 			await JsRuntime.MasonryUnobserveInfiniteScroll(SentinelId);
 			IsObserving = false;
+			ObserverConfigFingerprint = null;
 		}
+	}
+
+    /// <summary>
+    /// Builds a fingerprint string representing the current observer configuration (Threshold and RootMargin).
+    /// </summary>
+    /// <returns>A string representing the observer configuration fingerprint.</returns>
+    private string BuildObserverConfigFingerprint()
+	{
+		return string.Join("|",
+			Threshold.ToString("0.###############", CultureInfo.InvariantCulture),
+			RootMargin ?? string.Empty);
 	}
 
     /// <summary>
