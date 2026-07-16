@@ -7,7 +7,7 @@
 	<Panel Title="Masonry + Optional Infinite Scroll" Color="BulmaColors.Blue">
 		<div class="columns is-variable is-4 mb-3">
 			<div class="column is-12-mobile is-8-tablet">
-				<Panel Title="Options">
+				<Panel class="mb-5 is-size-7" Title="Options" Color="BulmaColors.Turquoise">
 					<div class="columns is-multiline">
 						<div class="column is-12-mobile is-4-tablet">
 							<label class="label is-size-7" title="Fixed width in pixels for each masonry column.">Column Width (px)</label>
@@ -46,7 +46,7 @@
 			</div>
 
 			<div class="column is-12-mobile is-4-tablet">
-				<Panel Title="Actions">
+				<Panel class="is-size-7" Title="Actions" Color="BulmaColors.Turquoise">
 					<div class="is-flex is-justify-content-space-between is-align-items-center" style="gap:0.75rem;">
 						<div class="buttons mb-0">
 							<button class="button is-info" title="Recalculate item positions" @onclick="RefreshLayout" disabled="@IsBusy">Refresh Layout</button>
