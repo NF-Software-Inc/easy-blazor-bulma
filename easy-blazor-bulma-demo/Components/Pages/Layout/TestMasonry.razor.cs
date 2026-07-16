@@ -5,6 +5,11 @@ namespace easy_blazor_bulma_demo.Components.Pages.Layout;
 
 public partial class TestMasonry : ComponentBase
 {
+    /// <summary>
+    /// Number of records to load when the page first initializes.
+    /// </summary>
+    private const int InitialItemsCount = 20;
+
     private Masonry? _masonry;
     private readonly List<DemoTile> Tiles = [];
     private bool UseInfiniteScroll = true;
@@ -46,9 +51,11 @@ public partial class TestMasonry : ComponentBase
     private bool _pendingAppend;
 
     /// <summary>
-    /// Keeps track of the next unique ID to assign to a new tile.
+    /// Number of records to fetch/append on each load request.
+    /// Keep this in the consumer so each page can tune API-call frequency independently.
     /// </summary>
-    private int _nextId;
+    /// <remarks>Pick a value that balances load time and responsiveness based on your specific use case.</remarks>
+    private int ItemsPerLoad = 16;
 
     /// <summary>
     /// A catalog of demo tile templates used to populate the masonry layout.
@@ -79,9 +86,10 @@ public partial class TestMasonry : ComponentBase
         new("Canyon", "https://picsum.photos/id/220/420/600", "This is an intentionally verbose, extra-long sample description used to verify that even with substantial text volume, lazy-loaded images, and asynchronous append operations, the Masonry layout remains stable after relayout calls and preserves a coherent visual rhythm across columns.")
     ];
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        AddTiles(20);
+        var initialTiles = await FetchTilesAsync(startIndex: 0, count: InitialItemsCount);
+        Tiles.AddRange(initialTiles);
         _pendingAppend = true;
     }
 
@@ -116,9 +124,11 @@ public partial class TestMasonry : ComponentBase
 
         IsBusy = true;
 
-        // Simulates a short API/database fetch so the demo feels realistic.
-        await Task.Delay(250);
-        AddTiles(10);
+        var startIndex = Tiles.Count;
+        var count = Math.Max(1, ItemsPerLoad);
+
+        var fetchedTiles = await FetchTilesAsync(startIndex, count);
+        Tiles.AddRange(fetchedTiles);
         _pendingAppend = true;
 
         StateHasChanged();
@@ -145,19 +155,27 @@ public partial class TestMasonry : ComponentBase
     }
 
     /// <summary>
-    /// Adds a specified number of tiles to the masonry layout.
+    /// Simulates an API call that returns a page of records.
     /// </summary>
-    /// <param name="count">The number of tiles to add.</param>
-    private void AddTiles(int count)
+    /// <param name="startIndex">Zero-based index of the first record to fetch.</param>
+    /// <param name="count">Number of records to fetch.</param>
+    /// <returns>A list of fetched tiles.</returns>
+    private async Task<List<DemoTile>> FetchTilesAsync(int startIndex, int count)
     {
+        // Simulates a short API/database fetch so the demo feels realistic.
+        await Task.Delay(250);
+        var tiles = new List<DemoTile>(count);
+
         for (var i = 0; i < count; i++)
         {
-            var template = Catalog[_nextId % Catalog.Count];
-            var id = _nextId + 1;
-            _nextId++;
+            var index = startIndex + i;
+            var template = Catalog[index % Catalog.Count];
+            var id = index + 1;
 
-            Tiles.Add(new DemoTile(id, template.Title, template.ImageUrl, template.Description));
+            tiles.Add(new DemoTile(id, template.Title, template.ImageUrl, template.Description));
         }
+
+        return tiles;
     }
 
     /// <summary>
