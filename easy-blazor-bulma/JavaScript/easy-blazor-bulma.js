@@ -110,125 +110,78 @@ window.easyBlazorBulma = {
     },
 
     /**
-     * A map to track the loading state of scripts by their URL.
-     * Each entry in the map corresponds to a script URL and its associated Promise that resolves when the script is loaded and the expected global symbol is available.
+     * Loads a JavaScript file and appends to the end of document.body.
+     * @param {string} uri The URI of the script to load.
+     * @param {string} type The name of a type contained in the script to test for after loading completes.
+     * @param {number} timeout The duration in milliseconds to wait for the type to be available in the browser window.
      */
-    _scriptLoads: new Map(),
+    LoadScript: async function (uri, type, timeout) {
+        // Get preloaded scripts
+        if (IsLoaderInitialized === false) {
+            var scripts = document.getElementsByTagName("script");
 
-    /**
-     * Ensures a script is loaded once and waits for a global symbol to become available.
-     * @param {string} url The script URL to load.
-     * @param {string} globalName The expected global symbol exposed by the script.
-     * @param {number} timeoutMs Maximum wait time in milliseconds.
-     * @returns {Promise<boolean>} true when the script/global is available; otherwise false.
-     */
-    EnsureScript: async function (url, globalName, timeoutMs) {
-        if (!url || !globalName)
-            return false;
+            for (var i = 0; i < scripts.length; i++) {
+                LoadedScripts.set(this.GetFileName(scripts[i].src), true);
+            }
 
-        var normalizedUrl = url;
-
-        try {
-            // Normalize the URL to an absolute URL using the document's base URI.
-            normalizedUrl = new URL(url, document.baseURI).href;
-        }
-        catch {
-            // Fall back to the provided URL when normalization fails.
-            normalizedUrl = url;
+            IsLoaderInitialized = true;
         }
 
-        if (typeof window[globalName] !== "undefined")
+        // Check if previously loaded
+        var file = this.GetFileName(uri);
+
+        if (LoadedScripts.has(file) && LoadedScripts.get(file) === true)
             return true;
 
-        var pending = this._scriptLoads.get(normalizedUrl);
+        // Load
+        var result = await new Promise(resolve => {
+            var script = document.createElement('script');
 
-        if (pending)
-            return await pending;
+            script.type = "text/javascript";
 
-        var timeout = timeoutMs ?? 1000;
-        var self = this;
-
-        var loadTask = new Promise(resolve => {
-            var isDone = false;
-            var startedAt = Date.now();
-            var retryTimeoutId = null;
-
-            // Wait for the global symbol to become available or for the timeout to expire.
-            var finish = function (success) {
-                if (isDone)
-                    return;
-
-                isDone = true;
-
-                if (retryTimeoutId !== null) {
-                    window.clearTimeout(retryTimeoutId);
-                    retryTimeoutId = null;
-                }
-
-                resolve(success);
+            script.onload = () => {
+                LoadedScripts.set(file, true);
+                resolve(true);
             };
 
-            // Check for the global symbol every 25ms until it is found or the timeout expires.
-            var checkReady = function () {
-                if (isDone)
-                    return;
+            script.onerror = () => {
+                console.error(`Failed to load script: ${uri}.`);
 
-                if (typeof window[globalName] !== "undefined") {
-                    finish(true);
-                    return;
-                }
-
-                if ((Date.now() - startedAt) >= timeout) {
-                    console.error("Timed out waiting for script global.", {
-                        url: url,
-                        globalName: globalName,
-                        timeoutMs: timeout
-                    });
-                    finish(false);
-                    return;
-                }
-
-                retryTimeoutId = window.setTimeout(checkReady, 25);
+                LoadedScripts.set(file, false);
+                resolve(false);
             };
 
-            // Check if the script is already present in the document by comparing the src attribute.
-            var script = null;
-            for (var i = 0; i < document.scripts.length; i++) {
-                if (document.scripts[i].src === normalizedUrl) {
-                    script = document.scripts[i];
-                    break;
-                }
-            }
-
-            // If not present, create a new script element and append it to the document head.
-            if (!script) {
-                script = document.createElement("script");
-                script.src = normalizedUrl;
-                script.async = true;
-                script.defer = true;
-                document.head.appendChild(script);
-            }
-
-            script.addEventListener("load", checkReady, { once: true });
-            script.addEventListener("error", () => {
-                console.error("Failed to load script.", {
-                    url: url,
-                    globalName: globalName
-                });
-
-                finish(false);
-            }, { once: true });
-
-            checkReady();
-        }).then(success => {
-            if (success === false)
-                self._scriptLoads.delete(normalizedUrl);
-
-            return success;
+            document.body.appendChild(script);
+            script.src = uri;
         });
 
-        self._scriptLoads.set(normalizedUrl, loadTask);
-        return await loadTask;
+        if (result === false || typeof (type) === 'undefined' || type === null)
+            return result;
+
+        // Test if type exists
+        if (typeof (timeout) === 'undefined' || timeout === null)
+            timeout = 1000;
+
+        var start = Date.now();
+
+        do {
+            result = typeof window[type] === 'function';
+
+            if (result === true)
+                break;
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+        } while ((Date.now() - start) < timeout);
+
+        return result;
+    },
+
+    /**
+     * Extracts the file name from the provided path.
+     * @param {string} path The path to extract the file name from.
+     */
+    GetFileName: function (path) {
+        return path.split('\\').pop().split('/').pop().split('?').shift();
     },
 
     /**
@@ -237,18 +190,6 @@ window.easyBlazorBulma = {
     Masonry: {
         _instances: new Map(),
         _observers: new Map(),
-
-        /**
-         * Ensures the Masonry script is loaded and available.
-         * @param {number} timeoutMs Maximum wait time in milliseconds.
-         * @returns {Promise<boolean>} true when Masonry is available; otherwise false.
-         */
-        EnsureScript: async function (timeoutMs) {
-            if (typeof window.Masonry !== "undefined")
-                return true;
-
-            return await window.easyBlazorBulma.EnsureScript("_content/Easy.Blazor.Bulma/js/masonry.pkgd.min.js", "Masonry", timeoutMs ?? 1000);
-        },
 
         /**
          * Initializes a Masonry.js instance on the element with the specified identity value and options.
@@ -266,6 +207,24 @@ window.easyBlazorBulma = {
 
             var instance = new Masonry(element, options || {});
             this._instances.set(id, instance);
+
+            return true;
+        },
+
+        /**
+         * Refreshes the Masonry.js instance with the specified identity value by reloading items and triggering a layout.
+         * @param {any} id The identity value of the Masonry.js instance to trigger a layout on.
+         * @returns true when the container is successfully refreshed, otherwise false.
+         */
+        Refresh: function (id) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            instance.reloadItems();
+            instance.layout();
+
             return true;
         },
 
@@ -281,6 +240,7 @@ window.easyBlazorBulma = {
                 return false;
 
             instance.layout();
+
             return true;
         },
 
@@ -313,12 +273,9 @@ window.easyBlazorBulma = {
                 return false;
 
             instance.option(options || {});
-
-            // Re-read item elements/sizes after option changes (e.g. column width updates)
-            // before running layout to avoid stale positioning.
             instance.reloadItems();
 
-            if (relayout !== false)
+            if (relayout === true)
                 instance.layout();
 
             return true;
@@ -337,21 +294,22 @@ window.easyBlazorBulma = {
 
             instance.destroy();
             this._instances.delete(id);
+
             return true;
         },
 
         /**
          * Observes the element with the specified identity value for intersection changes and invokes the provided .NET method when the element becomes visible.
          * @param {any} sentinelId The identity value of the DOM element to observe for intersection changes.
-         * @param {any} dotNetRef The reference to the .NET object containing the method to invoke when the observed element becomes visible.
+         * @param {any} interop The reference to the .NET object containing the method to invoke when the observed element becomes visible.
          * @param {any} threshold The threshold value to use for the IntersectionObserver. Defaults to 0.1 if not provided.
          * @param {any} rootMargin The root margin value to use for the IntersectionObserver. Defaults to "0px" if not provided.
          * @returns {boolean} true when the observer is successfully created and observing the specified element, otherwise false.
          */
-        ObserveInfiniteScroll: function (sentinelId, dotNetRef, threshold, rootMargin) {
+        ObserveInfiniteScroll: function (sentinelId, interop, threshold, rootMargin) {
             var sentinel = document.getElementById(sentinelId);
 
-            if (sentinel === null || dotNetRef === null || typeof IntersectionObserver === "undefined")
+            if (sentinel === null || interop === null || typeof IntersectionObserver === "undefined")
                 return false;
 
             this.UnobserveInfiniteScroll(sentinelId);
@@ -361,7 +319,7 @@ window.easyBlazorBulma = {
                     if (!entry.isIntersecting)
                         return;
 
-                    dotNetRef.invokeMethodAsync("OnSentinelVisible").catch(error => {
+                    interop.invokeMethodAsync("OnSentinelVisible").catch(error => {
                         console.debug("Infinite scroll callback (OnSentinelVisible) failed.", {
                             sentinelId: sentinelId,
                             error: error
@@ -375,6 +333,7 @@ window.easyBlazorBulma = {
 
             observer.observe(sentinel);
             this._observers.set(sentinelId, observer);
+
             return true;
         },
 
@@ -391,7 +350,18 @@ window.easyBlazorBulma = {
 
             observer.disconnect();
             this._observers.delete(sentinelId);
+
             return true;
         },
     }
 }
+
+/**
+ * Stores a list of JavaScript files that have been loaded.
+ */
+const LoadedScripts = new Map();
+
+/**
+ * Indicates whether the DOM has been scanned for any user loaded scripts.
+ */
+let IsLoaderInitialized = false;
