@@ -5,20 +5,14 @@ namespace easy_blazor_bulma_demo.Components.Pages.Layout;
 
 public partial class TestMasonry : ComponentBase
 {
-    /// <summary>
-    /// Number of records to load when the page first initializes.
-    /// </summary>
-    private const int InitialItemsCount = 20;
-
-    private Masonry? _masonry;
+    private Masonry? MasonryElement;
     private readonly List<DemoTile> Tiles = [];
     private bool UseInfiniteScroll = true;
-    private bool IsBusy;
 
     /// <summary>
     /// CSS selector used by Masonry.js to identify layout items.
     /// </summary>
-    private string MasonryItemSelector = MasonryItem.DefaultSelector;
+    private string MasonryItemSelector = ".masonry-item";
 
     /// <summary>
     /// Fixed column width in pixels.
@@ -44,11 +38,6 @@ public partial class TestMasonry : ComponentBase
     /// The duration of the transition animation in milliseconds.
     /// </summary>
     private int MasonryTransitionMs = 400;
-
-    /// <summary>
-    /// Indicates whether a pending append operation is waiting to be processed after the next render.
-    /// </summary>
-    private bool _pendingAppend;
 
     /// <summary>
     /// Number of records to fetch/append on each load request.
@@ -86,63 +75,31 @@ public partial class TestMasonry : ComponentBase
         new("Canyon", "https://picsum.photos/id/220/420/600", "This is an intentionally verbose, extra-long sample description used to verify that even with substantial text volume, lazy-loaded images, and asynchronous append operations, the Masonry layout remains stable after relayout calls and preserves a coherent visual rhythm across columns.")
     ];
 
-    protected async override Task OnInitializedAsync()
+	/// <inheritdoc />
+	protected async override Task OnInitializedAsync()
     {
-        var initialTiles = await FetchTilesAsync(startIndex: 0, count: InitialItemsCount);
-        Tiles.AddRange(initialTiles);
-        _pendingAppend = true;
-    }
-
-    /// <summary>
-    /// Called after the component has been rendered.
-    /// </summary>
-    /// <param name="firstRender">Indicates whether this is the first time the component is being rendered.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_pendingAppend && _masonry != null)
-        {
-            var appended = await _masonry.Append();
-
-            if (appended)
-                _pendingAppend = false;
-
-            if (IsBusy)
-            {
-                if (appended)
-                {
-                    IsBusy = false;
-                    StateHasChanged();
-                }
-            }
-            else if (appended == false)
-            {
-                // Retry on next render when append fails (e.g., Masonry not fully ready yet).
-                StateHasChanged();
-            }
-        }
+        await Load();
     }
 
     /// <summary>
     /// Loads more tiles into the masonry layout.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private async Task LoadMore()
+    private async Task Load()
     {
-        if (IsBusy)
-            return;
-
-        IsBusy = true;
-
-        var startIndex = Tiles.Count;
+        var start = Tiles.Count;
+        var index = start;
         var count = Math.Max(1, ItemsPerLoad);
 
-        var fetchedTiles = await FetchTilesAsync(startIndex, count);
-        Tiles.AddRange(fetchedTiles);
-        _pendingAppend = true;
+		for (var i = 0; i < count; i++)
+		{
+			var template = Catalog[index % Catalog.Count];
 
-        StateHasChanged();
-    }
+			Tiles.Add(new DemoTile(++index, template.Title, template.ImageUrl, template.Description));
+		}
+
+		await Task.Delay(250);
+	}
 
     /// <summary>
     /// Manually triggers a layout update for the masonry component.
@@ -150,8 +107,8 @@ public partial class TestMasonry : ComponentBase
     /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task RefreshLayout()
     {
-        if (_masonry != null)
-            await _masonry.Layout();
+        if (MasonryElement != null)
+            await MasonryElement.Layout();
     }
 
     /// <summary>
@@ -160,32 +117,8 @@ public partial class TestMasonry : ComponentBase
     /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task ApplyMasonryOptions()
     {
-        if (_masonry != null)
-            await _masonry.UpdateOptions();
-    }
-
-    /// <summary>
-    /// Simulates an API call that returns a page of records.
-    /// </summary>
-    /// <param name="startIndex">Zero-based index of the first record to fetch.</param>
-    /// <param name="count">Number of records to fetch.</param>
-    /// <returns>A list of fetched tiles.</returns>
-    private async Task<List<DemoTile>> FetchTilesAsync(int startIndex, int count)
-    {
-        // Simulates a short API/database fetch so the demo feels realistic.
-        await Task.Delay(250);
-        var tiles = new List<DemoTile>(count);
-
-        for (var i = 0; i < count; i++)
-        {
-            var index = startIndex + i;
-            var template = Catalog[index % Catalog.Count];
-            var id = index + 1;
-
-            tiles.Add(new DemoTile(id, template.Title, template.ImageUrl, template.Description));
-        }
-
-        return tiles;
+        if (MasonryElement != null)
+            await MasonryElement.UpdateOptions();
     }
 
     /// <summary>
@@ -194,8 +127,8 @@ public partial class TestMasonry : ComponentBase
     /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task OnImageLoaded()
     {
-        if (_masonry != null)
-            await _masonry.Layout();
+        if (MasonryElement != null)
+            await MasonryElement.Refresh();
     }
 
     /// <summary>
