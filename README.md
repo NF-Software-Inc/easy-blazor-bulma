@@ -120,6 +120,7 @@ The following components are currently available for use. All of them are docume
 * `<Hero />`, creates an imposing hero banner to showcase something
 * `<Level />` and `<LevelItem />`, displays a multi-purpose horizontal level
 * `<MarkupViewer />`, creates a viewer for displaying HTML markup safely
+* `<Masonry />`, `<MasonryItem />`, and `<MasonryInfiniteScroll />`, creates a masonry layout for displaying items in a grid (requires JavaScript)
 * `<MediaObject />`, creates a media object prevalent in social media interfaces
 * `<ThreeColumns />`, creates a simple three column layout
 * `<TruncatedText />`, creates a block of text that is truncated after a set number of characters
@@ -202,6 +203,7 @@ To use an icon just add a `<span>` with the desired icon text and the `.material
 | Bulma Tooltip | Submodule | MIT | [GitHub](https://github.com/CreativeBulma/bulma-tooltip) |
 | Bulma Jumbo Tiny | Submodule | MIT | [GitHub](https://github.com/NF-Software-Inc/Bulma-Jumbo-Tiny) |
 | Material Symbols | Embedded | Apache 2.0 | [GitHub](https://github.com/google/material-design-icons) |
+| Masonry.js | Embedded | MIT | [GitHub](https://github.com/desandro/masonry) |
 
 ## Authors
 

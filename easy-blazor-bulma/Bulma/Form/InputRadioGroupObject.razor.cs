@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using easy_core;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Diagnostics.CodeAnalysis;
 
@@ -27,7 +28,7 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 
     private readonly string[] Filter = new[] { "class", "item-class" };
 
-	private readonly string PropertyName = Guid.NewGuid().ToString("N");
+	private readonly string PropertyName = Guid.NewGuid().ToHtmlId().ToString("N");
 
 	private string MainCssClass => CssClass;
 

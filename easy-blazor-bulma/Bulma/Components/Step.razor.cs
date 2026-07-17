@@ -29,7 +29,13 @@ public partial class Step : ComponentBase, IAsyncDisposable
 	[Parameter]
     public BulmaColors MarkerColor { get; set; }
 
-    [CascadingParameter]
+	/// <summary>
+	/// The content to display within the step component. When not provided, a default template for the step will be used.
+	/// </summary>
+	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+
+	[CascadingParameter]
     private Steps Parent { get; init; } = default!;
 
     /// <summary>

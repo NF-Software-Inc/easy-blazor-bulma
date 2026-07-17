@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using easy_core;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -31,7 +32,7 @@ public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAcc
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TEnum)) ?? typeof(TEnum);
 	private bool IsNullable;
-	private readonly string PropertyName = Guid.NewGuid().ToString("N");
+	private readonly string PropertyName = Guid.NewGuid().ToHtmlId().ToString("N");
 	private long[] EnumValues = [];
 
 	private string MainCssClass

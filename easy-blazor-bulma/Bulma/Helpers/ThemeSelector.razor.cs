@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 
 namespace easy_blazor_bulma;
@@ -48,9 +47,7 @@ public partial class ThemeSelector : ComponentBase
 	private readonly string[] Filter = ["class"];
 
 	[Inject]
-	private IServiceProvider ServiceProvider { get; init; } = default!;
-
-	private IJSRuntime? JsRuntime;
+	private IJSRuntime JsRuntime { get; init; } = default!;
 
 	private string MainCssClass
 	{
@@ -71,12 +68,6 @@ public partial class ThemeSelector : ComponentBase
 	/// <inheritdoc />
 	protected async override Task OnInitializedAsync()
 	{
-		// Get services
-		JsRuntime = ServiceProvider.GetService<IJSRuntime>();
-
-		if (JsRuntime == null)
-			return;
-
 		// Determine current mode
 		var isOsDarkMode = await JsRuntime.IsOsDarkMode();
 

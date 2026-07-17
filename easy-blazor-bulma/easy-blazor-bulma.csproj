@@ -9,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>10.1.0</Version>
+		<Version>10.1.1</Version>
 		<AssemblyVersion>10.1.0.0</AssemblyVersion>
-		<FileVersion>10.1.0.0</FileVersion>
+		<FileVersion>10.1.1.0</FileVersion>
 		<PackageId>Easy.Blazor.Bulma</PackageId>
 		<PackageTags>blazor bulma components inputs layout forms icons</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/easy-blazor-bulma</RepositoryUrl>
@@ -20,6 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
+			10.1.1 Add Masonry component set
 			10.1.0 Remove obsolete content, remove minified JavaScript, remove BuildBundlerMinifier package, remove tracked wwwroot CSS and JS assets
 
 			10.0.5 Add InputTextMultiple component
@@ -106,8 +107,10 @@
 		<None Remove="external\**" />
 		<Content Remove="compilerconfig.json" />
 		<Content Remove="JavaScript\easy-blazor-bulma.js" />
+		<Content Remove="JavaScript\masonry.pkgd.min.js" />
 		<None Include="compilerconfig.json" />
 		<None Include="JavaScript\easy-blazor-bulma.js" />
+		<None Include="JavaScript\masonry.pkgd.min.js" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -164,6 +167,7 @@
 		<MakeDir Directories="$(ProjectDir)wwwroot\css" />
 
 		<Copy SourceFiles="$(ProjectDir)JavaScript\easy-blazor-bulma.js" DestinationFiles="$(ProjectDir)wwwroot\js\easy-blazor-bulma.js" />
+		<Copy SourceFiles="$(ProjectDir)JavaScript\masonry.pkgd.min.js" DestinationFiles="$(ProjectDir)wwwroot\js\masonry.pkgd.min.js" />
 	</Target>
 
 	<!-- Release -->

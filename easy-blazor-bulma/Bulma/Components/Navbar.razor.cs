@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using easy_core;
+using Microsoft.AspNetCore.Components;
 
 namespace easy_blazor_bulma;
 
@@ -103,7 +104,7 @@ public partial class Navbar : ComponentBase
 	protected override void OnInitialized()
 	{
 		if (string.IsNullOrWhiteSpace(Id))
-			Id = AdditionalAttributes.GetValue("id") ?? Guid.NewGuid().ToString("N");
+			Id = AdditionalAttributes.GetValue("id") ?? Guid.NewGuid().ToHtmlId().ToString("N");
 
 		if (string.IsNullOrWhiteSpace(Href))
 			Href = AdditionalAttributes.GetValue("href") ?? string.Empty;
