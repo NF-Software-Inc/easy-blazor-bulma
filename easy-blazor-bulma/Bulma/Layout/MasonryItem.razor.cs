@@ -13,6 +13,9 @@ public partial class MasonryItem : ComponentBase
 	[Parameter]
 	public RenderFragment? ChildContent { get; set; }
 
+	[CascadingParameter]
+	private Masonry Parent { get; init; } = default!;
+
 	/// <summary>
 	/// Additional attributes applied to the root item element.
 	/// </summary>
@@ -21,5 +24,16 @@ public partial class MasonryItem : ComponentBase
 
     private readonly string[] Filter = ["class"];
 
-	private string MainCssClass => string.Join(' ', "masonry-item", AdditionalAttributes.GetValue("class"));
+	private string MainCssClass
+	{
+		get
+		{
+			var css = "";
+
+			if (Parent.ItemSelector == ".masonry-item")
+				css += "masonry-item";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("class")); ;
+		}
+	}
 }

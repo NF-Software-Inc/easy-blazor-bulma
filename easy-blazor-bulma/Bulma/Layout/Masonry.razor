@@ -2,5 +2,7 @@
 @inherits ComponentBase
 
 <div id="@ContainerId" class="@MainCssClass" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
-	@ChildContent
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
 </div>
