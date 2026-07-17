@@ -71,7 +71,7 @@ jobs:
     - name: Build & Pack
       run: |
         dotnet build --configuration Release
-        dotnet pack --configuration Release --output ${{ env.NuGetDirectory }} /p:AssemblyVersion=${{ env.PublishVersion }} /p:Version=${{ inputs.version }} /p:FileVersion=${{ env.PublishVersion }}
+        dotnet pack --configuration Release --output ${{ env.NuGetDirectory }} /p:Version=${{ inputs.version }} /p:FileVersion=${{ env.PublishVersion }}
       working-directory: ./easy-blazor-bulma
     - uses: actions/upload-artifact@v4.6.2
       with:
