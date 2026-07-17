@@ -120,6 +120,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (PendingOptionsUpdate && IsInitialized)
 		{
 			PendingOptionsUpdate = false;
+
 			await UpdateOptions();
 		}
 	}
@@ -130,12 +131,8 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (IsInitialized == false)
 			return;
 
-		var fingerprint = BuildOptionsFingerprint();
-
-		if (string.Equals(LastOptionsFingerprint, fingerprint, StringComparison.Ordinal))
-			return;
-
-		PendingOptionsUpdate = true;
+		if (string.Equals(LastOptionsFingerprint, BuildOptionsFingerprint(), StringComparison.Ordinal) == false)
+			PendingOptionsUpdate = true;
 	}
 
 	/// <summary>
@@ -212,7 +209,26 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (IsInitialized == false)
 			return false;
 
-		return await JsRuntime.MasonryRefresh(ContainerId);
+		Interlocked.Increment(ref PendingLayoutRequests);
+
+		await LayoutGate.WaitAsync();
+
+		try
+		{
+			while (Interlocked.Exchange(ref PendingLayoutRequests, 0) > 0)
+			{
+				var success = await JsRuntime.MasonryRefresh(ContainerId);
+
+				if (success == false)
+					return false;
+			}
+
+			return true;
+		}
+		finally
+		{
+			LayoutGate.Release();
+		}
 	}
 
 	/// <summary>
@@ -223,23 +239,26 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (IsInitialized == false)
 			return false;
 
-		return await JsRuntime.MasonryReloadItems(ContainerId);
-	}
+		Interlocked.Increment(ref PendingLayoutRequests);
 
-	/// <summary>
-	/// Reloads items then re-reads item elements and recalculates item positions.
-	/// </summary>
-	public async Task<bool> Append()
-	{
-		if (IsInitialized == false)
-			return false;
+		await LayoutGate.WaitAsync();
 
-		var reloaded = await JsRuntime.MasonryReloadItems(ContainerId);
+		try
+		{
+			while (Interlocked.Exchange(ref PendingLayoutRequests, 0) > 0)
+			{
+				var success = await JsRuntime.MasonryReloadItems(ContainerId);
 
-		if (reloaded == false)
-			return false;
+				if (success == false)
+					return false;
+			}
 
-		return await JsRuntime.MasonryLayout(ContainerId);
+			return true;
+		}
+		finally
+		{
+			LayoutGate.Release();
+		}
 	}
 
 	/// <summary>

@@ -256,6 +256,7 @@ window.easyBlazorBulma = {
                 return false;
 
             instance.reloadItems();
+
             return true;
         },
 
