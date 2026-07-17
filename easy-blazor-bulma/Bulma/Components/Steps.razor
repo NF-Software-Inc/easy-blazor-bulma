@@ -4,17 +4,24 @@
 <ul class='@MainCssClass' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
 	@foreach (var step in Children)
 	{
-		<li class='@GetChildCssClass(step)' @onclick="() => OnSelectionChanged(step)" @attributes='step.AdditionalAttributes.GetFilteredAttributes(step.Filter)'>
-			<span class='@GetMarkerCssClass(step)'>
-				@if (string.IsNullOrWhiteSpace(step.Icon) == false)
-				{
-					<span class="material-icons icon">@step.Icon</span>
-				}
-			</span>
-			<div class='@GetContentCssClass(step)'>
-				<p>@step.Name</p>
-			</div>
-		</li>
+		if (step.ChildContent == null)
+		{
+			<li class='@GetChildCssClass(step)' @onclick="() => OnSelectionChanged(step)" @attributes='step.AdditionalAttributes.GetFilteredAttributes(step.Filter)'>
+				<span class='@GetMarkerCssClass(step)'>
+					@if (string.IsNullOrWhiteSpace(step.Icon) == false)
+					{
+						<span class="material-icons icon">@step.Icon</span>
+					}
+				</span>
+				<div class='@GetContentCssClass(step)'>
+					<p>@step.Name</p>
+				</div>
+			</li>
+		}
+		else
+		{
+			@step.ChildContent
+		}
 	}
 </ul>
 

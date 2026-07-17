@@ -111,7 +111,7 @@ public partial class InputSwitch<[DynamicallyAccessedMembers(DynamicallyAccessed
 
 		// Extract details
 		if (string.IsNullOrWhiteSpace(Id))
-			Id = AdditionalAttributes.GetValue("id") ?? Guid.NewGuid().ToString("N");
+			Id = AdditionalAttributes.GetValue("id") ?? Guid.NewGuid().ToHtmlId().ToString("N");
 
 		DisplayAttribute? attribute = null;
 
