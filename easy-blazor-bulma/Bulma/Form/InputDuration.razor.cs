@@ -48,6 +48,13 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     public int StepSeconds { get; set; } = 15;
 
     /// <summary>
+    /// The number of milliseconds to adjust by when the up or down arrows are clicked.
+    /// </summary>
+    [Parameter]
+    [Range(1, 1_000)]
+    public int StepMilliseconds { get; set; } = 100;
+
+    /// <summary>
     /// An icon to display within the input.
     /// </summary>
     [Parameter]
@@ -234,6 +241,12 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             Logger?.LogWarning("Cannot combine ConvertDecimals with any of DisplayDaysAsHours, DisplayHoursAsMinutes, or DisplayMinutesAsSeconds for InputDuration.");
         }
 
+        if (Options.HasFlag(InputDurationOptions.ShowMilliseconds) && Options.HasFlag(InputDurationOptions.ShowSeconds) == false)
+        {
+            Options &= ~InputDurationOptions.ShowMilliseconds;
+            Logger?.LogWarning("Cannot set ShowMilliseconds without ShowSeconds for InputDuration.");
+        }
+
         // Unset invalid options
         if (UnderlyingType == typeof(TimeOnly) && Options.HasAnyFlag(InputDurationOptions.AllowNegative | InputDurationOptions.AllowGreaterThan24Hours))
         {
@@ -279,14 +292,16 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 return false;
             }
 
-            if (value.Count(x => x == '-') > 1 || value.Count(x => x == '.') > 1 || value.Count(x => x == ':') > 2)
+            var allowedPeriods = Options.HasAllFlags(InputDurationOptions.ShowDays | InputDurationOptions.ShowMilliseconds) ? 2 : 1;
+
+            if (value.Count(x => x == '-') > 1 || value.Count(x => x == '.') > allowedPeriods || value.Count(x => x == ':') > 2)
             {
                 result = default;
 
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The '-' and '.' characters may only appear once in the {0} field, the ':' character may appear twice.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field contains too many separators.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
 
@@ -476,7 +491,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             value = TimeSpan.Zero;
 
         if (Options.HasFlag(InputDurationOptions.AllowGreaterThan24Hours) == false && value >= TimeSpan.FromDays(1))
-            value = TimeSpan.FromDays(1).Add(TimeSpan.FromSeconds(-1));
+            value = TimeSpan.FromDays(1).Add(Options.HasFlag(InputDurationOptions.ShowMilliseconds) ? TimeSpan.FromMilliseconds(-1) : TimeSpan.FromSeconds(-1));
 
         var formatted = "";
         var negative = value < TimeSpan.Zero;
@@ -516,6 +531,9 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             else
                 formatted += value.ToString("%s");
         }
+
+        if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
+            formatted += '.' + value.ToString("fff");
 
         return formatted.TrimEnd('.', ':');
     }
@@ -574,7 +592,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (Options.HasFlag(InputDurationOptions.AllowNegative) == false && adjusted < TimeSpan.Zero)
             PopoutValue = TimeSpan.Zero;
         else if (Options.HasFlag(InputDurationOptions.AllowGreaterThan24Hours) == false && adjusted >= TimeSpan.FromDays(1))
-            PopoutValue = TimeSpan.FromDays(1).Add(TimeSpan.FromSeconds(-1));
+            PopoutValue = TimeSpan.FromDays(1).Add(Options.HasFlag(InputDurationOptions.ShowMilliseconds) ? TimeSpan.FromMilliseconds(-1) : TimeSpan.FromSeconds(-1));
         else
             PopoutValue = adjusted;
 

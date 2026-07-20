@@ -28,7 +28,7 @@
 			<div class="field">
 				<Label For="() => InputModel.TimeOnlyTest" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left has-icons-right">
-					<InputDuration @bind-Value=InputModel.TimeOnlyTest Options="Options" StepSeconds="30" />
+					<InputDuration @bind-Value=InputModel.TimeOnlyTest Options="Options" StepSeconds="30" StepMilliseconds="50" />
 				</div>
 			</div>
 		</EditForm>
@@ -38,7 +38,7 @@
 @code {
 	private readonly PageModel InputModel = new();
 
-	private readonly InputDurationOptions Options = InputDurationOptions.HoverPopout | InputDurationOptions.ShowResetButton | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds;
+	private readonly InputDurationOptions Options = InputDurationOptions.HoverPopout | InputDurationOptions.ShowResetButton | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds | InputDurationOptions.ShowMilliseconds;
 	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
 
 	private class PageModel
