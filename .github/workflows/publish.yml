@@ -98,7 +98,7 @@ jobs:
           exit 1
   android:
     needs: [ prepare, nuget-wait ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android') }}
+    if: ${{ always() && needs.nuget-wait.result != 'failure' && (contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Android')) }}
     permissions:
       contents: write
     uses: ./.github/workflows/publish-android.yml
@@ -108,7 +108,7 @@ jobs:
     secrets: inherit
   ios:
     needs: [ prepare, nuget-wait ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS') }}
+    if: ${{ always() && needs.nuget-wait.result != 'failure' && (contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'iOS')) }}
     permissions:
       contents: write
     uses: ./.github/workflows/publish-ios.yml
@@ -118,7 +118,7 @@ jobs:
     secrets: inherit
   mac-catalyst:
     needs: [ prepare, nuget-wait ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Mac Catalyst') }}
+    if: ${{ always() && needs.nuget-wait.result != 'failure' && (contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Mac Catalyst')) }}
     permissions:
       contents: write
     uses: ./.github/workflows/publish-mac-catalyst.yml
@@ -128,7 +128,7 @@ jobs:
     secrets: inherit
   windows-arm64:
     needs: [ prepare, nuget-wait ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
+    if: ${{ always() && needs.nuget-wait.result != 'failure' && (contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows')) }}
     permissions:
       contents: write
     uses: ./.github/workflows/publish-windows.yml
@@ -139,7 +139,7 @@ jobs:
     secrets: inherit
   windows-x64:
     needs: [ prepare, nuget-wait ]
-    if: ${{ contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows') }}
+    if: ${{ always() && needs.nuget-wait.result != 'failure' && (contains(needs.prepare.outputs.Targets, 'All') || contains(needs.prepare.outputs.Targets, 'MAUI') || contains(needs.prepare.outputs.Targets, 'Windows')) }}
     permissions:
       contents: write
     uses: ./.github/workflows/publish-windows.yml
