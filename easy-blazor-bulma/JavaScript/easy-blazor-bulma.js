@@ -42,22 +42,16 @@ window.easyBlazorBulma = {
         if (this.HasCamera() === false)
             return false;
 
-        var result = false;
-
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then(() => {
-                result = true;
-            })
-            .catch(() => { });
-
-        return result;
+        return navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(() => true)
+            .catch(() => false);
     },
 
     /**
      * Checks and requests permission to display desktop notifications to the user.
      * @param {boolean} reset Requests permission again when already denied.
      */
-    CheckNotificationPermission: function (reset) {
+    CheckNotificationPermission: async function (reset) {
         if (this.HasNotification() === false)
             return false;
         else if (Notification.permission === 'granted')
@@ -65,8 +59,8 @@ window.easyBlazorBulma = {
         else if (reset !== true && Notification.permission === "denied")
             return false;
 
-        Notification.requestPermission();
-        return true;
+        var permission = await Notification.requestPermission();
+        return permission === 'granted';
     },
 
     /**
@@ -317,7 +311,7 @@ window.easyBlazorBulma = {
     GetStorageBytes: async function () {
         if ('storage' in navigator) {
             var estimate = await navigator.storage.estimate();
-            return estimate.quota;
+            return (estimate.quota ?? 0) - (estimate.usage ?? 0);
         }
 
         return 0;
@@ -631,7 +625,7 @@ window.easyBlazorBulma = {
 
         var database = await this.OpenIndexedDb(name, store, version);
 
-        if (typeof (database) === 'undefined')
+        if (database === null || typeof (database) === 'undefined')
             return null;
 
         var request = database.transaction(store, 'readonly')
@@ -650,7 +644,7 @@ window.easyBlazorBulma = {
 
         var result = await promise;
 
-        if (typeof (result) === 'undefined')
+        if (result === null || typeof (result) === 'undefined')
             return null;
         else
             return result.data;
@@ -722,7 +716,7 @@ window.easyBlazorBulma = {
 
         var database = await this.OpenIndexedDb(name, store, version);
 
-        if (typeof (database) === 'undefined')
+        if (database === null || typeof (database) === 'undefined')
             return false;
 
         var transaction = database.transaction(store, 'readwrite');
@@ -731,7 +725,7 @@ window.easyBlazorBulma = {
             transaction.oncomplete = () => resolve(true);
             transaction.onerror = () => resolve(false);
 
-            transaction.objectStore(store).add({ timestamp: Date.now(), data: data }, id);
+            transaction.objectStore(store).put({ timestamp: Date.now(), data: data }, id);
         });
     },
 
@@ -772,9 +766,7 @@ window.easyBlazorBulma = {
         if (video === null)
             return false;
 
-        var result = false;
-
-        navigator.mediaDevices.getUserMedia({
+        return navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: "environment",
                 width: { ideal: 4096 },
@@ -782,14 +774,12 @@ window.easyBlazorBulma = {
             },
             audio: false
         })
-            .then(stream => {
-                video.srcObject = stream;
-                video.play();
-                result = true;
-            })
-            .catch(() => { });
-
-        return result;
+        .then(stream => {
+            video.srcObject = stream;
+            video.play();
+            return true;
+        })
+        .catch(() => false);
     },
 
     /**
