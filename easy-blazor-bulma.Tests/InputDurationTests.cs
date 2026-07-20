@@ -46,6 +46,26 @@ public class InputDurationTests
         Assert.Equal("0.23:59:59.999", formatted);
     }
 
+    [Fact]
+    public void TotalSecondsWithMillisecondsCanBeParsed()
+    {
+        var options =
+            InputDurationOptions.ShowSeconds |
+            InputDurationOptions.ShowMilliseconds |
+            InputDurationOptions.DisplayMinutesAsSeconds |
+            InputDurationOptions.AllowGreaterThan24Hours |
+            InputDurationOptions.ValidateTextInput;
+        var input = new TestInputDuration(options);
+        var expected = TimeSpan.FromSeconds(90.125);
+
+        var formatted = input.Format(expected);
+        var parsed = input.TryParse(formatted, out var result, out var validationErrorMessage);
+
+        Assert.Equal("90.125", formatted);
+        Assert.True(parsed, validationErrorMessage);
+        Assert.Equal(expected, result);
+    }
+
     private sealed class TestInputDuration : InputDuration<TimeSpan>
     {
         public TestInputDuration(InputDurationOptions options)

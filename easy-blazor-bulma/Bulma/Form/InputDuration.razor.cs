@@ -316,7 +316,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 return false;
             }
 
-            if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds) && value.Contains('.'))
+            if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds) && Options.HasFlag(InputDurationOptions.ShowMilliseconds) == false && value.Contains('.'))
             {
                 result = default;
 
@@ -461,14 +461,8 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         }
         else if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds))
         {
-            var totalSeconds = Math.Abs(int.Parse(value));
-
-            var days = (int)Math.Floor(totalSeconds / 86_400.0F);
-            var hours = (int)Math.Floor((totalSeconds - (days * 86_400)) / 3_600.0F);
-            var minutes = (int)Math.Floor((totalSeconds - (days * 86_400) - (hours * 3_600)) / 60.0F);
-            var seconds = ((totalSeconds - (days * 86_400) - (hours * 3_600)) % 60).ToString();
-
-            value = $"{days}.{hours.ToString().PadLeft(2, '0')}:{minutes.ToString().PadLeft(2, '0')}:{seconds.PadLeft(2, '0')}";
+            var totalSeconds = Math.Abs(double.Parse(value, CultureInfo.InvariantCulture));
+            value = TimeSpan.FromSeconds(totalSeconds).ToString("c", CultureInfo.InvariantCulture);
         }
 
         if (negative)
