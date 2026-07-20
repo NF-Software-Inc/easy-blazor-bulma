@@ -84,7 +84,7 @@ jobs:
           echo "Waiting for package Easy.Blazor.Bulma version ${{ needs.prepare.outputs.Version }}"
 
           for i in {1..20}; do
-            if curl -fsSL "https://api.nuget.org/v3-flatcontainer/Easy.Blazor.Bulma/index.json" | jq -e --arg version "${{ needs.prepare.outputs.Version }}" '.versions | index($version)' >/dev/null
+            if curl -fsSL "https://api.nuget.org/v3-flatcontainer/easy.blazor.bulma/index.json" | jq -e --arg version "${{ needs.prepare.outputs.Version }}" '.versions | index($version)' >/dev/null
             then
               echo "Package version ${{ needs.prepare.outputs.Version }} is available."
               exit 0
