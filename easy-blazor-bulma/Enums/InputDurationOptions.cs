@@ -127,7 +127,7 @@ public enum InputDurationOptions
     ConvertDecimals = 0b_00000000_01000000_00000000_00000000,
 
     /// <summary>
-    /// Specifies whether the popout and formatted value will display milliseconds. Requires <see cref="ShowSeconds"/>.
+    /// Specifies whether the popout and formatted value will display milliseconds.
     /// </summary>
     ShowMilliseconds = 0b_00000000_10000000_00000000_00000000
 }

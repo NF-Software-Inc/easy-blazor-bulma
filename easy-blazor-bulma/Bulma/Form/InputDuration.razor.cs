@@ -241,10 +241,12 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             Logger?.LogWarning("Cannot combine ConvertDecimals with any of DisplayDaysAsHours, DisplayHoursAsMinutes, or DisplayMinutesAsSeconds for InputDuration.");
         }
 
-        if (Options.HasFlag(InputDurationOptions.ShowMilliseconds) && Options.HasFlag(InputDurationOptions.ShowSeconds) == false)
+        if (Options.HasFlag(InputDurationOptions.ShowMilliseconds) &&
+            Options.HasFlag(InputDurationOptions.ShowSeconds) == false &&
+            Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes))
         {
             Options &= ~InputDurationOptions.ShowMilliseconds;
-            Logger?.LogWarning("Cannot set ShowMilliseconds without ShowSeconds for InputDuration.");
+            Logger?.LogWarning("Cannot combine ShowMilliseconds with days, hours, or minutes without ShowSeconds for InputDuration.");
         }
 
         // Unset invalid options
@@ -292,7 +294,8 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 return false;
             }
 
-            var allowedPeriods = Options.HasAllFlags(InputDurationOptions.ShowDays | InputDurationOptions.ShowMilliseconds) ? 2 : 1;
+            var allowedPeriods = Options.HasAllFlags(InputDurationOptions.ShowDays | InputDurationOptions.ShowMilliseconds) &&
+                Options.HasFlag(InputDurationOptions.DisplayDaysAsHours) == false ? 2 : 1;
 
             if (value.Count(x => x == '-') > 1 || value.Count(x => x == '.') > allowedPeriods || value.Count(x => x == ':') > 2)
             {
@@ -401,6 +404,17 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (value.EndsWith('.') || value.EndsWith(':'))
             value = $"{value}00";
 
+        var showOnlyMilliseconds = Options.HasFlag(InputDurationOptions.ShowMilliseconds) &&
+            Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds) == false;
+
+        if (showOnlyMilliseconds)
+        {
+            var totalMilliseconds = Math.Abs(double.Parse(value, CultureInfo.InvariantCulture));
+            value = TimeSpan.FromMilliseconds(totalMilliseconds).ToString("c", CultureInfo.InvariantCulture);
+
+            return negative ? '-' + value : value;
+        }
+
         // Decimal values
         if (value.Contains('.') && value.Contains(':') == false)
         {
@@ -441,23 +455,25 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (Options.HasFlag(InputDurationOptions.DisplayDaysAsHours))
         {
             var parts = value.Split(':');
-            var totalHours = Math.Abs(int.Parse(parts[0]));
+            var duration = TimeSpan.FromHours(Math.Abs(double.Parse(parts[0], CultureInfo.InvariantCulture)));
 
-            var days = (int)Math.Floor(totalHours / 24.0F);
-            var hours = (totalHours % 24).ToString();
+            if (parts.Length > 1)
+                duration += TimeSpan.FromMinutes(double.Parse(parts[1], CultureInfo.InvariantCulture));
 
-            value = $"{days}.{hours.PadLeft(2, '0')}:{string.Join(':', parts.Skip(1))}";
+            if (parts.Length > 2)
+                duration += TimeSpan.FromSeconds(double.Parse(parts[2], CultureInfo.InvariantCulture));
+
+            value = duration.ToString("c", CultureInfo.InvariantCulture);
         }
         else if (Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes))
         {
             var parts = value.Split(':');
-            var totalMinutes = Math.Abs(int.Parse(parts[0]));
+            var duration = TimeSpan.FromMinutes(Math.Abs(double.Parse(parts[0], CultureInfo.InvariantCulture)));
 
-            var days = (int)Math.Floor(totalMinutes / 1_440.0F);
-            var hours = (int)Math.Floor((totalMinutes - (days * 1_440)) / 60.0F);
-            var minutes = ((totalMinutes - (days * 1_440)) % 60).ToString();
+            if (parts.Length > 1)
+                duration += TimeSpan.FromSeconds(double.Parse(parts[1], CultureInfo.InvariantCulture));
 
-            value = $"{days}.{hours.ToString().PadLeft(2, '0')}:{minutes.PadLeft(2, '0')}:" + parts.Skip(1).First();
+            value = duration.ToString("c", CultureInfo.InvariantCulture);
         }
         else if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds))
         {
@@ -527,7 +543,12 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         }
 
         if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
-            formatted += '.' + value.ToString("fff");
+        {
+            if (Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds))
+                formatted += '.';
+
+            formatted += value.ToString("fff");
+        }
 
         return formatted.TrimEnd('.', ':');
     }

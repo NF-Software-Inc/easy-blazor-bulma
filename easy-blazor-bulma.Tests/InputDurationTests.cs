@@ -66,6 +66,52 @@ public class InputDurationTests
         Assert.Equal(expected, result);
     }
 
+    [Fact]
+    public void MillisecondsCanBeDisplayedAndParsedWithoutSeconds()
+    {
+        var options =
+            InputDurationOptions.ShowMilliseconds |
+            InputDurationOptions.AllowGreaterThan24Hours |
+            InputDurationOptions.ValidateTextInput;
+        var input = new TestInputDuration(options);
+        var expected = TimeSpan.FromMilliseconds(125);
+
+        var formatted = input.Format(expected);
+        var parsed = input.TryParse(formatted, out var result, out var validationErrorMessage);
+
+        Assert.Equal("125", formatted);
+        Assert.True(parsed, validationErrorMessage);
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(
+        InputDurationOptions.ShowHours |
+        InputDurationOptions.ShowMinutes |
+        InputDurationOptions.ShowSeconds |
+        InputDurationOptions.ShowMilliseconds |
+        InputDurationOptions.DisplayDaysAsHours,
+        "26:03:04.005")]
+    [InlineData(
+        InputDurationOptions.ShowMinutes |
+        InputDurationOptions.ShowSeconds |
+        InputDurationOptions.ShowMilliseconds |
+        InputDurationOptions.DisplayHoursAsMinutes,
+        "1563:04.005")]
+    public void CustomUnitDisplaysPreserveMilliseconds(InputDurationOptions options, string expectedFormatted)
+    {
+        options |= InputDurationOptions.AllowGreaterThan24Hours | InputDurationOptions.ValidateTextInput;
+        var input = new TestInputDuration(options);
+        var expected = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
+
+        var formatted = input.Format(expected);
+        var parsed = input.TryParse(formatted, out var result, out var validationErrorMessage);
+
+        Assert.Equal(expectedFormatted, formatted);
+        Assert.True(parsed, validationErrorMessage);
+        Assert.Equal(expected, result);
+    }
+
     private sealed class TestInputDuration : InputDuration<TimeSpan>
     {
         public TestInputDuration(InputDurationOptions options)
