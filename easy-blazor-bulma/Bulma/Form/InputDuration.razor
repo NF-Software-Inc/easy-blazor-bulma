@@ -40,6 +40,10 @@
             {
                 <span class="column p-0 has-text-centered">Seconds</span>
             }
+            @if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
+            {
+                <span class="column p-0 has-text-centered">Milliseconds</span>
+            }
         </div>
 
         <div class="timepicker">
@@ -131,6 +135,23 @@
                             </div>
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(-StepSeconds))'>arrow_downward</span>
+                    </div>
+                    @if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
+                    {
+                        <div class="timepicker-time-divider">.</div>
+                    }
+                }
+                @if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
+                {
+                    <div class="timepicker-seconds timepicker-milliseconds">
+                        <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(StepMilliseconds))'>arrow_upward</span>
+                        <div class="timepicker-input">
+                            <input type="number">
+                            <div class="timepicker-input-number">
+                                <span>@PopoutValue.ToString("fff")</span>
+                            </div>
+                        </div>
+                        <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(-StepMilliseconds))'>arrow_downward</span>
                     </div>
                 }
             </div>

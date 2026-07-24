@@ -12,4 +12,5 @@
     <Deploy />
   </Project>
   <Project Path="easy-blazor-bulma/easy-blazor-bulma.csproj" />
+  <Project Path="easy-blazor-bulma.Tests/easy-blazor-bulma.Tests.csproj" />
 </Solution>

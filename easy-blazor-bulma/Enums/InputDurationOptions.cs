@@ -124,5 +124,10 @@ public enum InputDurationOptions
     /// <summary>
 	/// Parses decimal values as minutes or seconds. The portion after the decimal will become a percentage of 60 minutes or 60 seconds based on the input string. Default parsing is days.hours:minutes:seconds.fractional.
     /// </summary>
-    ConvertDecimals = 0b_00000000_01000000_00000000_00000000
+    ConvertDecimals = 0b_00000000_01000000_00000000_00000000,
+
+    /// <summary>
+    /// Specifies whether the popout and formatted value will display milliseconds.
+    /// </summary>
+    ShowMilliseconds = 0b_00000000_10000000_00000000_00000000
 }

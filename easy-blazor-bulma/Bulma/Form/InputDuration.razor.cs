@@ -48,6 +48,13 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     public int StepSeconds { get; set; } = 15;
 
     /// <summary>
+    /// The number of milliseconds to adjust by when the up or down arrows are clicked.
+    /// </summary>
+    [Parameter]
+    [Range(1, 1_000)]
+    public int StepMilliseconds { get; set; } = 100;
+
+    /// <summary>
     /// An icon to display within the input.
     /// </summary>
     [Parameter]
@@ -234,6 +241,14 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             Logger?.LogWarning("Cannot combine ConvertDecimals with any of DisplayDaysAsHours, DisplayHoursAsMinutes, or DisplayMinutesAsSeconds for InputDuration.");
         }
 
+        if (Options.HasFlag(InputDurationOptions.ShowMilliseconds) &&
+            Options.HasFlag(InputDurationOptions.ShowSeconds) == false &&
+            Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes))
+        {
+            Options &= ~InputDurationOptions.ShowMilliseconds;
+            Logger?.LogWarning("Cannot combine ShowMilliseconds with days, hours, or minutes without ShowSeconds for InputDuration.");
+        }
+
         // Unset invalid options
         if (UnderlyingType == typeof(TimeOnly) && Options.HasAnyFlag(InputDurationOptions.AllowNegative | InputDurationOptions.AllowGreaterThan24Hours))
         {
@@ -279,14 +294,17 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 return false;
             }
 
-            if (value.Count(x => x == '-') > 1 || value.Count(x => x == '.') > 1 || value.Count(x => x == ':') > 2)
+            var allowedPeriods = Options.HasAllFlags(InputDurationOptions.ShowDays | InputDurationOptions.ShowMilliseconds) &&
+                Options.HasFlag(InputDurationOptions.DisplayDaysAsHours) == false ? 2 : 1;
+
+            if (value.Count(x => x == '-') > 1 || value.Count(x => x == '.') > allowedPeriods || value.Count(x => x == ':') > 2)
             {
                 result = default;
 
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The '-' and '.' characters may only appear once in the {0} field, the ':' character may appear twice.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field contains too many separators.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
 
@@ -301,7 +319,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 return false;
             }
 
-            if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds) && value.Contains('.'))
+            if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds) && Options.HasFlag(InputDurationOptions.ShowMilliseconds) == false && value.Contains('.'))
             {
                 result = default;
 
@@ -386,6 +404,17 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (value.EndsWith('.') || value.EndsWith(':'))
             value = $"{value}00";
 
+        var showOnlyMilliseconds = Options.HasFlag(InputDurationOptions.ShowMilliseconds) &&
+            Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds) == false;
+
+        if (showOnlyMilliseconds)
+        {
+            var totalMilliseconds = Math.Abs(double.Parse(value, CultureInfo.InvariantCulture));
+            value = TimeSpan.FromMilliseconds(totalMilliseconds).ToString("c", CultureInfo.InvariantCulture);
+
+            return negative ? '-' + value : value;
+        }
+
         // Decimal values
         if (value.Contains('.') && value.Contains(':') == false)
         {
@@ -426,34 +455,30 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (Options.HasFlag(InputDurationOptions.DisplayDaysAsHours))
         {
             var parts = value.Split(':');
-            var totalHours = Math.Abs(int.Parse(parts[0]));
+            var duration = TimeSpan.FromHours(Math.Abs(double.Parse(parts[0], CultureInfo.InvariantCulture)));
 
-            var days = (int)Math.Floor(totalHours / 24.0F);
-            var hours = (totalHours % 24).ToString();
+            if (parts.Length > 1)
+                duration += TimeSpan.FromMinutes(double.Parse(parts[1], CultureInfo.InvariantCulture));
 
-            value = $"{days}.{hours.PadLeft(2, '0')}:{string.Join(':', parts.Skip(1))}";
+            if (parts.Length > 2)
+                duration += TimeSpan.FromSeconds(double.Parse(parts[2], CultureInfo.InvariantCulture));
+
+            value = duration.ToString("c", CultureInfo.InvariantCulture);
         }
         else if (Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes))
         {
             var parts = value.Split(':');
-            var totalMinutes = Math.Abs(int.Parse(parts[0]));
+            var duration = TimeSpan.FromMinutes(Math.Abs(double.Parse(parts[0], CultureInfo.InvariantCulture)));
 
-            var days = (int)Math.Floor(totalMinutes / 1_440.0F);
-            var hours = (int)Math.Floor((totalMinutes - (days * 1_440)) / 60.0F);
-            var minutes = ((totalMinutes - (days * 1_440)) % 60).ToString();
+            if (parts.Length > 1)
+                duration += TimeSpan.FromSeconds(double.Parse(parts[1], CultureInfo.InvariantCulture));
 
-            value = $"{days}.{hours.ToString().PadLeft(2, '0')}:{minutes.PadLeft(2, '0')}:" + parts.Skip(1).First();
+            value = duration.ToString("c", CultureInfo.InvariantCulture);
         }
         else if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds))
         {
-            var totalSeconds = Math.Abs(int.Parse(value));
-
-            var days = (int)Math.Floor(totalSeconds / 86_400.0F);
-            var hours = (int)Math.Floor((totalSeconds - (days * 86_400)) / 3_600.0F);
-            var minutes = (int)Math.Floor((totalSeconds - (days * 86_400) - (hours * 3_600)) / 60.0F);
-            var seconds = ((totalSeconds - (days * 86_400) - (hours * 3_600)) % 60).ToString();
-
-            value = $"{days}.{hours.ToString().PadLeft(2, '0')}:{minutes.ToString().PadLeft(2, '0')}:{seconds.PadLeft(2, '0')}";
+            var totalSeconds = Math.Abs(double.Parse(value, CultureInfo.InvariantCulture));
+            value = TimeSpan.FromSeconds(totalSeconds).ToString("c", CultureInfo.InvariantCulture);
         }
 
         if (negative)
@@ -476,7 +501,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             value = TimeSpan.Zero;
 
         if (Options.HasFlag(InputDurationOptions.AllowGreaterThan24Hours) == false && value >= TimeSpan.FromDays(1))
-            value = TimeSpan.FromDays(1).Add(TimeSpan.FromSeconds(-1));
+            value = TimeSpan.FromDays(1).Add(Options.HasFlag(InputDurationOptions.ShowMilliseconds) ? TimeSpan.FromMilliseconds(-1) : TimeSpan.FromSeconds(-1));
 
         var formatted = "";
         var negative = value < TimeSpan.Zero;
@@ -515,6 +540,14 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalSeconds)) : (int)Math.Floor(value.TotalSeconds)).ToString();
             else
                 formatted += value.ToString("%s");
+        }
+
+        if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
+        {
+            if (Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds))
+                formatted += '.';
+
+            formatted += value.ToString("fff");
         }
 
         return formatted.TrimEnd('.', ':');
@@ -574,7 +607,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (Options.HasFlag(InputDurationOptions.AllowNegative) == false && adjusted < TimeSpan.Zero)
             PopoutValue = TimeSpan.Zero;
         else if (Options.HasFlag(InputDurationOptions.AllowGreaterThan24Hours) == false && adjusted >= TimeSpan.FromDays(1))
-            PopoutValue = TimeSpan.FromDays(1).Add(TimeSpan.FromSeconds(-1));
+            PopoutValue = TimeSpan.FromDays(1).Add(Options.HasFlag(InputDurationOptions.ShowMilliseconds) ? TimeSpan.FromMilliseconds(-1) : TimeSpan.FromSeconds(-1));
         else
             PopoutValue = adjusted;
 
