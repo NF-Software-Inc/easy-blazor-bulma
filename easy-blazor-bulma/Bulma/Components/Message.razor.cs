@@ -29,6 +29,12 @@ public partial class Message : ComponentBase
 	[Parameter]
 	public bool IsHidden { get; set; }
 
+	/// <summary>
+	/// A callback that is triggered when the user clicks the delete button.
+	/// </summary>
+	[Parameter]
+	public EventCallback OnDeleteClicked { get; set; }
+
     /// <summary>
     /// Sets the color to use for the message text and background.
     /// </summary>
@@ -69,9 +75,12 @@ public partial class Message : ComponentBase
 
     private string BodyCssClass => string.Join(' ', "message-body", AdditionalAttributes.GetValue("body-class"));
 
-    private void Delete()
+    private async Task Delete()
 	{
 		IsHidden = true;
 		StateHasChanged();
+
+		if (OnDeleteClicked.HasDelegate)
+			await OnDeleteClicked.InvokeAsync();
 	}
 }

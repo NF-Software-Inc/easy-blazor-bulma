@@ -27,5 +27,23 @@
 		<Message class="is-size-4 is-jumbo" Title="Jumbo Purple Message" Color="BulmaColors.Purple" ShowDeleteButton=false>
 			<p class="block">Big message!</p>
 		</Message>
+
+		<p class="block">Click delete on a message below to remove it from the list.</p>
+
+		@foreach (var message in Messages)
+		{
+			<Message Title="@message" Color="BulmaColors.Green" OnDeleteClicked="() => RemoveMessage(message)" @key="message">
+				<p class="block">@message</p>
+			</Message>
+		}
 	</div>
 </div>
+
+@code {
+	private List<string> Messages = new() { "Message One", "Message Two", "Message Three" };
+
+	private void RemoveMessage(string message)
+	{
+		Messages.Remove(message);
+	}
+}
