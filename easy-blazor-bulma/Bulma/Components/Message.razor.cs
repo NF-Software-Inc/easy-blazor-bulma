@@ -79,6 +79,8 @@ public partial class Message : ComponentBase
 	{
 		IsHidden = true;
 		StateHasChanged();
-		await OnDeleteClicked.InvokeAsync();
+
+		if (OnDeleteClicked.HasDelegate)
+			await OnDeleteClicked.InvokeAsync();
 	}
 }

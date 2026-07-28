@@ -27,15 +27,12 @@
 		<Message class="is-size-4 is-jumbo" Title="Jumbo Purple Message" Color="BulmaColors.Purple" ShowDeleteButton=false>
 			<p class="block">Big message!</p>
 		</Message>
-	</div>
-</div>
 
-<div class="columns p-3">
-	<div class="column">
 		<p class="block">Click delete on a message below to remove it from the list.</p>
+
 		@foreach (var message in Messages)
 		{
-			<Message Title="@message" Color="BulmaColors.Green" OnDeleteClicked="() => RemoveMessage(message)">
+			<Message Title="@message" Color="BulmaColors.Green" OnDeleteClicked="() => RemoveMessage(message)" @key="message">
 				<p class="block">@message</p>
 			</Message>
 		}
