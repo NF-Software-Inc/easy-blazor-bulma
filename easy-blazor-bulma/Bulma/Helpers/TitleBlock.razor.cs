@@ -77,13 +77,40 @@ public partial class TitleBlock : ComponentBase
 
 	private readonly string[] Filter = new[] { "class", "body-class", "title-class", "data-tooltip", "tooltip-class" };
 
+	/// <summary>
+	/// Bulma color class tokens that, when supplied by the consumer, should suppress the default <c>is-primary</c> color.
+	/// </summary>
+	private static readonly string[] ColorClasses =
+	[
+		"is-white",
+		"is-black",
+		"is-light",
+		"is-dark",
+		"is-primary",
+		"is-link",
+		"is-info",
+		"is-success",
+		"is-warning",
+		"is-danger",
+		"is-secondary",
+		"is-tertiary",
+		"is-highlight",
+		"is-text",
+		"is-ghost"
+	];
+
 	private string? Tooltip;
 
 	private string MainCssClass
 	{
 		get
 		{
-			var css = "hero is-primary";
+			var additional = AdditionalAttributes.GetValue("class");
+
+			var css = "hero";
+
+			if (string.IsNullOrWhiteSpace(additional) || additional.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => ColorClasses.Contains(x)) == false)
+				css += " is-primary";
 
 			if (IsTiny)
 				css += " is-tiny";
@@ -91,7 +118,7 @@ public partial class TitleBlock : ComponentBase
 			if (IsBold)
 				css += " is-bold";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("class"));
+			return string.Join(' ', css, additional);
 		}
 	}
 
