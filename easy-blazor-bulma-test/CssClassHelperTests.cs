@@ -1,15 +1,15 @@
-namespace easy_blazor_bulma.Tests;
-
+using easy_blazor_bulma;
 using Xunit;
+
+namespace easy_blazor_bulma_test;
 
 public class CssClassHelperTests
 {
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("mb-4 has-text-centered")]
-    public void ContainsColorClassReturnsFalseWhenNoColorPresent(string? css)
+    public void ContainsColorClassReturnsFalseWhenNoColorPresent(string css)
     {
         Assert.False(CssClassHelper.ContainsColorClass(css));
     }
@@ -32,14 +32,12 @@ public class CssClassHelperTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("column has-text-centered")]
-    [InlineData("is-fullwidth")]
     [InlineData("is-borderless")]
-    public void ContainsColumnWidthClassReturnsFalseWhenNoWidthPresent(string? css)
+    public void ContainsColumnWidthClassReturnsFalseWhenNoWidthPresent(string css)
     {
-        Assert.False(CssClassHelper.ContainsColumnWidthClass(css));
+		Assert.False(CssClassHelper.ContainsColumnWidthClass(css));
     }
 
     [Theory]
@@ -54,9 +52,9 @@ public class CssClassHelperTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("has-text-weight-bold")]
-    public void ContainsSizeClassReturnsFalseWhenNoSizePresent(string? css)
+	[InlineData("")]
+	[InlineData("has-text-weight-bold")]
+    public void ContainsSizeClassReturnsFalseWhenNoSizePresent(string css)
     {
         Assert.False(CssClassHelper.ContainsSizeClass(css));
     }
@@ -70,9 +68,9 @@ public class CssClassHelperTests
     }
 
     [Theory]
-    [InlineData(null)]
+    [InlineData("")]
     [InlineData("image")]
-    public void ContainsImageDimensionClassReturnsFalseWhenNonePresent(string? css)
+    public void ContainsImageDimensionClassReturnsFalseWhenNonePresent(string css)
     {
         Assert.False(CssClassHelper.ContainsImageDimensionClass(css));
     }

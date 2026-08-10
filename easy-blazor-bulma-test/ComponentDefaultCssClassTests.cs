@@ -1,8 +1,9 @@
-namespace easy_blazor_bulma.Tests;
-
+using easy_blazor_bulma;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Xunit;
+
+namespace easy_blazor_bulma_test;
 
 public class ComponentDefaultCssClassTests
 {
@@ -76,7 +77,7 @@ public class ComponentDefaultCssClassTests
         Assert.Contains("is-bordered", tokens);
     }
 
-    private static string[] Tokens(string css) => css.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+    private static string[] Tokens(string css) => css.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
     private static string GetPrivateCssClass(Type componentType, string propertyName, (string Key, string? Value) attribute)
     {
@@ -86,6 +87,7 @@ public class ComponentDefaultCssClassTests
         {
             var attributes = new Dictionary<string, object> { { attribute.Key, attribute.Value } };
             var attributesProperty = componentType.GetProperty("AdditionalAttributes", BindingFlags.Instance | BindingFlags.Public);
+
             attributesProperty!.SetValue(component, attributes);
         }
 

@@ -1,24 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<RootNamespace>$(MSBuildProjectName.Replace("-", "_"))</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>NF Software Inc.</Authors>
+		<Company>NF Software Inc.</Company>
+		<Copyright>Copyright 2026 $(Company)</Copyright>
+		<Version>10.1.4</Version>
+		<AssemblyVersion>10.1.0.0</AssemblyVersion>
+		<FileVersion>10.1.4.0</FileVersion>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.*" />
-    <PackageReference Include="xunit.v3" Version="3.2.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\easy-blazor-bulma\easy-blazor-bulma.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.*" />
+		<PackageReference Include="xunit.v3" Version="3.2.*" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.*">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\easy-blazor-bulma\easy-blazor-bulma.csproj" />
+	</ItemGroup>
 
 </Project>

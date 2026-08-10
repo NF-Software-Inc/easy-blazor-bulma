@@ -1,7 +1,8 @@
-namespace easy_blazor_bulma.Tests;
-
+using easy_blazor_bulma;
 using System.Reflection;
 using Xunit;
+
+namespace easy_blazor_bulma_test;
 
 public class TitleBlockTests
 {
@@ -30,7 +31,7 @@ public class TitleBlockTests
     public void DefaultColorIsSuppressedWhenColorClassProvided(string providedClass)
     {
         var css = GetMainCssClass(providedClass);
-        var tokens = css.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+        var tokens = css.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         Assert.DoesNotContain("is-primary", tokens);
 
@@ -42,12 +43,13 @@ public class TitleBlockTests
     public void ExplicitPrimaryClassIsNotDuplicated()
     {
         var css = GetMainCssClass("is-primary");
-        var count = css.Split(' ', System.StringSplitOptions.RemoveEmptyEntries).Count(x => x == "is-primary");
+        var count = css.Split(' ', StringSplitOptions.RemoveEmptyEntries).Count(x => x == "is-primary");
 
         Assert.Equal(1, count);
     }
 
-    private static string GetMainCssClass(string? providedClass)
+#pragma warning disable BL0005 // Avoid using reflection to access private members, acceptable in unit tests
+	private static string GetMainCssClass(string? providedClass)
     {
         var component = new TitleBlock { Title = "Test" };
 
@@ -58,4 +60,5 @@ public class TitleBlockTests
 
         return (string)property!.GetValue(component)!;
     }
+#pragma warning restore BL0005
 }
