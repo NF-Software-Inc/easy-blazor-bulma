@@ -102,7 +102,7 @@ public partial class WeekScheduler : ComponentBase
 			var css = string.Join(' ', "is-fullwidth", "is-bordered", AdditionalAttributes.GetValue("table-class"));
 
 			if (CssClassHelper.ContainsSizeClass(css) == false)
-				css += "is-size-7 ";
+				css += " is-size-7";
 
 			return css;
 		}

@@ -8,9 +8,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2026 $(Company)</Copyright>
-		<Version>10.1.4</Version>
-		<AssemblyVersion>10.1.0.0</AssemblyVersion>
-		<FileVersion>10.1.4.0</FileVersion>
+		<Version>10.1.5</Version>
+		<AssemblyVersion>10.1.5.0</AssemblyVersion>
+		<FileVersion>10.1.5.0</FileVersion>
 
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
