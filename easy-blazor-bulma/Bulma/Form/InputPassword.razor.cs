@@ -166,19 +166,27 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 		if (PasswordValidator == null)
 			return;
 
-		// Don't overwrite caps-lock message
-		if (IsCapsOn)
-			return;
-
 		var (isValid, message) = PasswordValidator(CurrentValueAsString);
 
-		Message = message;
+		// Concatenate with caps-lock message when active
+		if (IsCapsOn)
+			Message = string.IsNullOrWhiteSpace(message) ? "Caps lock is on" : $"Caps lock is on — {message}";
+		else
+			Message = message;
+
 		MessageColor = string.IsNullOrWhiteSpace(message) ? BulmaColors.Default : isValid ? BulmaColors.Green : BulmaColors.Red;
 
 		if (UseAutomaticStatusColors)
 		{
+			var hadFailure = DisplayStatus.HasFlag(InputStatus.BackgroundDanger) || DisplayStatus.HasFlag(InputStatus.BackgroundWarning);
+
 			ResetStatus();
-			DisplayStatus |= isValid ? InputStatus.BackgroundSuccess : InputStatus.BackgroundDanger;
+
+			// Only apply success when no pre-existing failure status was set
+			if (isValid && hadFailure == false)
+				DisplayStatus |= InputStatus.BackgroundSuccess;
+			else if (isValid == false)
+				DisplayStatus |= InputStatus.BackgroundDanger;
 		}
 
 		StateHasChanged();
