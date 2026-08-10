@@ -21,6 +21,13 @@ public partial class Notification : ComponentBase
 	/// </summary>
 	[Parameter]
 	public bool IsHidden { get; set; }
+
+	/// <summary>
+	/// A callback that is triggered when the user clicks the delete button.
+	/// </summary>
+	[Parameter]
+	public EventCallback OnDeleteClicked { get; set; }
+
 	/// <summary>
 	/// Sets the color to use for the notification text and background.
 	/// </summary>
@@ -57,9 +64,12 @@ public partial class Notification : ComponentBase
 		}
 	}
 
-	private void Delete()
+	private async Task Delete()
 	{
 		IsHidden = true;
 		StateHasChanged();
+
+		if (OnDeleteClicked.HasDelegate)
+			await OnDeleteClicked.InvokeAsync();
 	}
 }
