@@ -32,6 +32,17 @@ public partial class MediaObject : ComponentBase
 
 	private string MainCssClass => string.Join(' ', "media", AdditionalAttributes.GetValue("class"));
     private string LeftCssClass => string.Join(' ', "media-left", AdditionalAttributes.GetValue("left-class"));
-	private string ImageCssClass => string.Join(' ', "image is-64x64", AdditionalAttributes.GetValue("image-class"));
+	private string ImageCssClass
+	{
+		get
+		{
+			var css = "image";
+
+			if (CssClassHelper.ContainsImageDimensionClass(AdditionalAttributes.GetValue("image-class")) == false)
+				css += " is-64x64";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("image-class"));
+		}
+	}
 	private string ContentCssClass => string.Join(' ', "media-content", AdditionalAttributes.GetValue("content-class"));
 }

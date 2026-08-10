@@ -233,5 +233,13 @@ public partial class Steps : ComponentBase
 		return string.Join(' ', css, step.AdditionalAttributes.GetValue("marker-class"));
 	}
 
-	private string GetContentCssClass(Step step) => string.Join(' ', "steps-content is-size-4", step.AdditionalAttributes.GetValue("content-class"));
+	private string GetContentCssClass(Step step)
+	{
+		var css = "steps-content";
+
+		if (CssClassHelper.ContainsSizeClass(step.AdditionalAttributes.GetValue("content-class")) == false)
+			css += " is-size-4";
+
+		return string.Join(' ', css, step.AdditionalAttributes.GetValue("content-class"));
+	}
 }

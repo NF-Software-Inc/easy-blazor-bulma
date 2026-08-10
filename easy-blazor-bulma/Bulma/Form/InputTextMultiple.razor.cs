@@ -42,9 +42,33 @@ public partial class InputTextMultiple : InputBase<List<string>>
 
 	private string MainCssClass => string.Join(' ', "input", CssClass);
 
-	private string ButtonCssClass => string.Join(' ', "button is-info", AdditionalAttributes.GetValue("button-class"));
+	private string ButtonCssClass
+	{
+		get
+		{
+			var css = "button";
 
-	private string TagCssClass => string.Join(' ', "tag is-success mr-1 mb-1", AdditionalAttributes.GetValue("tag-class"));
+			if (CssClassHelper.ContainsColorClass(AdditionalAttributes.GetValue("button-class")) == false)
+				css += " is-info";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("button-class"));
+		}
+	}
+
+	private string TagCssClass
+	{
+		get
+		{
+			var css = "tag";
+
+			if (CssClassHelper.ContainsColorClass(AdditionalAttributes.GetValue("tag-class")) == false)
+				css += " is-success";
+
+			css += " mr-1 mb-1";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("tag-class"));
+		}
+	}
 
 	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<string> result, [NotNullWhen(false)] out string? validationErrorMessage)

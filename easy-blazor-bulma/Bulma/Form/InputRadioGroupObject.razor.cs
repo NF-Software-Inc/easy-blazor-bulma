@@ -32,7 +32,18 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 
 	private string MainCssClass => CssClass;
 
-	private string ItemCssClass => string.Join(' ', "is-checkradio is-primary", AdditionalAttributes.GetValue("item-class"));
+	private string ItemCssClass
+	{
+		get
+		{
+			var css = "is-checkradio";
+
+			if (CssClassHelper.ContainsColorClass(AdditionalAttributes.GetValue("item-class")) == false)
+				css += " is-primary";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("item-class"));
+		}
+	}
 
 	/// <inheritdoc/>
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)

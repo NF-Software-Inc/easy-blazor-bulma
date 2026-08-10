@@ -87,5 +87,18 @@ public partial class WeekScheduler : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetValue("table-class"));
+	private string TableCssClass
+	{
+		get
+		{
+			var css = "";
+
+			if (CssClassHelper.ContainsSizeClass(AdditionalAttributes.GetValue("table-class")) == false)
+				css += "is-size-7 ";
+
+			css += "is-fullwidth is-bordered";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("table-class"));
+		}
+	}
 }

@@ -146,7 +146,20 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private string DropDownMenuCssClass => string.Join(' ', "dropdown-menu p-0", AdditionalAttributes.GetValue("dropdown-menu-class"));
 
-	private string TagCssClass => string.Join(' ', "tag is-success mr-1 mb-1", AdditionalAttributes.GetValue("tag-class"));
+	private string TagCssClass
+	{
+		get
+		{
+			var css = "tag";
+
+			if (CssClassHelper.ContainsColorClass(AdditionalAttributes.GetValue("tag-class")) == false)
+				css += " is-success";
+
+			css += " mr-1 mb-1";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("tag-class"));
+		}
+	}
 
 	/// <inheritdoc />
 	protected override void OnInitialized()

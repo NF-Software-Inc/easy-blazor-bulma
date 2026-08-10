@@ -13,37 +13,6 @@ namespace easy_blazor_bulma;
 public partial class Calendar : ComponentBase
 {
 	/// <summary>
-	/// Bulma column width base tokens that should match either exactly (e.g. is-6)
-	/// or as a responsive variant with a dash suffix (e.g. is-6-desktop).
-	/// </summary>
-	private static readonly string[] ColumnWidthClassPrefixes =
-	[
-		"is-1",
-		"is-2",
-		"is-3",
-		"is-4",
-		"is-5",
-		"is-6",
-		"is-7",
-		"is-8",
-		"is-9",
-		"is-10",
-		"is-11",
-		"is-12",
-		"is-full",
-		"is-half",
-		"is-one-third",
-		"is-two-thirds",
-		"is-one-quarter",
-		"is-three-quarters",
-		"is-one-fifth",
-		"is-two-fifths",
-		"is-three-fifths",
-		"is-four-fifths",
-		"is-narrow"
-	];
-
-	/// <summary>
 	/// A collection of dates within the months to be displayed.
 	/// </summary>
 	/// <remarks>
@@ -142,7 +111,7 @@ public partial class Calendar : ComponentBase
 			{
 				css += " column";
 
-				if (css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => ColumnWidthClassPrefixes.Any(y => x.StartsWith(y))) == false)
+				if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 					css += " is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
 			}
 
@@ -155,7 +124,20 @@ public partial class Calendar : ComponentBase
 		}
 	}
 
-	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetValue("table-class"));
+	private string TableCssClass
+	{
+		get
+		{
+			var css = "";
+
+			if (CssClassHelper.ContainsSizeClass(AdditionalAttributes.GetValue("table-class")) == false)
+				css += "is-size-7 ";
+
+			css += "is-fullwidth is-bordered";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("table-class"));
+		}
+	}
 
 	private IEnumerable<DateOnly> GetWeeksInMonth(DateOnly month)
 	{

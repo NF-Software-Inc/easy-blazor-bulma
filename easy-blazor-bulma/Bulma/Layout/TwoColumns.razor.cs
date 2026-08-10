@@ -34,7 +34,29 @@ public partial class TwoColumns : ComponentBase
 
 	private string MainCssClass => string.Join(' ', "columns is-variable is-1 px-1", AdditionalAttributes.GetValue("class"));
 
-	private string LeftCssClass => string.Join(' ', "column is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k", AdditionalAttributes.GetValue("left-class"));
+	private string LeftCssClass
+	{
+		get
+		{
+			var css = "column";
 
-	private string RightCssClass => string.Join(' ', "column is-8-tablet is-9-desktop is-9-widescreen is-10-fullhd is-11-4k", AdditionalAttributes.GetValue("right-class"));
+			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("left-class")) == false)
+				css += " is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("left-class"));
+		}
+	}
+
+	private string RightCssClass
+	{
+		get
+		{
+			var css = "column";
+
+			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("right-class")) == false)
+				css += " is-8-tablet is-9-desktop is-9-widescreen is-10-fullhd is-11-4k";
+
+			return string.Join(' ', css, AdditionalAttributes.GetValue("right-class"));
+		}
+	}
 }
