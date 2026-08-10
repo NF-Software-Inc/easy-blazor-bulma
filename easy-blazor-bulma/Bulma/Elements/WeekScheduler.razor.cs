@@ -18,6 +18,7 @@ public partial class WeekScheduler : ComponentBase
 	/// <remarks>
 	/// Can be any day within the week to display.
 	/// </remarks>
+	[EditorRequired]
 	[Parameter]
 	public required DateOnly DayInWeek { get; set; }
 
@@ -76,6 +77,7 @@ public partial class WeekScheduler : ComponentBase
 	/// <summary>
 	/// Content to display for each hour in the days of the week.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
 	public required RenderFragment<DateTime> Hours { get; set; }
 

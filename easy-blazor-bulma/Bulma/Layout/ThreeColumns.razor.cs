@@ -13,18 +13,21 @@ public partial class ThreeColumns : ComponentBase
 	/// <summary>
 	/// Content to display in the left column.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
 	public required RenderFragment Left { get; set; }
 
 	/// <summary>
 	/// Content to display in the middle column.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
 	public required RenderFragment Middle { get; set; }
 
 	/// <summary>
 	/// Content to display in the right column.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
 	public required RenderFragment Right { get; set; }
 

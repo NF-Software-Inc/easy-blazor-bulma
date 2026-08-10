@@ -49,6 +49,7 @@ public partial class Calendar : ComponentBase
 	/// <remarks>
 	/// Each month should have only one day within it and can be any day in the month to display.
 	/// </remarks>
+	[EditorRequired]
 	[Parameter]
 	public required List<DateOnly> Months { get; set; }
 
@@ -98,6 +99,7 @@ public partial class Calendar : ComponentBase
 	/// <summary>
 	/// Content to display for each day in the months.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
 	public required RenderFragment<DateOnly> Days { get; set; }
 

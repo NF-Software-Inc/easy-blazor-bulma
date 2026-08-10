@@ -13,14 +13,16 @@ public partial class TwoColumns : ComponentBase
 	/// <summary>
 	/// Content to display in the left column.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
-	public RenderFragment Left { get; set; } = default!;
+	public required RenderFragment Left { get; set; }
 
 	/// <summary>
 	/// Content to display in the right column.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
-	public RenderFragment Right { get; set; } = default!;
+	public required RenderFragment Right { get; set; }
 
 	/// <summary>
 	/// Any additional attributes applied directly to the component.

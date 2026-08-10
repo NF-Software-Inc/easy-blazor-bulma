@@ -537,6 +537,16 @@ public static class JavaScriptExtensions
 	}
 
 	/// <summary>
+	/// Sanitizes the provided HTML string and returns a safe version that can be rendered in the browser.
+	/// </summary>
+	/// <param name="html">The HTML string to sanitize.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	public async static Task<string> SanitizeHtml(this IJSRuntime jsRuntime, string html, CancellationToken? token = null)
+	{
+		return await jsRuntime.InvokeAsync<string>("easyBlazorBulma.SanitizeHtml", token ?? CancellationToken.None, html);
+	}
+
+	/// <summary>
 	/// Saves the provided stream to the database.
 	/// </summary>
 	/// <param name="name">The database to read from.</param>
