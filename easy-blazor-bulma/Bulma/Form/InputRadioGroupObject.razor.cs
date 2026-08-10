@@ -10,7 +10,15 @@ namespace easy_blazor_bulma;
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
-/// There is 1 additional attribute that can be used: item-class. It will apply CSS classes to the resulting element as per its name.
+/// <para>
+/// There is 1 additional attribute that can be used: item-class.
+/// It will apply CSS classes to the resulting element as per its name.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-primary</c> class is applied for item-class.
+/// Providing another Bulma color class will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
 {
@@ -20,19 +28,30 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 	[Parameter]
 	public Dictionary<string, TValue?> Options { get; set; } = default!;
 
-    /// <summary>
-    /// A function to determine whether two items are equal.
-    /// </summary>
-    [Parameter]
-    public Func<TValue?, TValue?, bool> AreEqual { get; set; } = EqualityComparer<TValue>.Default.Equals;
+	/// <summary>
+	/// A function to determine whether two items are equal.
+	/// </summary>
+	[Parameter]
+	public Func<TValue?, TValue?, bool> AreEqual { get; set; } = EqualityComparer<TValue>.Default.Equals;
 
-    private readonly string[] Filter = new[] { "class", "item-class" };
+	private readonly string[] Filter = ["class", "item-class"];
 
 	private readonly string PropertyName = Guid.NewGuid().ToHtmlId().ToString("N");
 
 	private string MainCssClass => CssClass;
 
-	private string ItemCssClass => string.Join(' ', "is-checkradio is-primary", AdditionalAttributes.GetValue("item-class"));
+	private string ItemCssClass
+	{
+		get
+		{
+			var css = string.Join(' ', "is-checkradio", AdditionalAttributes.GetValue("item-class"));
+
+			if (CssClassHelper.ContainsColorClass(css) == false)
+				css += " is-primary";
+
+			return css;
+		}
+	}
 
 	/// <inheritdoc/>
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)

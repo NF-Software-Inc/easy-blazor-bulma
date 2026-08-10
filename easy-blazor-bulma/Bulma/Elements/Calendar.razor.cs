@@ -8,41 +8,19 @@ namespace easy_blazor_bulma;
 /// A calendar to display date grid based content.
 /// </summary>
 /// <remarks>
-/// There are 2 additional attributes that can be used: column-class and table-class. They will apply CSS classes to the resulting elements as per their names.
+/// <para>
+/// There are 2 additional attributes that can be used: column-class and table-class.
+/// They will apply CSS classes to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-12-desktop is-12-widescreen is-6-fullhd is-4-4k</c> column classes are applied for column-class.
+/// By default the <c>is-size-7</c> class is applied for table-class.
+/// Providing another Bulma column or size class will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class Calendar : ComponentBase
 {
-	/// <summary>
-	/// Bulma column width base tokens that should match either exactly (e.g. is-6)
-	/// or as a responsive variant with a dash suffix (e.g. is-6-desktop).
-	/// </summary>
-	private static readonly string[] ColumnWidthClassPrefixes =
-	[
-		"is-1",
-		"is-2",
-		"is-3",
-		"is-4",
-		"is-5",
-		"is-6",
-		"is-7",
-		"is-8",
-		"is-9",
-		"is-10",
-		"is-11",
-		"is-12",
-		"is-full",
-		"is-half",
-		"is-one-third",
-		"is-two-thirds",
-		"is-one-quarter",
-		"is-three-quarters",
-		"is-one-fifth",
-		"is-two-fifths",
-		"is-three-fifths",
-		"is-four-fifths",
-		"is-narrow"
-	];
-
 	/// <summary>
 	/// A collection of dates within the months to be displayed.
 	/// </summary>
@@ -136,13 +114,13 @@ public partial class Calendar : ComponentBase
 	{
 		get
 		{
-			var css = AdditionalAttributes.GetValue("column-class");
+			var css = AdditionalAttributes.GetValue("column-class") ?? "";
 
 			if (Months.Count > 1)
 			{
 				css += " column";
 
-				if (css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => ColumnWidthClassPrefixes.Any(y => x.StartsWith(y))) == false)
+				if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 					css += " is-12-desktop is-12-widescreen is-6-fullhd is-4-4k";
 			}
 
@@ -155,7 +133,18 @@ public partial class Calendar : ComponentBase
 		}
 	}
 
-	private string TableCssClass => string.Join(' ', "is-size-7 is-fullwidth is-bordered", AdditionalAttributes.GetValue("table-class"));
+	private string TableCssClass
+	{
+		get
+		{
+			var css = string.Join(' ', "is-fullwidth", "is-bordered", AdditionalAttributes.GetValue("table-class"));
+
+			if (CssClassHelper.ContainsSizeClass(css) == false)
+				css += " is-size-7";
+
+			return css;
+		}
+	}
 
 	private IEnumerable<DateOnly> GetWeeksInMonth(DateOnly month)
 	{

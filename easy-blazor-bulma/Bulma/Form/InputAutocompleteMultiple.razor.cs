@@ -13,8 +13,19 @@ namespace easy_blazor_bulma;
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
-/// There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para>
+/// There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class.
+/// Each of which apply CSS classes to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-success</c> class is applied for tag-class.
+/// Providing another Bulma color class will suppress the default so it can take effect.
+/// </para>
+///
+/// <para>
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
+/// </para>
 /// </remarks>
 public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
 {
@@ -146,7 +157,18 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private string DropDownMenuCssClass => string.Join(' ', "dropdown-menu p-0", AdditionalAttributes.GetValue("dropdown-menu-class"));
 
-	private string TagCssClass => string.Join(' ', "tag is-success mr-1 mb-1", AdditionalAttributes.GetValue("tag-class"));
+	private string TagCssClass
+	{
+		get
+		{
+			var css = string.Join(' ', "tag", "mr-1", "mb-1", AdditionalAttributes.GetValue("tag-class"));
+
+			if (CssClassHelper.ContainsColorClass(css) == false)
+				css += " is-success";
+
+			return css;
+		}
+	}
 
 	/// <inheritdoc />
 	protected override void OnInitialized()

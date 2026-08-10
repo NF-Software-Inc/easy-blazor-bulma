@@ -20,7 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
-			10.1.5 Add validation callback to InputPassword
+			10.1.5 Add validation callback to InputPassword, fix custom CSS selector overrides
 			10.1.4 Update Message to include deletion callback, enhance MarkupViewer capabilities
 			10.1.3 Update InputDuration to support milliseconds
 			10.1.2 Add more JavaScript extension methods

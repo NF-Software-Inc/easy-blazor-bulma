@@ -9,8 +9,20 @@ namespace easy_blazor_bulma;
 /// An input component for adding multiple text values to a list.
 /// </summary>
 /// <remarks>
-/// There are 2 additional attributes that can be used: button-class and tag-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para>
+/// There are 2 additional attributes that can be used: button-class and tag-class.
+/// Each of which apply CSS classes to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-info</c> color class is applied for button-class.
+/// By default the <c>is-success</c> color class is applied for tag-class.
+/// Providing another Bulma color class will suppress the default so it can take effect.
+/// </para>
+///
+/// <para>
 /// <see href="https://bulma.io/documentation/form/general/">Bulma Documentation</see>
+/// </para>
 /// </remarks>
 public partial class InputTextMultiple : InputBase<List<string>>
 {
@@ -42,9 +54,31 @@ public partial class InputTextMultiple : InputBase<List<string>>
 
 	private string MainCssClass => string.Join(' ', "input", CssClass);
 
-	private string ButtonCssClass => string.Join(' ', "button is-info", AdditionalAttributes.GetValue("button-class"));
+	private string ButtonCssClass
+	{
+		get
+		{
+			var css = string.Join(' ', "button", AdditionalAttributes.GetValue("button-class"));
 
-	private string TagCssClass => string.Join(' ', "tag is-success mr-1 mb-1", AdditionalAttributes.GetValue("tag-class"));
+			if (CssClassHelper.ContainsColorClass(css) == false)
+				css += " is-info";
+
+			return css;
+		}
+	}
+
+	private string TagCssClass
+	{
+		get
+		{
+			var css = string.Join(' ', "tag", "mr-1", "mb-1", AdditionalAttributes.GetValue("tag-class"));
+
+			if (CssClassHelper.ContainsColorClass(css) == false)
+				css += " is-success";
+
+			return css;
+		}
+	}
 
 	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<string> result, [NotNullWhen(false)] out string? validationErrorMessage)

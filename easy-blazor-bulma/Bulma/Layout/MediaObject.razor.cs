@@ -6,7 +6,19 @@ namespace easy_blazor_bulma;
 /// The famous media object prevalent in social media interfaces, but useful in any context.
 /// </summary>
 /// <remarks>
+/// <para>
+/// There are 3 additional attributes that can be used: left-class, image-class, and content-class.
+/// They will apply CSS classes to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-64x64</c> image class is applied for image-class.
+/// Providing another Bulma image class will suppress the default so it can take effect.
+/// </para>
+///
+/// <para>
 /// <see href="https://bulma.io/documentation/layout/media-object/">Bulma Documentation</see>
+/// </para>
 /// </remarks>
 public partial class MediaObject : ComponentBase
 {
@@ -32,6 +44,17 @@ public partial class MediaObject : ComponentBase
 
 	private string MainCssClass => string.Join(' ', "media", AdditionalAttributes.GetValue("class"));
     private string LeftCssClass => string.Join(' ', "media-left", AdditionalAttributes.GetValue("left-class"));
-	private string ImageCssClass => string.Join(' ', "image is-64x64", AdditionalAttributes.GetValue("image-class"));
+	private string ImageCssClass
+	{
+		get
+		{
+			var css = string.Join(' ', "image", AdditionalAttributes.GetValue("image-class"));
+
+			if (CssClassHelper.ContainsImageDimensionClass(css) == false)
+				css += " is-64x64";
+
+			return css;
+		}
+	}
 	private string ContentCssClass => string.Join(' ', "media-content", AdditionalAttributes.GetValue("content-class"));
 }

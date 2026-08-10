@@ -1,6 +1,7 @@
-namespace easy_blazor_bulma.Tests;
-
+using easy_blazor_bulma;
 using Xunit;
+
+namespace easy_blazor_bulma_test;
 
 public class InputDurationTests
 {
@@ -55,6 +56,7 @@ public class InputDurationTests
             InputDurationOptions.DisplayMinutesAsSeconds |
             InputDurationOptions.AllowGreaterThan24Hours |
             InputDurationOptions.ValidateTextInput;
+
         var input = new TestInputDuration(options);
         var expected = TimeSpan.FromSeconds(90.125);
 
@@ -73,6 +75,7 @@ public class InputDurationTests
             InputDurationOptions.ShowMilliseconds |
             InputDurationOptions.AllowGreaterThan24Hours |
             InputDurationOptions.ValidateTextInput;
+
         var input = new TestInputDuration(options);
         var expected = TimeSpan.FromMilliseconds(125);
 
@@ -85,22 +88,12 @@ public class InputDurationTests
     }
 
     [Theory]
-    [InlineData(
-        InputDurationOptions.ShowHours |
-        InputDurationOptions.ShowMinutes |
-        InputDurationOptions.ShowSeconds |
-        InputDurationOptions.ShowMilliseconds |
-        InputDurationOptions.DisplayDaysAsHours,
-        "26:03:04.005")]
-    [InlineData(
-        InputDurationOptions.ShowMinutes |
-        InputDurationOptions.ShowSeconds |
-        InputDurationOptions.ShowMilliseconds |
-        InputDurationOptions.DisplayHoursAsMinutes,
-        "1563:04.005")]
+    [InlineData(InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds | InputDurationOptions.ShowMilliseconds | InputDurationOptions.DisplayDaysAsHours, "26:03:04.005")]
+    [InlineData(InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds | InputDurationOptions.ShowMilliseconds | InputDurationOptions.DisplayHoursAsMinutes, "1563:04.005")]
     public void CustomUnitDisplaysPreserveMilliseconds(InputDurationOptions options, string expectedFormatted)
     {
         options |= InputDurationOptions.AllowGreaterThan24Hours | InputDurationOptions.ValidateTextInput;
+
         var input = new TestInputDuration(options);
         var expected = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
 
@@ -121,7 +114,6 @@ public class InputDurationTests
 
         public string Format(TimeSpan value) => FormatValueAsString(value);
 
-        public bool TryParse(string value, out TimeSpan result, out string? validationErrorMessage) =>
-            TryParseValueFromString(value, out result, out validationErrorMessage);
+        public bool TryParse(string value, out TimeSpan result, out string? validationErrorMessage) => TryParseValueFromString(value, out result, out validationErrorMessage);
     }
 }
