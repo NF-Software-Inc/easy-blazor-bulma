@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System.ComponentModel.DataAnnotations;
 
 namespace easy_blazor_bulma;
 
@@ -15,7 +14,6 @@ public abstract class ButtonBase : ComponentBase
     /// The text to display within the button.
     /// </summary>
     [Parameter]
-	[Required]
 	public required virtual string DisplayText { get; set; }
 
     /// <summary>
