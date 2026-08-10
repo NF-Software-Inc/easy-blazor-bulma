@@ -6,7 +6,17 @@ namespace easy_blazor_bulma;
 /// A simple three-column layout component. The left and right columns are smaller than the middle column.
 /// </summary>
 /// <remarks>
-/// There are 6 additional attributes that can be used: left-class, middle-class, right-class, left-style, middle-style, and right-style. Each of which apply CSS classes or styles to the resulting elements as per their names.
+/// <para>
+/// There are 6 additional attributes that can be used: left-class, middle-class, right-class, left-style, middle-style, and right-style.
+/// Each of which apply CSS classes or styles to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k</c> column classes are applied for left-class.
+/// By default the <c>is-4-tablet is-6-desktop is-6-widescreen is-8-fullhd is-10-4k</c> column classes are applied for middle-class.
+/// By default the <c>is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k</c> column classes are applied for right-class.
+/// Providing another Bulma column class will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class ThreeColumns : ComponentBase
 {
@@ -45,12 +55,12 @@ public partial class ThreeColumns : ComponentBase
 	{
 		get
 		{
-			var css = "column";
+			var css = string.Join(' ', "column", AdditionalAttributes.GetValue("left-class"));
 
-			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("left-class")) == false)
+			if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 				css += " is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("left-class"));
+			return css;
 		}
 	}
 
@@ -58,12 +68,12 @@ public partial class ThreeColumns : ComponentBase
 	{
 		get
 		{
-			var css = "column";
+			var css = string.Join(' ', "column", AdditionalAttributes.GetValue("middle-class"));
 
-			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("middle-class")) == false)
+			if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 				css += " is-4-tablet is-6-desktop is-6-widescreen is-8-fullhd is-10-4k";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("middle-class"));
+			return css;
 		}
 	}
 
@@ -71,12 +81,12 @@ public partial class ThreeColumns : ComponentBase
 	{
 		get
 		{
-			var css = "column";
+			var css = string.Join(' ', "column", AdditionalAttributes.GetValue("right-class"));
 
-			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("right-class")) == false)
+			if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 				css += " is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("right-class"));
+			return css;
 		}
 	}
 }

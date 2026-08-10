@@ -8,7 +8,16 @@ namespace easy_blazor_bulma;
 /// A calendar to display date grid based content.
 /// </summary>
 /// <remarks>
-/// There are 2 additional attributes that can be used: column-class and table-class. They will apply CSS classes to the resulting elements as per their names.
+/// <para>
+/// There are 2 additional attributes that can be used: column-class and table-class.
+/// They will apply CSS classes to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-12-desktop is-12-widescreen is-6-fullhd is-4-4k</c> column classes are applied for column-class.
+/// By default the <c>is-size-7</c> class is applied for table-class.
+/// Providing another Bulma column or size class will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class Calendar : ComponentBase
 {
@@ -105,7 +114,7 @@ public partial class Calendar : ComponentBase
 	{
 		get
 		{
-			var css = AdditionalAttributes.GetValue("column-class");
+			var css = AdditionalAttributes.GetValue("column-class") ?? "";
 
 			if (Months.Count > 1)
 			{
@@ -128,14 +137,12 @@ public partial class Calendar : ComponentBase
 	{
 		get
 		{
-			var css = "";
+			var css = string.Join(' ', "is-fullwidth", "is-bordered", AdditionalAttributes.GetValue("table-class"));
 
-			if (CssClassHelper.ContainsSizeClass(AdditionalAttributes.GetValue("table-class")) == false)
-				css += "is-size-7 ";
+			if (CssClassHelper.ContainsSizeClass(css) == false)
+				css += " is-size-7";
 
-			css += "is-fullwidth is-bordered";
-
-			return string.Join(' ', css, AdditionalAttributes.GetValue("table-class"));
+			return css;
 		}
 	}
 

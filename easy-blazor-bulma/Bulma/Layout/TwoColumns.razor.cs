@@ -6,7 +6,16 @@ namespace easy_blazor_bulma;
 /// A simple two-column layout component. The left column is smaller than the right column.
 /// </summary>
 /// <remarks>
-/// There are 4 additional attributes that can be used: left-class, left-style, right-class, and right-style. Each of which apply CSS classes or styles to the resulting elements as per their names.
+/// <para>
+/// There are 4 additional attributes that can be used: left-class, left-style, right-class, and right-style.
+/// Each of which apply CSS classes or styles to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k</c> column classes are applied for left-class.
+/// By default the <c>is-8-tablet is-9-desktop is-9-widescreen is-10-fullhd is-11-4k</c> column classes are applied for right-class.
+/// Providing another Bulma column class will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class TwoColumns : ComponentBase
 {
@@ -38,12 +47,12 @@ public partial class TwoColumns : ComponentBase
 	{
 		get
 		{
-			var css = "column";
+			var css = string.Join(' ', "column", AdditionalAttributes.GetValue("left-class"));
 
-			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("left-class")) == false)
+			if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 				css += " is-4-tablet is-3-desktop is-3-widescreen is-2-fullhd is-1-4k";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("left-class"));
+			return css;
 		}
 	}
 
@@ -51,12 +60,12 @@ public partial class TwoColumns : ComponentBase
 	{
 		get
 		{
-			var css = "column";
+			var css = string.Join(' ', "column", AdditionalAttributes.GetValue("right-class"));
 
-			if (CssClassHelper.ContainsColumnWidthClass(AdditionalAttributes.GetValue("right-class")) == false)
+			if (CssClassHelper.ContainsColumnWidthClass(css) == false)
 				css += " is-8-tablet is-9-desktop is-9-widescreen is-10-fullhd is-11-4k";
 
-			return string.Join(' ', css, AdditionalAttributes.GetValue("right-class"));
+			return css;
 		}
 	}
 }

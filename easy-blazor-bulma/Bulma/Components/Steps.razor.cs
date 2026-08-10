@@ -235,11 +235,11 @@ public partial class Steps : ComponentBase
 
 	private string GetContentCssClass(Step step)
 	{
-		var css = "steps-content";
+		var css = string.Join(' ', "steps-content", step.AdditionalAttributes.GetValue("content-class"));
 
-		if (CssClassHelper.ContainsSizeClass(step.AdditionalAttributes.GetValue("content-class")) == false)
+		if (CssClassHelper.ContainsSizeClass(css) == false)
 			css += " is-size-4";
 
-		return string.Join(' ', css, step.AdditionalAttributes.GetValue("content-class"));
+		return css;
 	}
 }

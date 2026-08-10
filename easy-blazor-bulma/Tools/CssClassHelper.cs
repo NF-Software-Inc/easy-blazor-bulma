@@ -35,6 +35,7 @@ public static class CssClassHelper
 	/// </summary>
 	public static readonly string[] ColumnWidthClassPrefixes =
 	[
+		"is-0",
 		"is-1",
 		"is-2",
 		"is-3",
@@ -86,6 +87,12 @@ public static class CssClassHelper
 		"is-64x64",
 		"is-96x96",
 		"is-128x128",
+		"is-192x192",
+		"is-256x256",
+		"is-384x384",
+		"is-512x512",
+		"is-768x768",
+		"is-1024x1024",
 		"is-square",
 		"is-1by1",
 		"is-5by4",
@@ -108,39 +115,27 @@ public static class CssClassHelper
 	/// Determines whether the provided CSS class string contains a Bulma color class.
 	/// </summary>
 	/// <param name="css">The space separated CSS class string to inspect.</param>
-	public static bool ContainsColorClass(string? css) => ContainsExact(css, ColorClasses);
+	public static bool ContainsColorClass(string css) => ContainsExact(css, ColorClasses);
 
 	/// <summary>
 	/// Determines whether the provided CSS class string contains a Bulma column width class, including responsive variants.
 	/// </summary>
 	/// <param name="css">The space separated CSS class string to inspect.</param>
-	public static bool ContainsColumnWidthClass(string? css) => ContainsPrefixed(css, ColumnWidthClassPrefixes);
+	public static bool ContainsColumnWidthClass(string css) => ContainsPrefixed(css, ColumnWidthClassPrefixes);
 
 	/// <summary>
 	/// Determines whether the provided CSS class string contains a Bulma font size class.
 	/// </summary>
 	/// <param name="css">The space separated CSS class string to inspect.</param>
-	public static bool ContainsSizeClass(string? css) => ContainsExact(css, SizeClasses);
+	public static bool ContainsSizeClass(string css) => ContainsExact(css, SizeClasses);
 
 	/// <summary>
 	/// Determines whether the provided CSS class string contains a Bulma image dimension or aspect ratio class.
 	/// </summary>
 	/// <param name="css">The space separated CSS class string to inspect.</param>
-	public static bool ContainsImageDimensionClass(string? css) => ContainsExact(css, ImageDimensionClasses);
+	public static bool ContainsImageDimensionClass(string css) => ContainsExact(css, ImageDimensionClasses);
 
-	private static bool ContainsExact(string? css, string[] tokens)
-	{
-		if (string.IsNullOrWhiteSpace(css))
-			return false;
+	private static bool ContainsExact(string css, string[] tokens) => css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(tokens.Contains);
 
-		return css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(tokens.Contains);
-	}
-
-	private static bool ContainsPrefixed(string? css, string[] prefixes)
-	{
-		if (string.IsNullOrWhiteSpace(css))
-			return false;
-
-		return css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => prefixes.Any(p => x == p || x.StartsWith(p + '-')));
-	}
+	private static bool ContainsPrefixed(string css, string[] prefixes) => css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => prefixes.Any(y => x.StartsWith(y)));
 }

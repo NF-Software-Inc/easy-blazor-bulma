@@ -8,7 +8,15 @@ namespace easy_blazor_bulma;
 /// A single-week calendar to display per-day and hour based content.
 /// </summary>
 /// <remarks>
-/// There is 1 additional attribute that can be used: table-class. It will apply CSS classes to the resulting element as per its name.
+/// <para>
+/// There is 1 additional attribute that can be used: table-class.
+/// It will apply CSS classes to the resulting element as per its name.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-size-7</c> class is applied for table-class.
+/// Providing another Bulma size class will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class WeekScheduler : ComponentBase
 {
@@ -91,14 +99,12 @@ public partial class WeekScheduler : ComponentBase
 	{
 		get
 		{
-			var css = "";
+			var css = string.Join(' ', "is-fullwidth", "is-bordered", AdditionalAttributes.GetValue("table-class"));
 
-			if (CssClassHelper.ContainsSizeClass(AdditionalAttributes.GetValue("table-class")) == false)
+			if (CssClassHelper.ContainsSizeClass(css) == false)
 				css += "is-size-7 ";
 
-			css += "is-fullwidth is-bordered";
-
-			return string.Join(' ', css, AdditionalAttributes.GetValue("table-class"));
+			return css;
 		}
 	}
 }

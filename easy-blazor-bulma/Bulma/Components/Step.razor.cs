@@ -6,8 +6,19 @@ namespace easy_blazor_bulma;
 /// Use to create a single step within a <see cref="Steps"/> component.
 /// </summary>
 /// <remarks>
-/// There are 2 additional attributes that can be used: marker-class and content-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para>
+/// There are 2 additional attributes that can be used: marker-class and content-class.
+/// Each of which apply CSS classes to the resulting elements as per their names.
+/// </para>
+///
+/// <para>
+/// By default the <c>is-size-4</c> class is applied for content-class.
+/// Providing another Bulma size class will suppress the default so it can take effect.
+/// </para>
+///
+/// <para>
 /// <see href="https://octoshrimpy.github.io/bulma-o-steps/">GitHub Documentation</see>
+/// </para>
 /// </remarks>
 public partial class Step : ComponentBase, IAsyncDisposable
 {

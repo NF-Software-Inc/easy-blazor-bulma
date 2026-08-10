@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System.ComponentModel.DataAnnotations;
 
 namespace easy_blazor_bulma;
 
@@ -7,9 +6,15 @@ namespace easy_blazor_bulma;
 /// Creates a styled block to display a title at the top of a page.
 /// </summary>
 /// <remarks>
-/// There are 4 additional attributes that can be used: body-class, title-class, data-tooltip and tooltip-class. The data-tooltip adds a hover tooltip to the element and the rest will apply CSS classes to the resulting elements as per their names.
+/// <para>
+/// There are 4 additional attributes that can be used: body-class, title-class, data-tooltip and tooltip-class.
+/// The data-tooltip adds a hover tooltip to the element and the rest will apply CSS classes to the resulting elements as per their names.
+/// </para>
 ///
-/// By default the <c>is-primary</c> color is applied. Providing another Bulma color class (such as <c>is-dark</c>) will suppress the default so it can take effect.
+/// <para>
+/// By default the <c>is-primary</c> color is applied.
+/// Providing another Bulma color class (such as <c>is-dark</c>) will suppress the default so it can take effect.
+/// </para>
 /// </remarks>
 public partial class TitleBlock : ComponentBase
 {
@@ -77,7 +82,7 @@ public partial class TitleBlock : ComponentBase
 	[Parameter(CaptureUnmatchedValues = true)]
 	public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-	private readonly string[] Filter = new[] { "class", "body-class", "title-class", "data-tooltip", "tooltip-class" };
+	private readonly string[] Filter = ["class", "body-class", "title-class", "data-tooltip", "tooltip-class"];
 
 	private string? Tooltip;
 
@@ -85,11 +90,9 @@ public partial class TitleBlock : ComponentBase
 	{
 		get
 		{
-			var additional = AdditionalAttributes.GetValue("class");
+			var css = string.Join(' ', "hero", AdditionalAttributes.GetValue("class"));
 
-			var css = "hero";
-
-			if (CssClassHelper.ContainsColorClass(additional) == false)
+			if (CssClassHelper.ContainsColorClass(css) == false)
 				css += " is-primary";
 
 			if (IsTiny)
@@ -98,7 +101,7 @@ public partial class TitleBlock : ComponentBase
 			if (IsBold)
 				css += " is-bold";
 
-			return string.Join(' ', css, additional);
+			return css;
 		}
 	}
 
