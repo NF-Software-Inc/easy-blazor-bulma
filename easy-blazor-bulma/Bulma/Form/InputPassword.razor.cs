@@ -175,16 +175,14 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 		else
 			Message = message;
 
-		BulmaColors color;
-
-		if (string.IsNullOrWhiteSpace(message))
-			color = BulmaColors.Default;
-		else if (valid)
-			color = BulmaColors.Green;
+		if (valid == false)
+			MessageColor = BulmaColors.Red;
+		else if (IsCapsOn)
+			MessageColor = BulmaColors.Yellow;
+		else if (valid && string.IsNullOrWhiteSpace(message) == false)
+			MessageColor = BulmaColors.Green;
 		else
-			color = BulmaColors.Red;
-
-		MessageColor = color;
+			MessageColor = BulmaColors.Default;
 
 		if (UseAutomaticStatusColors)
 		{
