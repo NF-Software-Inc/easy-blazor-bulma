@@ -32,6 +32,13 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 	public bool UseAutomaticStatusColors { get; set; } = true;
 
 	/// <summary>
+	/// An optional function to validate the password. Receives the current password value and returns a tuple of
+	/// a boolean indicating whether the password is valid and an optional error or status message.
+	/// </summary>
+	[Parameter]
+	public Func<string?, (bool IsValid, string? Message)>? PasswordValidator { get; set; }
+
+	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
 	/// May be <see langword="null"/> if accessed before the component is rendered.
@@ -152,6 +159,29 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 		DisplayStatus &= ~InputStatus.BackgroundDanger;
 		DisplayStatus &= ~InputStatus.BackgroundWarning;
 		DisplayStatus &= ~InputStatus.BackgroundSuccess;
+	}
+
+	private void RunPasswordValidator()
+	{
+		if (PasswordValidator == null)
+			return;
+
+		// Don't overwrite caps-lock message
+		if (IsCapsOn)
+			return;
+
+		var (isValid, message) = PasswordValidator(CurrentValueAsString);
+
+		Message = message;
+		MessageColor = string.IsNullOrWhiteSpace(message) ? BulmaColors.Default : isValid ? BulmaColors.Green : BulmaColors.Red;
+
+		if (UseAutomaticStatusColors)
+		{
+			ResetStatus();
+			DisplayStatus |= isValid ? InputStatus.BackgroundSuccess : InputStatus.BackgroundDanger;
+		}
+
+		StateHasChanged();
 	}
 
 	private void CheckCapsLock(KeyboardEventArgs args)
