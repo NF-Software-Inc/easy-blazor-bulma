@@ -11,6 +11,7 @@ public partial class MarkupViewer : ComponentBase
 	/// <summary>
 	/// The HTML encoded content to display.
 	/// </summary>
+	[EditorRequired]
 	[Parameter]
 	public required string Content { get; set; }
 
@@ -27,37 +28,48 @@ public partial class MarkupViewer : ComponentBase
 	public bool StripComments { get; set; }
 
 	/// <summary>
-	/// Specifies whether to remove script tags from the content.
+	/// Specifies whether to strip script tags from the content.
 	/// </summary>
 	[Parameter]
-	public bool RemoveScripts { get; set; }
+	public bool StripScripts { get; set; }
+
+	/// <summary>
+	/// A function that can be provided to sanitize the HTML content before rendering. This allows for custom sanitization logic to be applied to the content.
+	/// </summary>
+	[Parameter]
+	public Func<string, string>? SanitzeHtml { get; set; }
 
 	private MarkupString? Display;
 
 	/// <inheritdoc />
 	public async override Task SetParametersAsync(ParameterView parameters)
 	{
-		if (parameters.TryGetValue<string>(nameof(Content), out var updated) && updated != Content)
-		{
-			if (ReplaceLineBreaks)
-				updated = MatchLineBreaks().Replace(updated, "<br />");
-
-			if (StripComments)
-				updated = MatchHtmlComments().Replace(updated, "");
-
-			if (RemoveScripts)
-				updated = MatchScripts().Replace(updated, "");
-
-			Display = new MarkupString(updated);
-		}
+		var changed = parameters.TryGetValue<string>(nameof(Content), out var updated) && updated != Content;
 
 		await base.SetParametersAsync(parameters);
+
+		if (changed)
+		{
+			if (ReplaceLineBreaks)
+				updated = MatchLineBreaks().Replace(updated!, "<br />");
+
+			if (StripComments)
+				updated = MatchHtmlComments().Replace(updated!, "");
+
+			if (StripScripts)
+				updated = MatchScripts().Replace(updated!, "");
+
+			if (SanitzeHtml != null)
+				updated = SanitzeHtml(updated!);
+
+			Display = new MarkupString(updated!);
+		}
 	}
 
 	/// <summary>
 	/// Matches comments in HTML or XML documents.
 	/// </summary>
-	[GeneratedRegex("<!--(.*?)-->", RegexOptions.Multiline, 1_000)]
+	[GeneratedRegex(@"<!--[\s\S]*?-->", RegexOptions.Singleline, 1_000)]
 	private static partial Regex MatchHtmlComments();
 
 	/// <summary>

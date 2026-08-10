@@ -681,6 +681,16 @@ window.easyBlazorBulma = {
     },
 
     /**
+     * Sanitizes the provided HTML to prevent XSS attacks.
+     * @param {any} html The HTML to sanitize.
+     * @returns {string} The sanitized HTML.
+     */
+    SanitizeHtml: function (html) {
+        var sanitized = Document.parseHTML(html);
+        return sanitized.body.innerHTML;
+    },
+
+    /**
      * Saves the provided stream to the database.
      * @param {string} name The database to save to.
      * @param {string} store The table in the database to save to.
