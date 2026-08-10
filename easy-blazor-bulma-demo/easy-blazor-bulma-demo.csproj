@@ -16,7 +16,7 @@
 		<AssemblyVersion>10.1.4.0</AssemblyVersion>
 		<FileVersion>10.1.4.0</FileVersion>
 		<Version>10.1.4</Version>
-		<MauiVersion>10.0.80</MauiVersion>
+		<MauiVersion>10.0.90</MauiVersion>
 
 		<!-- Display name -->
 		<ApplicationTitle>Easy Blazor Bulma</ApplicationTitle>
