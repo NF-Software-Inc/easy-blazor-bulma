@@ -8,6 +8,8 @@ namespace easy_blazor_bulma;
 /// </summary>
 /// <remarks>
 /// There are 4 additional attributes that can be used: body-class, title-class, data-tooltip and tooltip-class. The data-tooltip adds a hover tooltip to the element and the rest will apply CSS classes to the resulting elements as per their names.
+///
+/// By default the <c>is-primary</c> color is applied. Providing another Bulma color class (such as <c>is-dark</c>) will suppress the default so it can take effect.
 /// </remarks>
 public partial class TitleBlock : ComponentBase
 {
