@@ -141,6 +141,6 @@ public static class CssClassHelper
 		if (string.IsNullOrWhiteSpace(css))
 			return false;
 
-		return css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => prefixes.Any(x.StartsWith));
+		return css.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(x => prefixes.Any(p => x == p || x.StartsWith(p + '-')));
 	}
 }

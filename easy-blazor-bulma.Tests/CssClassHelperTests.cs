@@ -35,6 +35,8 @@ public class CssClassHelperTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("column has-text-centered")]
+    [InlineData("is-fullwidth")]
+    [InlineData("is-borderless")]
     public void ContainsColumnWidthClassReturnsFalseWhenNoWidthPresent(string? css)
     {
         Assert.False(CssClassHelper.ContainsColumnWidthClass(css));
