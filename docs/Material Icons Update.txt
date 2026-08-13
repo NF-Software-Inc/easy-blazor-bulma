@@ -8,7 +8,7 @@ The font files are located in: easy-blazor-bulma/wwwroot/fonts/iconfont/
 STEP 1: DOWNLOAD THE MATERIAL SYMBOLS FONT
 -------------------------------------------
 1. Go to: https://fonts.google.com/icons
-2. Use the popdown menu at the top left to ensure "Material Symbols" is selected
+2. Use the dropdown menu at the top left to ensure "Material Symbols" is selected
 3. Select "Outlined" style from the options
 4. Download the font (you'll get MaterialSymbolsOutlined.ttf or similar)
 
