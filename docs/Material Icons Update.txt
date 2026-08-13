@@ -8,7 +8,7 @@ The font files are located in: easy-blazor-bulma/wwwroot/fonts/iconfont/
 STEP 1: DOWNLOAD THE MATERIAL SYMBOLS FONT (WOFF2 FORMAT)
 -------------------------------------------
 1. Go to: https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined
-2. View the page source and look for the URL containing "MaterialSymbolsOutlined" with the .woff2 extension
+2. View the page and look for the URL containing "MaterialSymbolsOutlined" with the .woff2 extension
 3. Download the .woff2 file directly from that URL
 
 The Google Fonts CDN provides the latest Material Symbols font in WOFF2 format, which is the most efficient for web use.
