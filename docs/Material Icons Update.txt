@@ -1,24 +1,46 @@
-The following links can be used to download a copy of the Woff2 edition of Material Symbols Outlined.
+UPDATING THE MATERIAL SYMBOLS FONT
+==================================
 
-https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined
-https://github.com/google/material-design-icons/raw/master/variablefont/MaterialSymbolsOutlined%5BFILL,GRAD,opsz,wght%5D.woff2
-https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsOutlined%5BFILL%2CGRAD%2Copsz%2Cwght%5D.codepoints
+This project uses Google's Material Symbols font (the current set, built with variable font technology).
+The font files are located in: easy-blazor-bulma/wwwroot/fonts/iconfont/
 
-Then rename the downloaded file to the desired name.
 
-Then upload that into the following site to convert to otf.
-https://cloudconvert.com/woff2-to-woff
+STEP 1: DOWNLOAD THE MATERIAL SYMBOLS FONT (WOFF2 FORMAT)
+-------------------------------------------
+1. Go to: https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined
+2. View the page and look for the URL containing "MaterialSymbolsOutlined" with the .woff2 extension
+3. Download the .woff2 file directly from that URL
 
-Optionally, upload that into font squirrel to build a bundle.
-https://www.fontsquirrel.com/tools/webfont-generator
+The Google Fonts CDN provides the latest Material Symbols font in WOFF2 format, which is the most efficient for web use.
 
-Use the following options
-+ Expert
-+ WOFF, WOFF2
-+ Keep Existing
-+ Fix GASP Table
-+ No Adjustment
-+ Spaces, Hyphens
-+ None
-+ No Subsetting
-+ Clear the -webfont box
+
+STEP 2: CONVERT TO WOFF FORMAT
+-------------------------------------------------
+Use CloudConvert to convert the WOFF2 file to WOFF format (for broader browser compatibility):
+1. Go to: https://cloudconvert.com/woff2-to-woff
+2. Upload the downloaded WOFF2 file
+3. Click "Convert" and download the resulting WOFF file
+
+
+STEP 3: REPLACE THE FONT FILES
+-------------------------------
+1. Rename the downloaded WOFF2 file to: materialicons-regular-webfont.woff2
+2. Rename the converted WOFF file to: materialicons-regular-webfont.woff
+3. Replace the existing files of the same name in:
+     easy-blazor-bulma/wwwroot/fonts/iconfont/
+
+
+STEP 4: TEST THE UPDATE
+-----------------------
+To verify the update was successful, check the commit logs on the Material Symbols source repository
+and choose a few recently added icons to test:
+https://github.com/google/material-design-icons/commits/master
+
+1. Run the demo application or include the library in a test project
+2. Display the chosen icons using: <span class="material-icons">icon_name</span>
+3. Icons should render as proper icon symbols (not as text)
+
+If an icon appears as text (or as a different icon) instead of a symbol, the font files may not have
+been properly replaced or generated.
+
+For a complete list of available icons, visit: https://fonts.google.com/icons
