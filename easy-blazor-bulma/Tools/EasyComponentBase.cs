@@ -22,9 +22,10 @@ public abstract class EasyComponentBase : ComponentBase
 	/// <summary>
 	/// Delays execution until <see cref="AwaitingRender"/> is equal to false.
 	/// </summary>
+	/// <param name="interval">The duration in milliseconds to wait before checking <see cref="AwaitingRender"/> again.</param>
 	/// <param name="token">A token to cancel waiting.</param>
 	/// <remarks>
-	/// If you have overridden <see cref="ComponentBase.OnAfterRenderAsync(bool)"/> you must call base.OnAfterRenderAsync(bool) for this to work.
+	/// If you have overridden <see cref="ComponentBase.OnAfterRenderAsync(bool)"/> you must call <c>base.OnAfterRenderAsync(bool)</c> for this to work.
 	/// </remarks>
 	protected async Task AwaitRender(int interval = 1, CancellationToken? token = null)
 	{
@@ -32,7 +33,16 @@ public abstract class EasyComponentBase : ComponentBase
 		token ??= CancellationToken.None;
 
 		while (AwaitingRender && token.Value.IsCancellationRequested == false)
-			await Task.Delay(interval, token.Value);
+		{
+			try
+			{
+				await Task.Delay(interval, token.Value);
+			}
+			catch (TaskCanceledException)
+			{
+				break;
+			}
+		}
 	}
 
 	/// <summary>
