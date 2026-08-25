@@ -35,7 +35,7 @@ To use this library:
 * Additional components to help with common Blazor tasks
 * Bundled with Google Material Symbols icon font
 * No additional dependencies (Microsoft.AspNetCore.Components.Web is already required by Blazor)
-* Minimal JavaScript
+* JavaScript extension methods for direct use with IJSRuntime
 
 ### Component List
 
