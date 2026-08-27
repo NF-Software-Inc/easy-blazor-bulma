@@ -37,7 +37,7 @@ public partial class MarkupViewer : ComponentBase
 	/// A function that can be provided to sanitize the HTML content before rendering. This allows for custom sanitization logic to be applied to the content.
 	/// </summary>
 	[Parameter]
-	public Func<string, string>? SanitzeHtml { get; set; }
+	public Func<string, Task<string>>? SanitzeHtml { get; set; }
 
 	private MarkupString? Display;
 
@@ -50,19 +50,22 @@ public partial class MarkupViewer : ComponentBase
 
 		if (changed)
 		{
+			if (string.IsNullOrEmpty(updated))
+				updated = "";
+
 			if (ReplaceLineBreaks)
-				updated = MatchLineBreaks().Replace(updated!, "<br />");
+				updated = MatchLineBreaks().Replace(updated, "<br />");
 
 			if (StripComments)
-				updated = MatchHtmlComments().Replace(updated!, "");
+				updated = MatchHtmlComments().Replace(updated, "");
 
 			if (StripScripts)
-				updated = MatchScripts().Replace(updated!, "");
+				updated = MatchScripts().Replace(updated, "");
 
 			if (SanitzeHtml != null)
-				updated = SanitzeHtml(updated!);
+				updated = await SanitzeHtml(updated);
 
-			Display = new MarkupString(updated!);
+			Display = new MarkupString(updated);
 		}
 	}
 

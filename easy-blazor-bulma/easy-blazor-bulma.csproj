@@ -9,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>10.1.6</Version>
+		<Version>10.1.7</Version>
 		<AssemblyVersion>10.1.0.0</AssemblyVersion>
-		<FileVersion>10.1.6.0</FileVersion>
+		<FileVersion>10.1.7.0</FileVersion>
 		<PackageId>Easy.Blazor.Bulma</PackageId>
 		<PackageTags>blazor bulma components inputs layout forms icons</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/easy-blazor-bulma</RepositoryUrl>
@@ -20,6 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
+			10.1.7 Bugfix in MarkupViewer
 			10.1.6 Add EasyComponentBase with async helpers
 			10.1.5 Add validation callback to InputPassword, fix custom CSS selector overrides
 			10.1.4 Update Message to include deletion callback, enhance MarkupViewer capabilities
