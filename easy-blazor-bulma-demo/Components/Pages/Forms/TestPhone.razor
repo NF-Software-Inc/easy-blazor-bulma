@@ -8,7 +8,7 @@
 <div class="columns p-3">
 	<div class="column is-4">
 		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">The Input Phone component applies a mask to the digits within the value. Each # character in <strong>DisplayFormat</strong> is replaced with a single digit.</p>
+			<p class="block">The Input Phone component applies a mask to the digits within the value. Each # character in <strong>DisplayFormat</strong> is replaced with a single digit. The <strong>DisplayFormat</strong> accepts multiple masks separated by the pipe '|' character.</p>
 			<p class="block">A regular expression can be supplied with the <strong>ValidationExpression</strong> parameter to validate entries.</p>
 			<p class="block">There is one additional attribute that can apply customization to the component:</p>
 			<div class="content">
@@ -23,13 +23,16 @@
 			<div class="field">
 				<Label For="() => InputModel.PhoneTest" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left">
-					<InputPhone @bind-Value=InputModel.PhoneTest DisplayFormat="(###) ###-####" />
+					<InputPhone @bind-Value=InputModel.PhoneTest DisplayFormat="(###) ###-####|+# (###) ###-####" />
 				</div>
 			</div>
 			<div class="field">
 				<Label For="() => InputModel.ValidatedPhoneTest" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left">
-					<InputPhone @bind-Value=InputModel.ValidatedPhoneTest DisplayFormat="###-###-####" ValidationExpression="@(@"^\d{3}-\d{3}-\d{4}$")" ValidationErrorMessage="Please enter a 10 digit phone number." />
+					<InputPhone @bind-Value=InputModel.ValidatedPhoneTest DisplayFormat="###-###-####" ValidationExpression='@(@"^\d{3}-\d{3}-\d{4}$")' ValidationErrorMessage="Please enter a 10 digit phone number." />
+					<div class="help is-danger">
+						<ValidationMessage For="() => InputModel.ValidatedPhoneTest" />
+					</div>
 				</div>
 			</div>
 			<div class="field">

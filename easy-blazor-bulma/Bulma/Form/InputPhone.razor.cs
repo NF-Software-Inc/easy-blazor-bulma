@@ -29,7 +29,9 @@ public partial class InputPhone<[DynamicallyAccessedMembers(DynamicallyAccessedM
 	public string? Icon { get; set; } = "phone";
 
 	/// <summary>
-	/// A mask to apply to the digits within the value. Each # character will be replaced with a single digit, all other characters are used as provided.
+	/// A mask to apply to the digits within the value.
+	/// Each # character will be replaced with a single digit, all other characters are used as provided.
+	/// Multiple masks can be provided, separated by a pipe '|' character.
 	/// </summary>
 	/// <remarks>
 	/// Values that do not contain the same number of digits as there are # characters in the mask will not be formatted. For example, (###) ###-#### will display 5551234567 as (555) 123-4567.
@@ -183,14 +185,17 @@ public partial class InputPhone<[DynamicallyAccessedMembers(DynamicallyAccessedM
 			return value ?? string.Empty;
 
 		var digits = value.Where(char.IsDigit).ToArray();
+		var pattern = DisplayFormat
+			.Split('|')
+			.FirstOrDefault(x => x.Count(c => c == '#') == digits.Length);
 
-		if (digits.Length != DisplayFormat.Count(x => x == '#'))
+		if (pattern == null)
 			return value;
 
-		var formatted = new StringBuilder(DisplayFormat.Length);
+		var formatted = new StringBuilder(pattern.Length);
 		var index = 0;
 
-		foreach (var character in DisplayFormat)
+		foreach (var character in pattern)
 			if (character == '#')
 				formatted.Append(digits[index++]);
 			else
