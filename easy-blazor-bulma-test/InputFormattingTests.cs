@@ -23,6 +23,14 @@ public class InputFormattingTests
     }
 
     [Fact]
+    public void NumberFormattedUsesCustomFormatterForNullValues()
+    {
+        var input = new TestInputNumberFormatted<double?>(formatter: x => x == null ? "Not set" : $"{x:N2} km");
+
+        Assert.Equal("Not set", input.Format(null));
+    }
+
+    [Fact]
     public void NumberFormattedParsesFormattedValue()
     {
         var input = new TestInputNumberFormatted<decimal>("C2", CultureInfo.GetCultureInfo("en-US"));

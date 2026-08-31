@@ -153,10 +153,10 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 	/// <inheritdoc />
 	protected override string FormatValueAsString(TValue? value)
 	{
-		if (value == null)
-			return string.Empty;
-		else if (IsFocused == false && Formatter != null)
+		if (IsFocused == false && Formatter != null)
 			return Formatter(value) ?? string.Empty;
+		else if (value == null)
+			return string.Empty;
 		else if (IsFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
 			return formattable.ToString(DisplayFormat, FormatProvider);
 		else if (value is IFormattable raw)
