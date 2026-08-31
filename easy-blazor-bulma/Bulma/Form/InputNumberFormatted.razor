@@ -1,0 +1,10 @@
+@namespace easy_blazor_bulma
+@typeparam TValue
+@inherits InputBase<TValue>
+
+<input type="text" class="@MainCssClass" value="@CurrentValueAsString" @ref=Element @onfocusin='OnFocusIn' @onfocusout='OnFocusOut' @onchange='OnChange' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+
+@if (string.IsNullOrWhiteSpace(Icon) == false)
+{
+	<span class="@IconCssClass">@Icon</span>
+}
