@@ -101,9 +101,12 @@ The following components are currently available for use. All of them are docume
 * `<InputDateTime />`, creates an input with a popout for binding date and time values
 * `<InputDuration />`, creates an input with a popout for binding duration values
 * `<InputFlaggedEnum />`, creates a series of checkboxes for bitmasked enum types
+* `<InputNumberFormatted />`, creates an input for numeric values with custom formatting
 * `<InputPassword />`, creates an input for entering passwords
+* `<InputPhone />`, creates an input for phone numbers with custom formatting and validation
 * `<InputNumberPad />`, creates a keyboard style number pad for numeric values
 * `<InputRadioGroupObject />`, creates a radio group with the provided option list
+* `<InputReadonly />`, creates an input to display a value that cannot be edited
 * `<InputSelectObject />`, creates a select list for object types
 * `<InputSelectMultipleObject />`, creates a select list for selection of multiple object types
 * `<InputSwitch \>`, creates a sliding on off switch with an underlying checkbox

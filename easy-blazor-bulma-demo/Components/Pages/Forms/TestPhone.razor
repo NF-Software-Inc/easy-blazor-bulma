@@ -1,0 +1,64 @@
+﻿@using System.ComponentModel.DataAnnotations
+
+@page "/inputPhone"
+@inherits ComponentBase
+
+<TitleBlock Title="Input Phone Test" />
+
+<div class="columns p-3">
+	<div class="column is-4">
+		<Message Title="Information" Color="BulmaColors.Cyan">
+			<p class="block">The Input Phone component applies a mask to the digits within the value. Each # character in <strong>DisplayFormat</strong> is replaced with a single digit. The <strong>DisplayFormat</strong> accepts multiple masks separated by the pipe '|' character.</p>
+			<p class="block">A regular expression can be supplied with the <strong>ValidationExpression</strong> parameter to validate entries.</p>
+			<p class="block">There is one additional attribute that can apply customization to the component:</p>
+			<div class="content">
+				<ul class="content">
+					<li>icon-class</li>
+				</ul>
+			</div>
+		</Message>
+	</div>
+	<div class="column is-8">
+		<EditForm Model="InputModel">
+			<div class="field">
+				<Label For="() => InputModel.PhoneTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left">
+					<InputPhone @bind-Value=InputModel.PhoneTest DisplayFormat="(###) ###-####|+# (###) ###-####" />
+				</div>
+			</div>
+			<div class="field">
+				<Label For="() => InputModel.ValidatedPhoneTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left">
+					<InputPhone @bind-Value=InputModel.ValidatedPhoneTest DisplayFormat="###-###-####" ValidationExpression='@(@"^\d{3}-\d{3}-\d{4}$")' ValidationErrorMessage="Please enter a 10 digit phone number." />
+					<div class="help is-danger">
+						<ValidationMessage For="() => InputModel.ValidatedPhoneTest" />
+					</div>
+				</div>
+			</div>
+			<div class="field">
+				<Label For="() => InputModel.NullablePhoneTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left">
+					<InputPhone @bind-Value=InputModel.NullablePhoneTest Icon="smartphone" />
+				</div>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+@code {
+	private readonly PageModel InputModel = new();
+
+	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+	private class PageModel
+	{
+		[Display(Name = "Phone Test", Description = "Input to test a phone number with a display mask.")]
+		public string PhoneTest { get; set; } = "5551234567";
+
+		[Display(Name = "Validated Phone Test", Description = "Input to test a phone number with regular expression validation.")]
+		public string ValidatedPhoneTest { get; set; } = string.Empty;
+
+		[Display(Name = "Nullable Phone Test", Description = "Input to test a phone number with no formatting and a nullable value.")]
+		public string? NullablePhoneTest { get; set; }
+	}
+}
