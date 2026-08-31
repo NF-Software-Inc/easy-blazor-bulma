@@ -1,0 +1,63 @@
+﻿@using System.ComponentModel.DataAnnotations
+
+@page "/inputNumberFormatted"
+@inherits ComponentBase
+
+<TitleBlock Title="Input Number Formatted Test" />
+
+<div class="columns p-3">
+	<div class="column is-4">
+		<Message Title="Information" Color="BulmaColors.Cyan">
+			<p class="block">The Input Number Formatted component displays a formatted value when the input does not have focus and the raw value while editing.</p>
+			<p class="block">Formatting can be applied with the <strong>DisplayFormat</strong> parameter or the <strong>Formatter</strong> function.</p>
+			<p class="block">There is one additional attribute that can apply customization to the component:</p>
+			<div class="content">
+				<ul class="content">
+					<li>icon-class</li>
+				</ul>
+			</div>
+		</Message>
+	</div>
+	<div class="column is-8">
+		<EditForm Model="InputModel">
+			<div class="field">
+				<Label For="() => InputModel.CurrencyTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left">
+					<InputNumberFormatted @bind-Value=InputModel.CurrencyTest DisplayFormat="C2" Icon="attach_money" />
+				</div>
+			</div>
+			<div class="field">
+				<Label For="() => InputModel.NumberTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left">
+					<InputNumberFormatted @bind-Value=InputModel.NumberTest DisplayFormat="N0" />
+				</div>
+			</div>
+			<div class="field">
+				<Label For="() => InputModel.CustomTest" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left">
+					<InputNumberFormatted @bind-Value=InputModel.CustomTest Formatter="FormatDistance" Icon="straighten" />
+				</div>
+			</div>
+		</EditForm>
+	</div>
+</div>
+
+@code {
+	private readonly PageModel InputModel = new();
+
+	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+	private string? FormatDistance(double? value) => value == null ? null : $"{value:N2} km";
+
+	private class PageModel
+	{
+		[Display(Name = "Currency Test", Description = "Input to test currency formatting.")]
+		public decimal CurrencyTest { get; set; } = 1234.56m;
+
+		[Display(Name = "Number Test", Description = "Input to test thousands separators with a nullable value.")]
+		public int? NumberTest { get; set; } = 1234567;
+
+		[Display(Name = "Custom Test", Description = "Input to test a custom formatting function.")]
+		public double? CustomTest { get; set; } = 12.5;
+	}
+}
