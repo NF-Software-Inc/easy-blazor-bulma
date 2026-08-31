@@ -6,7 +6,7 @@ using System.Globalization;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for editing numeric values with custom formatting. Supported types are <see cref="short"/>, <see cref="int"/>, <see cref="long"/>, <see cref="float"/>, <see cref="double"/>, and <see cref="decimal"/>.
+/// An input component for editing numeric values with custom formatting. Supported types are <see cref="short"/>, <see cref="int"/>, <see cref="long"/>, <see cref="ushort"/>, <see cref="uint"/>, <see cref="ulong"/>, <see cref="float"/>, <see cref="double"/>, and <see cref="decimal"/>.
 /// </summary>
 /// <typeparam name="TValue"></typeparam>
 /// <remarks>
@@ -107,11 +107,24 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 		}
 	}
 
+	private static readonly Type[] SupportedTypes =
+	[
+		typeof(short),
+		typeof(ushort),
+		typeof(int),
+		typeof(uint),
+		typeof(long),
+		typeof(ulong),
+		typeof(float),
+		typeof(double),
+		typeof(decimal)
+	];
+
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
-		if (UnderlyingType != typeof(short) && UnderlyingType != typeof(int) && UnderlyingType != typeof(long) && UnderlyingType != typeof(float) && UnderlyingType != typeof(double) && UnderlyingType != typeof(decimal))
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type short, int, long, float, double, or decimal.");
+		if (SupportedTypes.Contains(UnderlyingType) == false)
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type short, int, long, ushort, uint, ulong, float, double, or decimal.");
 	}
 
 	/// <inheritdoc />
@@ -172,10 +185,16 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 
 		if (UnderlyingType == typeof(short) && short.TryParse(trimmed, styles, FormatProvider, out var shortValue))
 			result = (TValue)(object)shortValue;
+		else if (UnderlyingType == typeof(ushort) && ushort.TryParse(trimmed, styles, FormatProvider, out var ushortValue))
+			result = (TValue)(object)ushortValue;
 		else if (UnderlyingType == typeof(int) && int.TryParse(trimmed, styles, FormatProvider, out var intValue))
 			result = (TValue)(object)intValue;
+		else if (UnderlyingType == typeof(uint) && uint.TryParse(trimmed, styles, FormatProvider, out var uintValue))
+			result = (TValue)(object)uintValue;
 		else if (UnderlyingType == typeof(long) && long.TryParse(trimmed, styles, FormatProvider, out var longValue))
 			result = (TValue)(object)longValue;
+		else if (UnderlyingType == typeof(ulong) && ulong.TryParse(trimmed, styles, FormatProvider, out var ulongValue))
+			result = (TValue)(object)ulongValue;
 		else if (UnderlyingType == typeof(float) && float.TryParse(trimmed, styles, FormatProvider, out var floatValue))
 			result = (TValue)(object)floatValue;
 		else if (UnderlyingType == typeof(double) && double.TryParse(trimmed, styles, FormatProvider, out var doubleValue))
