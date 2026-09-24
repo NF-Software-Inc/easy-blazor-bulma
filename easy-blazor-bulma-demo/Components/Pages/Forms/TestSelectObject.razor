@@ -1,5 +1,4 @@
 ﻿@using easy_core
-@using System.ComponentModel.DataAnnotations
 
 @page "/inputSelectObject"
 @inherits ComponentBase
@@ -23,6 +22,13 @@
 				<Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left is-expanded">
 					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x?.Name' Items="GetObjects()" />
+				</div>
+			</div>
+
+			<div class="field">
+				<Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left is-expanded">
+					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" ValueSelector="x => x.Id" DisplayValue='x => x.Name' Items="GetObjects()" />
 				</div>
 			</div>
 
