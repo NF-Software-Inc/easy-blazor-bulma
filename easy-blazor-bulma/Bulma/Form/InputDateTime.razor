@@ -3,7 +3,7 @@
 @inherits InputBase<TValue>
 
 <div class="datetimepicker-parent">
-    <input type="text" class="@MainCssClass" value='@CurrentValueAsString' onfocusin="this.select();" @ref=Element @onchange='OnChange' @onclick='OpenPopout' @onfocus='OpenPopout' @onkeydown='CheckKeyPress' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+    <input type="text" class="@MainCssClass" value='@CurrentValueAsString' onfocusin="this.select();" @ref=Element @onchange='OnChange' @onclick='OpenPopout' @onfocus='OnFocusIn' @onblur='OnFocusOut' @onkeydown='CheckKeyPress' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
 
     @if (string.IsNullOrWhiteSpace(Icon) == false)
     {
@@ -136,7 +136,7 @@
                         <div class="timepicker-hours">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(StepHours))'>arrow_upward</span>
                             <div class="timepicker-input">
-                                <input type="number">
+                                <input type="number" min="0" max="23" value='@PopoutValue.Hour' aria-label="Hours" @onchange='args => UpdateTimeUnit(args, TimeSpan.TicksPerHour, PopoutValue.Hour, 23)'>
                                 <div class="timepicker-input-number">
                                     <span>@PopoutValue.ToString("HH")</span>
                                 </div>
@@ -153,7 +153,7 @@
                         <div class="timepicker-minutes">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(StepMinutes))'>arrow_upward</span>
                             <div class="timepicker-input">
-                                <input type="number">
+                                <input type="number" min="0" max="59" value='@PopoutValue.Minute' aria-label="Minutes" @onchange='args => UpdateTimeUnit(args, TimeSpan.TicksPerMinute, PopoutValue.Minute, 59)'>
                                 <div class="timepicker-input-number">
                                     <span>@PopoutValue.ToString("mm")</span>
                                 </div>
@@ -170,7 +170,7 @@
                         <div class="timepicker-seconds">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(StepSeconds))'>arrow_upward</span>
                             <div class="timepicker-input">
-                                <input type="number">
+                                <input type="number" min="0" max="59" value='@PopoutValue.Second' aria-label="Seconds" @onchange='args => UpdateTimeUnit(args, TimeSpan.TicksPerSecond, PopoutValue.Second, 59)'>
                                 <div class="timepicker-input-number">
                                     <span>@PopoutValue.ToString("ss")</span>
                                 </div>

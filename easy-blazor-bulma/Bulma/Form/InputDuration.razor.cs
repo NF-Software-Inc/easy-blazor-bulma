@@ -61,6 +61,24 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     public string? Icon { get; set; } = "timer";
 
     /// <summary>
+    /// A standard or custom format string to apply to the value when the input does not have focus.
+    /// </summary>
+    [Parameter]
+    public string? DisplayFormat { get; set; }
+
+    /// <summary>
+    /// An optional function to apply custom formatting to the value when the input does not have focus. Takes precedence over <see cref="DisplayFormat"/>.
+    /// </summary>
+    [Parameter]
+    public Func<TValue?, string?>? Formatter { get; set; }
+
+    /// <summary>
+    /// The culture to use when applying <see cref="DisplayFormat"/>.
+    /// </summary>
+    [Parameter]
+    public CultureInfo? Culture { get; set; }
+
+    /// <summary>
     /// An icon to reset the input.
     /// </summary>
     [Parameter]
@@ -103,12 +121,24 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
 
 	private TimeSpan InitialValue;
-    private TimeSpan PopoutValue;
+    protected TimeSpan PopoutValue;
     private bool IsPopoutDisplayed;
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDuration<TValue>>? Logger;
+    private bool IsFocused;
+    private CultureInfo FormatProvider => Culture ?? CultureInfo.CurrentCulture;
+	private int PopoutHours => Options.HasFlag(InputDurationOptions.DisplayDaysAsHours)
+	    ? (PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalHours)) : (int)Math.Floor(PopoutValue.TotalHours))
+	    : Math.Abs(PopoutValue.Hours);
+	private int PopoutMinutes => Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes)
+	    ? (PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalMinutes)) : (int)Math.Floor(PopoutValue.TotalMinutes))
+	    : Math.Abs(PopoutValue.Minutes);
+	private int PopoutSeconds => Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds)
+	    ? (PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalSeconds)) : (int)Math.Floor(PopoutValue.TotalSeconds))
+	    : Math.Abs(PopoutValue.Seconds);
+	private int PopoutMilliseconds => Math.Abs(PopoutValue.Milliseconds);
 
     private string MainCssClass
     {
@@ -488,12 +518,22 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     }
 
     /// <inheritdoc />
-    protected override string FormatValueAsString(TValue? value) => value switch
+    protected override string FormatValueAsString(TValue? value)
     {
-        TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
-        TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
-        _ => string.Empty
-    };
+        if (IsFocused == false && Formatter != null)
+            return Formatter(value) ?? string.Empty;
+        else if (value == null)
+            return string.Empty;
+        else if (IsFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
+            return formattable.ToString(DisplayFormat, FormatProvider) ?? string.Empty;
+        else
+            return value switch
+            {
+                TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
+                TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
+                _ => string.Empty
+            };
+    }
 
     private string FormatTimeSpan(TimeSpan value)
     {
@@ -572,6 +612,14 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             ResetStatus();
     }
 
+    private void OnFocusIn()
+    {
+        IsFocused = true;
+        OpenPopout();
+    }
+
+    private void OnFocusOut() => IsFocused = false;
+
     private void ClosePopout(bool save = false, bool reset = false, bool clear = false)
     {
         if ((IsPopoutDisplayed == false && Options.HasFlag(InputDurationOptions.HoverPopout) == false) || Options.HasFlag(InputDurationOptions.NoPopout))
@@ -602,14 +650,32 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 
     private void UpdatePopoutValue(TimeSpan adjustment)
     {
-        var adjusted = PopoutValue.Add(adjustment);
+        var adjustedTicks = Math.Clamp((decimal)PopoutValue.Ticks + adjustment.Ticks, TimeSpan.MinValue.Ticks, TimeSpan.MaxValue.Ticks);
+        SetPopoutValue(TimeSpan.FromTicks((long)adjustedTicks));
+    }
 
-        if (Options.HasFlag(InputDurationOptions.AllowNegative) == false && adjusted < TimeSpan.Zero)
+    protected void UpdateTimeUnit(ChangeEventArgs args, long ticksPerUnit, int currentValue)
+    {
+        if (int.TryParse(args.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) == false)
+            return;
+
+        value = Math.Max(0, value);
+        var direction = PopoutValue < TimeSpan.Zero ? -1 : 1;
+        var adjustedTicks = Math.Clamp(
+            (decimal)PopoutValue.Ticks + (decimal)(value - (long)currentValue) * ticksPerUnit * direction,
+            TimeSpan.MinValue.Ticks,
+            TimeSpan.MaxValue.Ticks);
+        SetPopoutValue(TimeSpan.FromTicks((long)adjustedTicks));
+    }
+
+    private void SetPopoutValue(TimeSpan value)
+    {
+        if (Options.HasFlag(InputDurationOptions.AllowNegative) == false && value < TimeSpan.Zero)
             PopoutValue = TimeSpan.Zero;
-        else if (Options.HasFlag(InputDurationOptions.AllowGreaterThan24Hours) == false && adjusted >= TimeSpan.FromDays(1))
+        else if (Options.HasFlag(InputDurationOptions.AllowGreaterThan24Hours) == false && value >= TimeSpan.FromDays(1))
             PopoutValue = TimeSpan.FromDays(1).Add(Options.HasFlag(InputDurationOptions.ShowMilliseconds) ? TimeSpan.FromMilliseconds(-1) : TimeSpan.FromSeconds(-1));
         else
-            PopoutValue = adjusted;
+            PopoutValue = value;
 
         if (Options.HasFlag(InputDurationOptions.UpdateOnPopoutChange))
             CurrentValueAsString = FormatTimeSpan(PopoutValue);

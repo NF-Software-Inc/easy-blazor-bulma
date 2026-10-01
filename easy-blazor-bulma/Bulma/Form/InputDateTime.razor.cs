@@ -58,6 +58,24 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Parameter]
 	public string? Icon { get; set; } = "calendar_month";
 
+	/// <summary>
+	/// A standard or custom format string to apply to the value when the input does not have focus.
+	/// </summary>
+	[Parameter]
+	public string? DisplayFormat { get; set; }
+
+	/// <summary>
+	/// An optional function to apply custom formatting to the value when the input does not have focus. Takes precedence over <see cref="DisplayFormat"/>.
+	/// </summary>
+	[Parameter]
+	public Func<TValue?, string?>? Formatter { get; set; }
+
+	/// <summary>
+	/// The culture to use when applying <see cref="DisplayFormat"/>.
+	/// </summary>
+	[Parameter]
+	public CultureInfo? Culture { get; set; }
+
     /// <summary>
     /// An icon to reset the input.
     /// </summary>
@@ -103,13 +121,15 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
 	private DateTime InitialValue;
-	private DateTime PopoutValue;
+	protected DateTime PopoutValue;
 	private bool IsPopoutDisplayed;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDateTime<TValue>>? Logger;
+	private bool IsFocused;
+	private CultureInfo FormatProvider => Culture ?? CultureInfo.CurrentCulture;
 
 	private string MainCssClass
 	{
@@ -324,14 +344,24 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	}
 
 	/// <inheritdoc />
-	protected override string FormatValueAsString(TValue? value) => value switch
+	protected override string FormatValueAsString(TValue? value)
 	{
-		DateTime dateTimeValue => FormatDateTime(dateTimeValue),
-		DateOnly dateOnlyValue => FormatDateOnly(dateOnlyValue),
-		TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
-		TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
-		_ => string.Empty
-	};
+		if (IsFocused == false && Formatter != null)
+			return Formatter(value) ?? string.Empty;
+		else if (value == null)
+			return string.Empty;
+		else if (IsFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
+			return formattable.ToString(DisplayFormat, FormatProvider) ?? string.Empty;
+		else
+			return value switch
+			{
+				DateTime dateTimeValue => FormatDateTime(dateTimeValue),
+				DateOnly dateOnlyValue => FormatDateOnly(dateOnlyValue),
+				TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
+				TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
+				_ => string.Empty
+			};
+	}
 
 	private string FormatDateTime(DateTime value)
 	{
@@ -388,6 +418,14 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			ResetStatus();
 	}
 
+	private void OnFocusIn()
+	{
+		IsFocused = true;
+		OpenPopout();
+	}
+
+	private void OnFocusOut() => IsFocused = false;
+
 	private void ClosePopout(bool save = false, bool reset = false, bool clear = false, DateTime? value = null)
 	{
 		if ((IsPopoutDisplayed == false && Options.HasFlag(InputDateTimeOptions.HoverPopout) == false) || Options.HasFlag(InputDateTimeOptions.NoPopout))
@@ -440,7 +478,8 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 
 	private void UpdatePopoutValue(TimeSpan adjustment)
 	{
-		PopoutValue = PopoutValue.Add(adjustment);
+		var adjustedTicks = Math.Clamp((decimal)PopoutValue.Ticks + adjustment.Ticks, DateTime.MinValue.Ticks, DateTime.MaxValue.Ticks);
+		PopoutValue = new DateTime((long)adjustedTicks, PopoutValue.Kind);
 
 		if (Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange))
 		{
@@ -453,6 +492,15 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			else
 				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
 		}
+	}
+
+	protected void UpdateTimeUnit(ChangeEventArgs args, long ticksPerUnit, int currentValue, int maximum)
+	{
+		if (int.TryParse(args.Value?.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) == false)
+			return;
+
+		value = Math.Clamp(value, 0, maximum);
+		UpdatePopoutValue(TimeSpan.FromTicks((long)(value - currentValue) * ticksPerUnit));
 	}
 
 	private void UpdatePopoutValue(int year, int month, int day)
