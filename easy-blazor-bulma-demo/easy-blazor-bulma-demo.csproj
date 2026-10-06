@@ -13,9 +13,9 @@
 		<Company>NF Software Inc.</Company>
 		<Product>Easy Logger Parser</Product>
 		<Copyright>Copyright 2024 $(Company)</Copyright>
-		<AssemblyVersion>10.1.8.0</AssemblyVersion>
-		<FileVersion>10.1.8.0</FileVersion>
-		<Version>10.1.8</Version>
+		<AssemblyVersion>10.2.0.0</AssemblyVersion>
+		<FileVersion>10.2.0.0</FileVersion>
+		<Version>10.2.0</Version>
 		<MauiVersion>10.0.110</MauiVersion>
 
 		<!-- Display name -->
@@ -26,8 +26,8 @@
 		<ApplicationIdGuid>033431F0-FF8E-466E-ACE0-C8C426AE0242</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>10.1.8</ApplicationDisplayVersion>
-		<ApplicationVersion>1018</ApplicationVersion>
+		<ApplicationDisplayVersion>10.2.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1020</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -75,7 +75,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">
-		<PackageReference Include="Easy.Blazor.Bulma" Version="10.1.*" />
+		<PackageReference Include="Easy.Blazor.Bulma" Version="10.2.*" />
 	</ItemGroup>
 
 </Project>

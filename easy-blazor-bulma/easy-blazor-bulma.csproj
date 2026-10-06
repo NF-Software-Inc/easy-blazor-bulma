@@ -9,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>10.1.8</Version>
-		<AssemblyVersion>10.1.0.0</AssemblyVersion>
-		<FileVersion>10.1.8.0</FileVersion>
+		<Version>10.2.0</Version>
+		<AssemblyVersion>10.2.0.0</AssemblyVersion>
+		<FileVersion>10.2.0.0</FileVersion>
 		<PackageId>Easy.Blazor.Bulma</PackageId>
 		<PackageTags>blazor bulma components inputs layout forms icons</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/easy-blazor-bulma</RepositoryUrl>
@@ -20,6 +20,8 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
+			10.2.0 Update collection based inputs to decouple bound value and item collection types, fix readonly in InputRadioGroupObject
+
 			10.1.8 Add InputNumberFormatted, InputPhone, and InputReadonly components
 			10.1.7 Bugfix in MarkupViewer
 			10.1.6 Add EasyComponentBase with async helpers
