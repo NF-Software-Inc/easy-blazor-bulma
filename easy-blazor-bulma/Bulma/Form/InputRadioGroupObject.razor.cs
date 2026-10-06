@@ -25,8 +25,29 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 	/// <summary>
 	/// The options to generate radio buttons for. Keys are display text, values are any bindable object.
 	/// </summary>
+	/// <remarks>
+	/// Supply either this dictionary or both <see cref="RadioOptions"/> and <see cref="DisplayValue"/>, but not both configurations.
+	/// </remarks>
 	[Parameter]
 	public Dictionary<string, TValue?> Options { get; set; } = default!;
+
+	/// <summary>
+	/// The values to generate radio buttons for when using <see cref="DisplayValue"/> to provide their labels.
+	/// </summary>
+	/// <remarks>
+	/// Requires <see cref="DisplayValue"/> and must not be supplied with <see cref="Options"/>.
+	/// </remarks>
+	[Parameter]
+	public List<TValue>? RadioOptions { get; set; }
+
+	/// <summary>
+	/// Returns the display label for each value in <see cref="RadioOptions"/>.
+	/// </summary>
+	/// <remarks>
+	/// Requires <see cref="RadioOptions"/> and must not be supplied with <see cref="Options"/>.
+	/// </remarks>
+	[Parameter]
+	public Func<TValue, string>? DisplayValue { get; set; }
 
 	/// <summary>
 	/// A function to determine whether two items are equal.
@@ -37,6 +58,7 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 	private readonly string[] Filter = ["class", "item-class"];
 
 	private readonly string PropertyName = Guid.NewGuid().ToHtmlId().ToString("N");
+	private IEnumerable<KeyValuePair<string, TValue?>> RadioItems = [];
 
 	private string MainCssClass => CssClass;
 
@@ -50,6 +72,28 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 				css += " is-primary";
 
 			return css;
+		}
+	}
+
+	/// <inheritdoc/>
+	/// <exception cref="InvalidOperationException">Neither configuration is complete, or both configurations are supplied.</exception>
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (Options != null)
+		{
+			if (RadioOptions != null || DisplayValue != null)
+				throw new InvalidOperationException($"Supply either {nameof(Options)} or both {nameof(RadioOptions)} and {nameof(DisplayValue)}, but not both configurations.");
+
+			RadioItems = Options;
+		}
+		else
+		{
+			if (RadioOptions == null || DisplayValue == null)
+				throw new InvalidOperationException($"Supply either {nameof(Options)} or both {nameof(RadioOptions)} and {nameof(DisplayValue)}.");
+
+			RadioItems = RadioOptions.Select(x => new KeyValuePair<string, TValue?>(DisplayValue(x), x)).ToList();
 		}
 	}
 
@@ -76,7 +120,7 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 	{
 		get
 		{
-			var match = Options.Select(x => new { x.Key, x.Value }).FirstOrDefault(x => AreEqual(x.Value, Value));
+			var match = RadioItems.Select(x => new { x.Key, x.Value }).FirstOrDefault(x => AreEqual(x.Value, Value));
 
 			if (match != null)
 				return match.Key;
