@@ -23,11 +23,11 @@ public class InputRadioGroupObjectTests
 		};
 		input.SetParameters();
 
-		Assert.Equal("First", GetDisplay(input));
-		Assert.Equal(input.Options.ToArray(), GetItems(input));
+		Assert.Equal("0", GetIdentifier(input));
+		Assert.Equal(input.Options.ToArray(), GetItems(input).Select(x => new KeyValuePair<string, string?>(x.Display, x.Value)).ToArray());
 		Select(input, null);
 		Assert.Null(input.Value);
-		Assert.Equal("None", GetDisplay(input));
+		Assert.Equal("1", GetIdentifier(input));
 	}
 
 	/// <summary>
@@ -46,12 +46,12 @@ public class InputRadioGroupObjectTests
 		input.ValueChanged = EventCallback.Factory.Create<int>(this, _ => notifications++);
 		input.SetParameters();
 
-		Assert.Equal("Option 10", GetDisplay(input));
-		Assert.Equal(new[] { "Option 10", "Option 20" }, GetItems(input).Select(x => x.Key));
+		Assert.Equal("0", GetIdentifier(input));
+		Assert.Equal(new[] { "Option 10", "Option 20" }, GetItems(input).Select(x => x.Display));
 		Assert.Equal(new[] { 10, 20 }, GetItems(input).Select(x => x.Value));
 		Select(input, 20);
 		Assert.Equal(20, input.Value);
-		Assert.Equal("Option 20", GetDisplay(input));
+		Assert.Equal("1", GetIdentifier(input));
 		Assert.Equal(1, notifications);
 	}
 
@@ -70,9 +70,10 @@ public class InputRadioGroupObjectTests
 		};
 		input.SetParameters();
 
-		Assert.Equal("ONE", GetDisplay(input));
+		Assert.Equal("0", GetIdentifier(input));
+		Assert.Equal("ONE", GetItems(input)[0].Display);
 		input.Value = "missing";
-		Assert.Equal(string.Empty, GetDisplay(input));
+		Assert.Equal(string.Empty, GetIdentifier(input));
 	}
 
 	/// <summary>
@@ -128,7 +129,8 @@ public class InputRadioGroupObjectTests
 		input.RadioOptions = [1, 2];
 		input.DisplayValue = x => $"New {x}";
 		input.SetParameters();
-		Assert.Equal("New 1", GetDisplay(input));
+		Assert.Equal("0", GetIdentifier(input));
+		Assert.Equal("New 1", GetItems(input)[0].Display);
 		Assert.Equal(2, GetItems(input).Length);
 	}
 
@@ -150,14 +152,41 @@ public class InputRadioGroupObjectTests
 		Assert.Equal(1, input.Value);
 	}
 
-	private static string GetDisplay<TValue>(InputRadioGroupObject<TValue> input)
+	/// <summary>
+	/// Verifies duplicate labels retain separate radio identities and HTML IDs.
+	/// </summary>
+	[Fact]
+	public void DuplicateLabelsHaveDistinctIdentities()
 	{
-		return (string)typeof(InputRadioGroupObject<TValue>).GetProperty("CurrentValueDisplay", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(input)!;
+		var input = new TestInput<int> { RadioOptions = [10, 20], DisplayValue = _ => "Same label", Value = 10 };
+		input.SetParameters();
+		var items = GetItems(input);
+
+		Assert.Equal(new[] { "Same label", "Same label" }, items.Select(x => x.Display));
+		Assert.Equal(new[] { "0", "1" }, items.Select(x => x.Identifier));
+		var method = typeof(InputRadioGroupObject<int>).GetMethod("GetRadioOptionId", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		Assert.NotEqual(method.Invoke(input, [items[0].Identifier]), method.Invoke(input, [items[1].Identifier]));
+		Assert.Equal("0", GetIdentifier(input));
+		Select(input, 20);
+		Assert.Equal(20, input.Value);
+		Assert.Equal("1", GetIdentifier(input));
 	}
 
-	private static KeyValuePair<string, TValue?>[] GetItems<TValue>(InputRadioGroupObject<TValue> input)
+	private static string GetIdentifier<TValue>(InputRadioGroupObject<TValue> input)
 	{
-		return ((IEnumerable<KeyValuePair<string, TValue?>>)typeof(InputRadioGroupObject<TValue>).GetField("RadioItems", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(input)!).ToArray();
+		return (string)typeof(InputRadioGroupObject<TValue>).GetProperty("CurrentValueIdentifier", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(input)!;
+	}
+
+	private static (string Identifier, string Display, TValue? Value)[] GetItems<TValue>(InputRadioGroupObject<TValue> input)
+	{
+		var items = (System.Collections.IEnumerable)typeof(InputRadioGroupObject<TValue>).GetField("RadioItems", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(input)!;
+		return items.Cast<object>().Select(item =>
+		{
+			var type = item.GetType();
+			return ((string)type.GetProperty("Identifier")!.GetValue(item)!,
+				(string)type.GetProperty("Display")!.GetValue(item)!,
+				(TValue?)type.GetProperty("Value")!.GetValue(item));
+		}).ToArray();
 	}
 
 	private static void Select<TValue>(InputRadioGroupObject<TValue> input, TValue? value)

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace easy_blazor_bulma;
 
@@ -58,7 +59,7 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 	private readonly string[] Filter = ["class", "item-class"];
 
 	private readonly string PropertyName = Guid.NewGuid().ToHtmlId().ToString("N");
-	private IEnumerable<KeyValuePair<string, TValue?>> RadioItems = [];
+	private List<RadioItem> RadioItems = [];
 
 	private string MainCssClass => CssClass;
 
@@ -86,14 +87,24 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 			if (RadioOptions != null || DisplayValue != null)
 				throw new InvalidOperationException($"Supply either {nameof(Options)} or both {nameof(RadioOptions)} and {nameof(DisplayValue)}, but not both configurations.");
 
-			RadioItems = Options;
+			RadioItems = Options.Select((x, index) => new RadioItem
+			{
+				Identifier = index.ToString(CultureInfo.InvariantCulture),
+				Display = x.Key,
+				Value = x.Value
+			}).ToList();
 		}
 		else
 		{
 			if (RadioOptions == null || DisplayValue == null)
 				throw new InvalidOperationException($"Supply either {nameof(Options)} or both {nameof(RadioOptions)} and {nameof(DisplayValue)}.");
 
-			RadioItems = RadioOptions.Select(x => new KeyValuePair<string, TValue?>(DisplayValue(x), x)).ToList();
+			RadioItems = RadioOptions.Select((x, index) => new RadioItem
+			{
+				Identifier = index.ToString(CultureInfo.InvariantCulture),
+				Display = DisplayValue(x),
+				Value = x
+			}).ToList();
 		}
 	}
 
@@ -116,18 +127,36 @@ public partial class InputRadioGroupObject<[DynamicallyAccessedMembers(Dynamical
 			CurrentValue = current;
 	}
 
-	private string CurrentValueDisplay
+	private string CurrentValueIdentifier
 	{
 		get
 		{
-			var match = RadioItems.Select(x => new { x.Key, x.Value }).FirstOrDefault(x => AreEqual(x.Value, Value));
+			var match = RadioItems.FirstOrDefault(x => AreEqual(x.Value, Value));
 
 			if (match != null)
-				return match.Key;
+				return match.Identifier;
 			else
 				return string.Empty;
 		}
 	}
 
-	private string GetRadioOptionId(string display) => $"radio-InputRadioGroupObject-{PropertyName}-{display.Replace(' ', '-')}";
+	private string GetRadioOptionId(string identifier) => $"radio-InputRadioGroupObject-{PropertyName}-{identifier}";
+
+	private sealed class RadioItem
+	{
+		/// <summary>
+		/// Identifies an option independently of its display text within this component's current collection.
+		/// </summary>
+		public required string Identifier { get; init; }
+
+		/// <summary>
+		/// Provides the visible label, which may be shared by multiple options.
+		/// </summary>
+		public required string Display { get; init; }
+
+		/// <summary>
+		/// Holds the bound value assigned when this option is selected.
+		/// </summary>
+		public TValue? Value { get; init; }
+	}
 }

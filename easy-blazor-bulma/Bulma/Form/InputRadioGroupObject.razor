@@ -2,13 +2,13 @@
 @typeparam TValue
 @inherits InputBase<TValue>
 
-<InputRadioGroup Name="@PropertyName" class="@MainCssClass" Value="CurrentValueDisplay" ValueExpression="() => CurrentValueDisplay" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
+<InputRadioGroup Name="@PropertyName" class="@MainCssClass" Value="CurrentValueIdentifier" ValueExpression="() => CurrentValueIdentifier" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
 	@foreach (var option in RadioItems)
 	{
 		<div class="control">
 			<div class="my-1 clickable" @onclick='() => OnCurrentChanged(option.Value)'>
-				<InputRadio Name="@PropertyName" class="@ItemCssClass" TValue="string" Value="@option.Key" id='@GetRadioOptionId(option.Key)' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled()?.Where(x => x.Key == "disabled")' />
-				<label for='@GetRadioOptionId(option.Key)'>@option.Key</label>
+				<InputRadio Name="@PropertyName" class="@ItemCssClass" TValue="string" Value="@option.Identifier" id='@GetRadioOptionId(option.Identifier)' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled()?.Where(x => x.Key == "disabled")' />
+				<label for='@GetRadioOptionId(option.Identifier)'>@option.Display</label>
 			</div>
 		</div>
 	}
