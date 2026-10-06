@@ -7,10 +7,10 @@
 {
     <div class="columns is-variable is-1">
         <div class="column is-6 pt-1 pb-0">
-            <button type="button" class="@GroupButtonCssClass" @onclick='SelectAll'>Select All</button>
+            <button type="button" class="@GroupButtonCssClass" disabled="@AdditionalAttributes.IsDisabled()" @onclick='SelectAll'>Select All</button>
         </div>
         <div class="column is-6 pt-1 pb-0">
-            <button type="button" class="@GroupButtonCssClass" @onclick='ClearAll'>Clear All</button>
+            <button type="button" class="@GroupButtonCssClass" disabled="@AdditionalAttributes.IsDisabled()" @onclick='ClearAll'>Clear All</button>
         </div>
     </div>
 }

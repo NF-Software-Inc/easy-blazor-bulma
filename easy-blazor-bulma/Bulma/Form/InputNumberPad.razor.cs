@@ -70,14 +70,14 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
-	private readonly string[] Filter = new string[] { "class", "columns-class", "column-class", "button-class" };
+	private readonly string[] Filter = ["class", "columns-class", "column-class", "button-class"];
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 
 	private bool SupportsDecimals;
 	private bool OnKeyDownPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "Tab", "Enter", "NumpadEnter" };
+	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter", "NumpadEnter"];
 
 	private string InternalValueAsString = string.Empty;
 
@@ -224,6 +224,9 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private void OnDecimalClicked()
 	{
+		if (AdditionalAttributes.IsDisabled())
+			return;
+
 		if (InternalValueAsString.Contains('.'))
 			return;
 
