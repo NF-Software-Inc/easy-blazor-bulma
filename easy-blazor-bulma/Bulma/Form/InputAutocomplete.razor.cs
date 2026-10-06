@@ -191,16 +191,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		// Type checks
 		if (UnderlyingType.GetTypeInfo().IsValueType)
-		{
 			IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
-		}
-		else if (FieldIdentifier.Model != null && FieldIdentifier.FieldName != null)
-		{
-			var property = FieldIdentifier.Model.GetType().GetProperty(FieldIdentifier.FieldName);
-
-			if (property != null)
-				IsNullable = new NullabilityInfoContext().Create(property).WriteState == NullabilityState.Nullable;
-		}
+		else if (FieldIdentifier.Model != null && string.IsNullOrEmpty(FieldIdentifier.FieldName) == false)
+			IsNullable = IsMemberNullable(FieldIdentifier.Model.GetType(), FieldIdentifier.FieldName);
 
 		// Get services
 		Logger = ServiceProvider.GetService<ILogger<InputAutocomplete<TItem, TValue>>>();
@@ -231,6 +224,36 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		// Set starting values
 		HighlightedValue = CurrentValue;
+	}
+
+	private static bool IsMemberNullable(Type modelType, string memberName)
+	{
+		var context = new NullabilityInfoContext();
+		var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+
+		for (var type = modelType; type != null && type != typeof(object); type = type.BaseType)
+		{
+			var member = (MemberInfo?)type.GetProperty(memberName, flags) ?? (MemberInfo?)type.GetField(memberName, flags);
+
+			if (member == null)
+				continue;
+
+			var info = member switch
+			{
+				PropertyInfo property => context.Create(property),
+				FieldInfo field => context.Create(field),
+				_ => null
+			};
+
+			if (info == null)
+				continue;
+			else if (info.WriteState != NullabilityState.Unknown)
+				return info.WriteState == NullabilityState.Nullable;
+			else if (info.ReadState != NullabilityState.Unknown)
+				return info.ReadState == NullabilityState.Nullable;
+		}
+
+		return false;
 	}
 
 	/// <inheritdoc />

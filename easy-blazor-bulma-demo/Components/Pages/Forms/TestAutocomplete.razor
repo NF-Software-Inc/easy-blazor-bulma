@@ -72,6 +72,18 @@
                     <InputAutocompleteMultiple dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItemIds6" ValueSelector="x => x.Id" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" Options="Options4" />
                 </div>
             </div>
+            <div class="field">
+                <Label For="() => InputModel.FieldSelection" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.FieldSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
+                </div>
+            </div>
+            <div class="field">
+                <Label TValue="object" DisplayText="Private Member" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="PrivateSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
+                </div>
+            </div>
         </EditForm>
 
         <Message class="mt-3" Title="New Hires" Color="BulmaColors.Green">
