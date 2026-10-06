@@ -25,16 +25,29 @@
 			<div class="field">
 				<button class="button" @onclick=OnButtonClicked>Vote for Jimbo!</button>
 			</div>
+
 			<div class="field">
 				<label class="label">Selected Employee (List)</label>
 				<InputRadioGroupObject @bind-Value="InputModel.Selected2" RadioOptions="EmployeeListOptions" DisplayValue='x => x?.Name ?? "Nobody"' />
 				<p class="help">RadioOptions provides the employees, and DisplayValue supplies each employee's name.</p>
+			</div>
+
+			<div class="field">
+				<label class="label">Selected Employee (Dynamic Attributes)</label>
+				<InputRadioGroupObject @bind-Value="InputModel.Selected3" Options="EmployeeDictionaryOptions" AdditionalAttributes="ControlAttributes" />
+				<p class="help">State: @ControlState. Disable or make the control read-only, then enable it again to verify that selection is restored without clearing the current value.</p>
+			</div>
+			<div class="buttons">
+				<button type="button" class="button is-success" @onclick="EnableControl">Enable</button>
+				<button type="button" class="button is-danger" @onclick="DisableControl">Disable</button>
+				<button type="button" class="button is-warning" @onclick="MakeControlReadOnly">Make read-only</button>
 			</div>
 		</EditForm>
 
 		<Message class="mt-3" Title="Current Values" Color="BulmaColors.Green">
 			<p class="block">Dictionary selection: @(InputModel.Selected1?.Name ?? "Nobody")</p>
 			<p class="block">List selection: @(InputModel.Selected2?.Name ?? "Nobody")</p>
+			<p class="block">Dynamic attributes selection: @(InputModel.Selected3?.Name ?? "Nobody")</p>
 		</Message>
 	</div>
 </div>
