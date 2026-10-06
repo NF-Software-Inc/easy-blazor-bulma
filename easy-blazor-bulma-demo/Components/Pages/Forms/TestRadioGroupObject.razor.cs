@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 
 /// <summary>
-/// Demonstrates dictionary and list-based radio group configurations with independent selections.
+/// Demonstrates dictionary and list-based radio groups with independent selections and dynamic disabled or read-only attributes.
 /// </summary>
 public partial class TestRadioGroupObject : ComponentBase
 {
@@ -22,6 +22,36 @@ public partial class TestRadioGroupObject : ComponentBase
 	];
 
 	private readonly PlaceholderModel InputModel = new();
+
+	private Dictionary<string, object> ControlAttributes = [];
+
+	private string ControlState
+	{
+		get
+		{
+			if (ControlAttributes.ContainsKey("disabled"))
+				return "Disabled";
+			else if (ControlAttributes.ContainsKey("readonly"))
+				return "Read-Only";
+			else
+				return "Enabled";
+		}
+	}
+
+	private void EnableControl()
+	{
+		ControlAttributes = [];
+	}
+
+	private void DisableControl()
+	{
+		ControlAttributes = new() { ["disabled"] = "disabled" };
+	}
+
+	private void MakeControlReadOnly()
+	{
+		ControlAttributes = new() { ["readonly"] = "readonly" };
+	}
 
 	private void OnButtonClicked()
 	{
@@ -44,5 +74,7 @@ public partial class TestRadioGroupObject : ComponentBase
 		public DemoObject? Selected1 { get; set; }
 
 		public DemoObject? Selected2 { get; set; }
+
+		public DemoObject? Selected3 { get; set; }
 	}
 }

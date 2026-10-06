@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
 		<RootNamespace>$(MSBuildProjectName.Replace("-", "_"))</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -8,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2026 $(Company)</Copyright>
-		<Version>10.1.8</Version>
-		<AssemblyVersion>10.1.8.0</AssemblyVersion>
-		<FileVersion>10.1.8.0</FileVersion>
+		<Version>10.2.0</Version>
+		<AssemblyVersion>10.2.0.0</AssemblyVersion>
+		<FileVersion>10.2.0.0</FileVersion>
 
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
