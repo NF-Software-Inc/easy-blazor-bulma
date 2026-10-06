@@ -103,6 +103,9 @@ public partial class TestAutocomplete : ComponentBase
 
 		[Display(Name = "Applicant ID", Description = "Select an applicant while binding only their ID.")]
 		public int? SelectedItemId5 { get; set; } = AllItems[7].Id;
+
+		[Display(Name = "Applicant IDs", Description = "Select multiple applicants while binding only their IDs.")]
+		public List<int> SelectedItemIds6 { get; set; } = [AllItems[3].Id, AllItems[7].Id];
 	}
 
 	private record class DemoAutocomplete
