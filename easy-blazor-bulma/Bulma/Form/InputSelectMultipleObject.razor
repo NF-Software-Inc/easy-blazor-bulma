@@ -1,5 +1,5 @@
-﻿
-@namespace easy_blazor_bulma
+﻿@namespace easy_blazor_bulma
+@typeparam TItem
 @typeparam TValue
 @inherits InputBase<List<TValue>>
 
@@ -16,10 +16,10 @@
 }
 
 <div class='@MainCssClass'>
-    <select class='input' multiple size="@Size" @key="RerenderKey" @ref=Element @onkeyup='(x) => OnKeyUp(x)' @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
-        @foreach (var item in Items.Select((x, i) => new { Value = x, Index = i }))
+    <select class='input' multiple size="@Size" @bind="SelectedIndices" @ref=Element @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
+        @for (var i = 0; i < ItemsList.Count; i++)
         {
-            <option value="@DisplayValue(item.Value)" selected='@(Contains(Value, item.Value))' @onmousedown='(x) => OnMouseDown(item.Index, x)' @onmouseup='(x) => OnMouseUp(item.Index, x)'>@DisplayValue(item.Value)</option>
+            <option value="@i">@DisplayValue(ItemsList[i])</option>
         }
     </select>
 </div>

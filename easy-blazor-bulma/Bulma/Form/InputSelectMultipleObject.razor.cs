@@ -1,34 +1,45 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace easy_blazor_bulma;
 
 /// <summary>
 /// Creates a select list with the provided items for selection of multiple objects.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TItem">The type of item displayed in the list.</typeparam>
+/// <typeparam name="TValue">The type of value stored in the bound selection.</typeparam>
 /// <remarks>
 /// There is 1 additional attribute that can be used: button-class. This applies CSS classes to the "Select All" and "Clear All" buttons.
 /// <see href="https://bulma.io/documentation/form/select/">Bulma Documentation</see>
 /// </remarks>
-public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
+public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
 {
 	/// <summary>
 	/// The collection of items to display in the list.
 	/// </summary>
 	[Parameter]
 	[EditorRequired]
-	public required List<TValue> Items { get; set; }
+	public required IEnumerable<TItem> Items { get; set; }
+	private IReadOnlyList<TItem> ItemsList = [];
 
 	/// <summary>
 	/// A function to return the values to display in the drop-down list.
 	/// </summary>
 	[Parameter]
 	[EditorRequired]
-	public required Func<TValue, string> DisplayValue { get; set; }
+	public required Func<TItem, string> DisplayValue { get; set; }
+
+	/// <summary>
+	/// A function to return the bound value for items provided in the <see cref="Items"/> collection.
+	/// </summary>
+	/// <remarks>
+	/// When omitted, <typeparamref name="TItem"/> and <typeparamref name="TValue"/> must be identical.
+	/// </remarks>
+	[Parameter]
+	public Func<TItem, TValue>? ValueSelector { get; set; }
 
 	/// <summary>
 	/// A function to determine an item is selected.
@@ -66,222 +77,97 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 
 	private readonly string[] Filter = ["class", "button-class"];
 
-	private int CurrentIndex = -1;
-	private int? StartIndex = null;
-	private int? EndIndex = null;
-	private bool CtrlMove;
-
-	private int RerenderKey;
-
-	private int OldHashCode = -1;
-	private int OldValueCount = -1;
+	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
 
 	private string MainCssClass => string.Join(' ', "select is-multiple", CssClass);
 	private string GroupButtonCssClass => string.Join(' ', "button is-small is-fullwidth mt-2", AdditionalAttributes.GetValue("button-class"));
 
-	/// <inheritdoc />
-	/// <exception cref="NotImplementedException"></exception>
-	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
+	private string[] SelectedIndices
 	{
-		throw new NotImplementedException();
+		get
+		{
+			var indices = new List<string>();
+
+			for (var i = 0; i < ItemsList.Count; i++)
+				if (Contains(Value, GetValue(ItemsList[i])))
+					indices.Add(i.ToString(CultureInfo.InvariantCulture));
+
+			return indices.ToArray();
+		}
+		set
+		{
+			var selections = new List<TValue>();
+
+			foreach (var index in value)
+			{
+				if (int.TryParse(index, NumberStyles.None, CultureInfo.InvariantCulture, out var i) == false || i < 0 || i >= ItemsList.Count)
+					return;
+
+				var selected = GetValue(ItemsList[i]);
+
+				if (Contains(selections, selected) == false)
+					selections.Add(selected);
+			}
+
+			CurrentValue = selections;
+		}
 	}
 
 	/// <inheritdoc />
+	/// <exception cref="NotSupportedException">A multiple selection is represented by an array of indices, not a single string.</exception>
+	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
+	{
+		throw new NotSupportedException($"{GetType()} does not support parsing a single string. Bind to the selected indices instead.");
+	}
+
+	/// <inheritdoc />
+	/// <exception cref="InvalidOperationException">A selector is missing when item and value types differ.</exception>
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
 
-		if (Value != null && (OldValueCount != Value.Count || OldHashCode != Value.GetHashCode()))
-		{
-			OldHashCode = Value.GetHashCode();
-			OldValueCount = Value.Count;
-			RerenderKey++;
-		}
-		else if (Value == null && (OldValueCount != -1 || OldHashCode != -1))
-		{
-			OldHashCode = -1;
-			OldValueCount = -1;
-			RerenderKey++;
-		}
+		if (ValueSelector == null && UsesLegacyIdentitySelection == false)
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+
+		ItemsList = Items as IReadOnlyList<TItem> ?? Items.ToList();
 	}
 
 	/// <summary>
-	/// Notifies the component that the selection has changed externally and it should re-render.
+	/// Requests a render after the bound selection is modified in place outside the component.
 	/// </summary>
+	/// <remarks>
+	/// Recalculates selected indices without replacing the select element or notifying the edit context.
+	/// </remarks>
+	/// <exception cref="InvalidOperationException">The component has not been attached to a renderer or the caller is not on its synchronization context.</exception>
 	public void NotifySelectionChanged()
 	{
-		RerenderKey++;
+		StateHasChanged();
 	}
 
-	private void OnMouseDown(int index, MouseEventArgs args)
+	/// <summary>
+	/// Selects all items in the list.
+	/// </summary>
+	public void SelectAll()
 	{
-		if (args.ShiftKey == false)
-			StartIndex = index;
-		else
-			StartIndex ??= index;
+		SelectedIndices = Enumerable.Range(0, ItemsList.Count).Select(i => i.ToString(CultureInfo.InvariantCulture)).ToArray();
 	}
 
-	private void OnMouseUp(int index, MouseEventArgs args)
+	/// <summary>
+	/// Clears all selections in the list.
+	/// </summary>
+	public void ClearAll()
 	{
-		CurrentIndex = index;
-		EndIndex = index;
-
-		if (args.CtrlKey == false)
-		{
-			StartIndex ??= CurrentIndex;
-
-			Value?.Clear();
-			AddSelected(StartIndex.Value, EndIndex.Value);
-		}
-		else
-		{
-			StartIndex ??= CurrentIndex;
-
-			if (Contains(Value, Items[StartIndex.Value]))
-				RemoveSelected(StartIndex.Value, EndIndex.Value);
-			else
-				AddSelected(StartIndex.Value, EndIndex.Value);
-		}
+		CurrentValue = [];
 	}
 
-	private void OnKeyUp(KeyboardEventArgs args)
+	private TValue GetValue(TItem item)
 	{
-		if (Items.Count == 0)
-			return;
+		if (ValueSelector != null)
+			return ValueSelector(item);
 
-		if (args.Code == "ArrowDown")
-		{
-			if (CurrentIndex < Items.Count - 1)
-				CurrentIndex++;
-		}
-		else if (args.Code == "PageDown")
-		{
-			if (CurrentIndex + Size - 1 < Items.Count - 1)
-				CurrentIndex += Size - 1;
-			else
-				CurrentIndex = Items.Count - 1;
-		}
-		else if (args.Code == "End")
-		{
-			CurrentIndex = Items.Count - 1;
-		}
-		else if (args.Code == "ArrowUp")
-		{
-			if (CurrentIndex > 0)
-				CurrentIndex--;
-			else if (CurrentIndex == -1)
-				CurrentIndex = Items.Count - 1;
-		}
-		else if (args.Code == "PageUp")
-		{
-			if (CurrentIndex - Size + 1 > 0)
-				CurrentIndex -= Size - 1;
-			else
-				CurrentIndex = 0;
-		}
-		else if (args.Code == "Home")
-		{
-			CurrentIndex = 0;
-		}
-		else if (args.Code != "Space")
-		{
-			return;
-		}
+		if (UsesLegacyIdentitySelection)
+			return (TValue)(object?)item!;
 
-		if (args.Code != "Space")
-			CtrlMove = args.CtrlKey && (args.Code == "Home" || args.Code == "End" || (args.Code == "ArrowUp" && CurrentIndex != 0) || (args.Code == "ArrowDown" && CurrentIndex != Items.Count - 1));
-
-		if (args.CtrlKey == false && args.ShiftKey == false)
-		{
-			StartIndex = CurrentIndex;
-
-			if (args.Code != "Space")
-			{
-				Value?.Clear();
-				AddSelected(CurrentIndex, CurrentIndex);
-			}
-			else if (CtrlMove)
-			{
-				ToggleSelected(CurrentIndex, CurrentIndex);
-			}
-		}
-		else if (args.ShiftKey)
-		{
-			StartIndex ??= CurrentIndex;
-			EndIndex = CurrentIndex;
-
-			Value?.Clear();
-			AddSelected(StartIndex.Value, EndIndex.Value);
-		}
-	}
-
-	private void ToggleSelected(int start, int end)
-	{
-		Value ??= [];
-
-		if (start > end)
-			(end, start) = (start, end);
-
-		for (var i = start; i <= end; i++)
-		{
-			if (Value.Remove(Items[i]) == false)
-				Value.Add(Items[i]);
-		}
-
-		_ = ValueChanged.InvokeAsync(Value);
-		EditContext?.NotifyFieldChanged(FieldIdentifier);
-	}
-
-	private void AddSelected(int start, int end)
-	{
-		Value ??= [];
-
-		if (start > end)
-			(end, start) = (start, end);
-
-		for (var i = start; i <= end; i++)
-		{
-			if (Contains(Value, Items[i]) == false)
-				Value.Add(Items[i]);
-		}
-
-		_ = ValueChanged.InvokeAsync(Value);
-		EditContext?.NotifyFieldChanged(FieldIdentifier);
-	}
-
-	private void RemoveSelected(int start, int end)
-	{
-		Value ??= [];
-
-		if (start > end)
-			(end, start) = (start, end);
-
-		for (var i = start; i <= end; i++)
-			Value.Remove(Items[i]);
-
-		_ = ValueChanged.InvokeAsync(Value);
-		EditContext?.NotifyFieldChanged(FieldIdentifier);
-	}
-
-	private void SelectAll()
-	{
-		Value ??= [];
-
-		Value.Clear();
-		Value.AddRange(Items);
-
-		_ = ValueChanged.InvokeAsync(Value);
-		EditContext?.NotifyFieldChanged(FieldIdentifier);
-		RerenderKey++;
-	}
-
-	private void ClearAll()
-	{
-		Value ??= [];
-		Value.Clear();
-
-		_ = ValueChanged.InvokeAsync(Value);
-		EditContext?.NotifyFieldChanged(FieldIdentifier);
-		RerenderKey++;
+		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
 	}
 }

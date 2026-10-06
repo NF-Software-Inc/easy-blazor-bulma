@@ -6,7 +6,7 @@ namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 
 public partial class TestSelectObject : ComponentBase
 {
-	private InputSelectMultipleObject<DemoObject>? Reference;
+	private InputSelectMultipleObject<DemoObject, DemoObject>? Reference;
 
 	private readonly PageModel InputModel = new()
 	{
@@ -50,8 +50,11 @@ public partial class TestSelectObject : ComponentBase
 		[Display(Name = "Janitor Applicant", Description = "Please select the name of the applicant to hire for the Janitor position.")]
 		public required DemoObject SelectedItem1 { get; set; }
 
-		[Display(Name = "Accountant Applicant", Description = "Please select the name of the applicant to hire for the Accountant position.")]
+		[Display(Name = "Accountant Applicant 1", Description = "Please select the name of the applicant to hire for the Accountant position.")]
 		public DemoObject? SelectedItem2 { get; set; }
+
+		[Display(Name = "Accountant Applicant 2", Description = "Please select the name of the applicant to hire for the Accountant position.")]
+		public int? SelectedItem3 { get; set; } = AllItems[7].Id;
 
 		[Display(Name = "Enum Test", Description = "Input to test modifying a non-nullable enum value.")]
 		public TestEnum EnumSelectTest1 { get; set; } = TestEnum.One;
@@ -61,6 +64,9 @@ public partial class TestSelectObject : ComponentBase
 
 		[Display(Name = "Rejected Applicant(s)", Description = "Please select the name(s) of the applicant to send a rejection letter to.")]
 		public List<DemoObject> SelectedItems { get; set; } = [AllItems[3], AllItems[7]];
+
+		[Display(Name = "Rejected Applicant ID(s)", Description = "Select applicants while binding only their IDs.")]
+		public List<int> SelectedItemIds { get; set; } = [AllItems[1].Id, AllItems[7].Id];
 	}
 
 	private class DemoObject

@@ -13,7 +13,8 @@ namespace easy_blazor_bulma;
 /// <summary>
 /// An input component for selecting a value from a list of options.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TItem">The type of suggestion displayed and searched.</typeparam>
+/// <typeparam name="TValue">The type of value bound to the selected suggestion.</typeparam>
 /// <remarks>
 /// <para>
 /// There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class.
@@ -29,14 +30,14 @@ namespace easy_blazor_bulma;
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
 /// </para>
 /// </remarks>
-public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
 {
 	/// <summary>
 	/// The collection of items to search when typing in the input.
 	/// </summary>
 	[Parameter]
 	[EditorRequired]
-	public required IEnumerable<TValue> Items { get; set; }
+	public required IEnumerable<TItem> Items { get; set; }
 
 	/// <summary>
 	/// Limits the number of items displayed in the drop-down list when set.
@@ -49,16 +50,26 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	/// </summary>
 	[Parameter]
 	[EditorRequired]
-	public required Func<TValue, string> DisplayValue { get; set; }
+	public required Func<TItem, string> DisplayValue { get; set; }
+
+	/// <summary>
+	/// Projects a suggestion from <see cref="Items"/> to the value stored in the bound field.
+	/// </summary>
+	/// <remarks>
+	/// When omitted, <typeparamref name="TItem"/> and <typeparamref name="TValue"/> must be identical.
+	/// Projected values are compared using <see cref="AreEqual"/> when resolving selected labels and highlighting suggestions.
+	/// </remarks>
+	[Parameter]
+	public Func<TItem, TValue>? ValueSelector { get; set; }
 
 	/// <summary>
 	/// A function to filter the display items.
 	/// </summary>
 	[Parameter]
-	public Func<TValue, string?, bool>? DisplayFilter { get; set; }
+	public Func<TItem, string?, bool>? DisplayFilter { get; set; }
 
 	/// <summary>
-	/// A function to determine whether two items are equal.
+	/// A function to determine whether two projected selection values are equal.
 	/// </summary>
 	[Parameter]
 	public Func<TValue, TValue?, bool> AreEqual { get; set; } = EqualityComparer<TValue>.Default.Equals;
@@ -106,9 +117,10 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
+	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
-	private ILogger<InputAutocomplete<TValue>>? Logger;
+	private ILogger<InputAutocomplete<TItem, TValue>>? Logger;
 
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
@@ -179,19 +191,12 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		// Type checks
 		if (UnderlyingType.GetTypeInfo().IsValueType)
-		{
 			IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
-		}
-		else if (FieldIdentifier.Model != null && FieldIdentifier.FieldName != null)
-		{
-			var property = FieldIdentifier.Model.GetType().GetProperty(FieldIdentifier.FieldName);
-
-			if (property != null)
-				IsNullable = new NullabilityInfoContext().Create(property).WriteState == NullabilityState.Nullable;
-		}
+		else if (FieldIdentifier.Model != null && string.IsNullOrEmpty(FieldIdentifier.FieldName) == false)
+			IsNullable = IsMemberNullable(FieldIdentifier.Model.GetType(), FieldIdentifier.FieldName);
 
 		// Get services
-		Logger = ServiceProvider.GetService<ILogger<InputAutocomplete<TValue>>>();
+		Logger = ServiceProvider.GetService<ILogger<InputAutocomplete<TItem, TValue>>>();
 
 		// Validation
 		if (Options.HasAnyFlag(InputAutocompleteOptions.ClickPopout | InputAutocompleteOptions.TypePopout | InputAutocompleteOptions.HoverPopout) == false)
@@ -219,6 +224,46 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		// Set starting values
 		HighlightedValue = CurrentValue;
+	}
+
+	private static bool IsMemberNullable(Type modelType, string memberName)
+	{
+		var context = new NullabilityInfoContext();
+		var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+
+		for (var type = modelType; type != null && type != typeof(object); type = type.BaseType)
+		{
+			var member = (MemberInfo?)type.GetProperty(memberName, flags) ?? (MemberInfo?)type.GetField(memberName, flags);
+
+			if (member == null)
+				continue;
+
+			var info = member switch
+			{
+				PropertyInfo property => context.Create(property),
+				FieldInfo field => context.Create(field),
+				_ => null
+			};
+
+			if (info == null)
+				continue;
+			else if (info.WriteState != NullabilityState.Unknown)
+				return info.WriteState == NullabilityState.Nullable;
+			else if (info.ReadState != NullabilityState.Unknown)
+				return info.ReadState == NullabilityState.Nullable;
+		}
+
+		return false;
+	}
+
+	/// <inheritdoc />
+	/// <exception cref="InvalidOperationException">A selector is missing when item and value types differ.</exception>
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (ValueSelector == null && UsesLegacyIdentitySelection == false)
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
 	}
 
 	/// <inheritdoc />
@@ -254,11 +299,31 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	}
 
 	/// <inheritdoc />
-	protected override string FormatValueAsString(TValue? value) => value switch
+	protected override string FormatValueAsString(TValue? value)
 	{
-		TValue selectedValue => DisplayValue(selectedValue),
-		_ => string.Empty
-	};
+		if (value != null)
+		{
+			if (UsesLegacyIdentitySelection)
+				return DisplayValue((TItem)(object)value);
+
+			foreach (var item in Items)
+				if (AreEqual(GetValue(item), value))
+					return DisplayValue(item);
+		}
+
+		return string.Empty;
+	}
+
+	private TValue GetValue(TItem item)
+	{
+		if (ValueSelector != null)
+			return ValueSelector(item);
+
+		if (UsesLegacyIdentitySelection)
+			return (TValue)(object?)item!;
+
+		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+	}
 
 	private (bool success, TValue? match) GetMatch(string? value, InputAutocompleteOptions? matchType = null)
 	{
@@ -272,23 +337,19 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 				matchType = InputAutocompleteOptions.AutoSelectClosest;
 		}
 
+		TItem? match = default;
+
 		if (matchType == InputAutocompleteOptions.AutoSelectCurrent && HighlightedValue != null)
-		{
 			return (true, HighlightedValue);
-		}
 		else if (matchType == InputAutocompleteOptions.AutoSelectExact)
-		{
-			var match = GetDisplayItems().FirstOrDefault(x => string.Equals(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase));
-			return (match != null || (IsNullable && string.IsNullOrWhiteSpace(value)), match);
-		}
+			match = GetDisplayItems().FirstOrDefault(x => string.Equals(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase));
 		else if (matchType == InputAutocompleteOptions.AutoSelectClosest)
-		{
-			return (true, GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault());
-		}
+			match = GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+		if (match != null)
+			return (true, GetValue(match));
 		else
-		{
-			return (false, default);
-		}
+			return (IsNullable, default);
 	}
 
 	private void OnFocus(FocusEventArgs args)
@@ -321,10 +382,10 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		if (OnItemsRequested != null)
 			await OnItemsRequested.Invoke(changed);
 
+		InputValue = changed;
+
 		if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnInput))
 			CurrentValueAsString = changed;
-
-		InputValue = changed;
 	}
 
 	private void OnKeyUp(KeyboardEventArgs args)
@@ -393,7 +454,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		}
 	}
 
-	private IEnumerable<TValue> GetDisplayItems()
+	private IEnumerable<TItem> GetDisplayItems()
 	{
 		if (DisplayFilter != null && InputValue != null && DisplayCount > 0)
 			return Items.Where(x => DisplayFilter.Invoke(x, InputValue)).Take(DisplayCount.Value);
@@ -409,12 +470,14 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		if (HighlightedValue == null)
 		{
-			HighlightedValue = GetDisplayItems().FirstOrDefault();
+			var highlighted = GetDisplayItems().FirstOrDefault();
+
+			HighlightedValue = highlighted != null ? GetValue(highlighted) : default;
 			return;
 		}
 
-		TValue? next = default;
-		TValue? first = default;
+		TItem? next = default;
+		TItem? first = default;
 		bool takeNext = false;
 
 		foreach (var item in GetDisplayItems())
@@ -427,33 +490,35 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 				break;
 			}
 
-			if (AreEqual(item, HighlightedValue))
+			if (AreEqual(GetValue(item), HighlightedValue))
 				takeNext = true;
 		}
 
 		next ??= first;
-		HighlightedValue = next;
+		HighlightedValue = next != null ? GetValue(next) : default;
 	}
 
 	private void HighlightPrevious()
 	{
 		if (HighlightedValue == null)
 		{
-			HighlightedValue = GetDisplayItems().LastOrDefault();
+			var highlighted = GetDisplayItems().LastOrDefault();
+
+			HighlightedValue = highlighted != null ? GetValue(highlighted) : default;
 			return;
 		}
 
-		TValue? previous = default;
+		TItem? previous = default;
 
 		foreach (var item in GetDisplayItems())
 		{
-			if (previous != null && AreEqual(item, HighlightedValue))
+			if (previous != null && AreEqual(GetValue(item), HighlightedValue))
 				break;
 
 			previous = item;
 		}
 
-		HighlightedValue = previous;
+		HighlightedValue = previous != null ? GetValue(previous) : default;
 	}
 
 	private void ResetStatus()
@@ -463,15 +528,20 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		DisplayStatus &= ~InputStatus.BackgroundSuccess;
 	}
 
-	private string GetDropDownItemCssClass(TValue item)
+	private string GetDropDownItemCssClass(TItem item)
 	{
 		var css = "dropdown-item is-clickable";
 
-		if (HighlightedValue != null && AreEqual(item, HighlightedValue))
-			css += " has-background-default";
+		if (HighlightedValue != null || CurrentValue != null)
+		{
+			var value = GetValue(item);
 
-		if (CurrentValue != null && AreEqual(item, CurrentValue))
-			css += " has-text-success";
+			if (HighlightedValue != null && AreEqual(value, HighlightedValue))
+				css += " has-background-default";
+
+			if (CurrentValue != null && AreEqual(value, CurrentValue))
+				css += " has-text-success";
+		}
 
 		return string.Join(' ', css, AdditionalAttributes.GetValue("dropdown-item-class"));
 	}

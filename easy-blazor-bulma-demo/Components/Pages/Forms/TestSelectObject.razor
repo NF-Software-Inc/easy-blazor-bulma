@@ -1,5 +1,4 @@
 ﻿@using easy_core
-@using System.ComponentModel.DataAnnotations
 
 @page "/inputSelectObject"
 @inherits ComponentBase
@@ -27,6 +26,13 @@
 			</div>
 
 			<div class="field">
+				<Label For="() => InputModel.SelectedItem3" TooltipMode="TooltipDisplayMode" />
+				<div class="control has-icons-left is-expanded">
+					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" ValueSelector="x => x.Id" DisplayValue='x => x.Name' Items="GetObjects()" />
+				</div>
+			</div>
+
+			<div class="field">
 				<Label For="() => InputModel.EnumSelectTest1" TooltipMode="TooltipDisplayMode" />
 				<div class="control has-icons-left is-expanded">
 					<InputSelectObject class="is-fullwidth" @bind-Value="InputModel.EnumSelectTest1" DisplayValue='x => x.GetValueDisplayName()' Items="Enum.GetValues<TestEnum>().ToList()" />
@@ -48,6 +54,73 @@
 			</div>
 
 			<button type="button" class="button is-info is-small" @onclick="ClearSelection">Clear Selections</button>
+
+			<div class="field">
+				<Label For="() => InputModel.SelectedItemIds" TooltipMode="TooltipDisplayMode" />
+				<div class="control is-expanded">
+					<InputSelectMultipleObject class="is-fullwidth" @bind-Value="InputModel.SelectedItemIds" ValueSelector="x => x.Id" DisplayValue='x => x.Name' Items="GetObjects()" ShowGroupButtons=true />
+				</div>
+			</div>
 		</EditForm>
+
+		<Message class="mt-3" Title="Current Values" Color="BulmaColors.Green">
+			<div class="columns is-multiline">
+				<div class="column is-12-mobile is-6-tablet">
+					<p class="block">Single object selections:</p>
+					<div class="content">
+						<ul>
+							<li>Janitor: @InputModel.SelectedItem1.Name (ID: @InputModel.SelectedItem1.Id)</li>
+							<li>Accountant: @(InputModel.SelectedItem2?.Name ?? "Null") (ID: @(InputModel.SelectedItem2?.Id.ToString() ?? "Null"))</li>
+							<li>Accountant ID: @(InputModel.SelectedItem3?.ToString() ?? "Null")</li>
+						</ul>
+					</div>
+				</div>
+				<div class="column is-12-mobile is-6-tablet">
+					<p class="block">Enum selections:</p>
+					<div class="content">
+						<ul>
+							<li>Enum: @InputModel.EnumSelectTest1</li>
+							<li>Nullable enum: @(InputModel.EnumSelectTest2?.ToString() ?? "Null")</li>
+						</ul>
+					</div>
+				</div>
+				<div class="column is-12-mobile is-6-tablet">
+					<p class="block">Selected objects (@InputModel.SelectedItems.Count):</p>
+					@if (InputModel.SelectedItems.Count == 0)
+					{
+						<p class="block">None</p>
+					}
+					else
+					{
+						<div class="content">
+							<ul>
+								@foreach (var item in InputModel.SelectedItems)
+								{
+									<li>@item.Name (ID: @item.Id, @item.Position)</li>
+								}
+							</ul>
+						</div>
+					}
+				</div>
+				<div class="column is-12-mobile is-6-tablet">
+					<p class="block">Selected IDs (@InputModel.SelectedItemIds.Count):</p>
+					@if (InputModel.SelectedItemIds.Count == 0)
+					{
+						<p class="block">None</p>
+					}
+					else
+					{
+						<div class="content">
+							<ul>
+								@foreach (var id in InputModel.SelectedItemIds)
+								{
+									<li>ID: @id</li>
+								}
+							</ul>
+						</div>
+					}
+				</div>
+			</div>
+		</Message>
 	</div>
 </div>

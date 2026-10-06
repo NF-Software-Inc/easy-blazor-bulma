@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
 
 namespace easy_blazor_bulma;
@@ -11,7 +12,8 @@ namespace easy_blazor_bulma;
 /// <summary>
 /// An input component for selecting multiple values from a list of options.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TItem">The type of suggestion displayed and searched.</typeparam>
+/// <typeparam name="TValue">The type of value stored in the bound selection list.</typeparam>
 /// <remarks>
 /// <para>
 /// There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class.
@@ -27,14 +29,14 @@ namespace easy_blazor_bulma;
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
 /// </para>
 /// </remarks>
-public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
+public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
 {
 	/// <summary>
 	/// The collection of items to search when typing in the input.
 	/// </summary>
 	[Parameter]
 	[EditorRequired]
-	public required IEnumerable<TValue> Items { get; set; }
+	public required IEnumerable<TItem> Items { get; set; }
 
 	/// <summary>
 	/// Limits the number of items displayed in the drop-down list when set.
@@ -47,16 +49,25 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	/// </summary>
 	[Parameter]
 	[EditorRequired]
-	public required Func<TValue, string> DisplayValue { get; set; }
+	public required Func<TItem, string> DisplayValue { get; set; }
+
+	/// <summary>
+	/// Projects a suggestion from <see cref="Items"/> to the value stored in the bound selection list.
+	/// </summary>
+	/// <remarks>
+	/// When omitted, <typeparamref name="TItem"/> and <typeparamref name="TValue"/> must be identical.
+	/// </remarks>
+	[Parameter]
+	public Func<TItem, TValue>? ValueSelector { get; set; }
 
 	/// <summary>
 	/// A function to filter the display items.
 	/// </summary>
 	[Parameter]
-	public Func<TValue, string?, bool>? DisplayFilter { get; set; }
+	public Func<TItem, string?, bool>? DisplayFilter { get; set; }
 
 	/// <summary>
-	/// A function to determine whether two items are equal.
+	/// A function to determine whether two bound selection values are equal.
 	/// </summary>
 	[Parameter]
 	public Func<TValue, TValue?, bool> AreEqual { get; set; } = EqualityComparer<TValue>.Default.Equals;
@@ -104,7 +115,8 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
-	private ILogger<InputAutocompleteMultiple<TValue>>? Logger;
+	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
+	private ILogger<InputAutocompleteMultiple<TItem, TValue>>? Logger;
 
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
@@ -174,7 +186,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	protected override void OnInitialized()
 	{
 		// Get services
-		Logger = ServiceProvider.GetService<ILogger<InputAutocompleteMultiple<TValue>>>();
+		Logger = ServiceProvider.GetService<ILogger<InputAutocompleteMultiple<TItem, TValue>>>();
 
 		// Validation
 		if (Options.HasAnyFlag(InputAutocompleteOptions.ClickPopout | InputAutocompleteOptions.TypePopout | InputAutocompleteOptions.HoverPopout) == false)
@@ -203,6 +215,16 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		// Set starting values
 		if (Value != null && Value.Count > 0)
 			HighlightedValue = Value[^1];
+	}
+
+	/// <inheritdoc />
+	/// <exception cref="InvalidOperationException">A selector is missing when item and value types differ.</exception>
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (ValueSelector == null && UsesLegacyIdentitySelection == false)
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
 	}
 
 	/// <inheritdoc />
@@ -347,7 +369,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		}
 	}
 
-	private IEnumerable<TValue> GetDisplayItems()
+	private IEnumerable<TItem> GetDisplayItems()
 	{
 		if (DisplayFilter != null && InputValue != null && DisplayCount > 0)
 			return Items.Where(x => DisplayFilter.Invoke(x, InputValue)).Take(DisplayCount.Value);
@@ -363,12 +385,14 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	{
 		if (HighlightedValue == null)
 		{
-			HighlightedValue = GetDisplayItems().FirstOrDefault();
+			var highlighted = GetDisplayItems().FirstOrDefault();
+
+			HighlightedValue = highlighted != null ? GetValue(highlighted) : default;
 			return;
 		}
 
-		TValue? next = default;
-		TValue? first = default;
+		TItem? next = default;
+		TItem? first = default;
 		bool takeNext = false;
 
 		foreach (var item in GetDisplayItems())
@@ -381,33 +405,35 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 				break;
 			}
 
-			if (AreEqual(item, HighlightedValue))
+			if (AreEqual(GetValue(item), HighlightedValue))
 				takeNext = true;
 		}
 
 		next ??= first;
-		HighlightedValue = next;
+		HighlightedValue = next != null ? GetValue(next) : default;
 	}
 
 	private void HighlightPrevious()
 	{
 		if (HighlightedValue == null)
 		{
-			HighlightedValue = GetDisplayItems().LastOrDefault();
+			var highlighted = GetDisplayItems().LastOrDefault();
+
+			HighlightedValue = highlighted != null ? GetValue(highlighted) : default;
 			return;
 		}
 
-		TValue? previous = default;
+		TItem? previous = default;
 
 		foreach (var item in GetDisplayItems())
 		{
-			if (previous != null && AreEqual(item, HighlightedValue))
+			if (previous != null && AreEqual(GetValue(item), HighlightedValue))
 				break;
 
 			previous = item;
 		}
 
-		HighlightedValue = previous;
+		HighlightedValue = previous != null ? GetValue(previous) : default;
 	}
 
 	private void ResetStatus()
@@ -429,35 +455,59 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 				matchType = InputAutocompleteOptions.AutoSelectClosest;
 		}
 
+		TItem? match = default;
+
 		if (matchType == InputAutocompleteOptions.AutoSelectCurrent && HighlightedValue != null)
-		{
 			return (true, HighlightedValue);
-		}
 		else if (matchType == InputAutocompleteOptions.AutoSelectExact)
-		{
-			var match = GetDisplayItems().FirstOrDefault(x => string.Equals(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase));
-			return (match != null, match);
-		}
+			match = GetDisplayItems().FirstOrDefault(x => string.Equals(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase));
 		else if (matchType == InputAutocompleteOptions.AutoSelectClosest)
-		{
-			return (true, GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault());
-		}
+			match = GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+		if (match != null)
+			return (true, GetValue(match));
 		else
-		{
 			return (false, default);
-		}
 	}
 
-	private string GetDropDownItemCssClass(TValue item)
+	private string GetDropDownItemCssClass(TItem item)
 	{
 		var css = "dropdown-item is-clickable";
 
-		if (HighlightedValue != null && AreEqual(item, HighlightedValue))
-			css += " has-background-default";
+		if (HighlightedValue != null || CurrentValue != null)
+		{
+			var value = GetValue(item);
 
-		if (Value?.Any(x => AreEqual(item, x)) == true)
-			css += " has-text-success";
+			if (HighlightedValue != null && AreEqual(value, HighlightedValue))
+				css += " has-background-default";
+
+			if (CurrentValue != null && CurrentValue.Any(x => AreEqual(value, x)) == true)
+				css += " has-text-success";
+		}
 
 		return string.Join(' ', css, AdditionalAttributes.GetValue("dropdown-item-class"));
+	}
+
+	private TValue GetValue(TItem item)
+	{
+		if (ValueSelector != null)
+			return ValueSelector(item);
+
+		if (UsesLegacyIdentitySelection)
+			return (TValue)(object?)item!;
+
+		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+	}
+
+	private string GetItemDisplayValue(TValue value)
+	{
+		if (UsesLegacyIdentitySelection)
+			return DisplayValue((TItem)(object?)value!);
+
+		foreach (var item in Items)
+			if (AreEqual(GetValue(item), value))
+				return DisplayValue(item);
+
+		return string.Empty;
 	}
 }

@@ -1,6 +1,4 @@
-﻿@using System.ComponentModel.DataAnnotations
-
-@page "/inputAutocomplete"
+﻿@page "/inputAutocomplete"
 @inherits ComponentBase
 
 <TitleBlock Title="Input Autocomplete Test" />
@@ -62,10 +60,34 @@
                     <InputAutocompleteMultiple dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItems4" DisplayValue='x => x?.Name ?? string.Empty' DisplayFilter='(x, y) => x != null && x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" Options="Options4" />
                 </div>
             </div>
+            <div class="field">
+                <Label For="() => InputModel.SelectedItemId5" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItemId5" ValueSelector="x => x.Id" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
+                </div>
+            </div>
+            <div class="field">
+                <Label For="() => InputModel.SelectedItemIds6" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocompleteMultiple dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItemIds6" ValueSelector="x => x.Id" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" Options="Options4" />
+                </div>
+            </div>
+            <div class="field">
+                <Label For="() => InputModel.FieldSelection" TooltipMode="TooltipDisplayMode" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.FieldSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
+                </div>
+            </div>
+            <div class="field">
+                <Label TValue="object" DisplayText="Private Member" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="PrivateSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
+                </div>
+            </div>
         </EditForm>
 
         <Message class="mt-3" Title="New Hires" Color="BulmaColors.Green">
-            <div class="columns">
+            <div class="columns is-multiline">
                 <div class="column">
                     <p class="block">The person to be hired for the Janitor position is:</p>
                     <div class="content">
@@ -96,6 +118,27 @@
                             }
                         </ul>
                     </div>
+                </div>
+                <div class="column is-12">
+                    <p class="block">Selected applicant ID: @(InputModel.SelectedItemId5?.ToString() ?? "Null")</p>
+                </div>
+                <div class="column is-12">
+                    <p class="block">Selected applicant IDs (@InputModel.SelectedItemIds6.Count):</p>
+                    @if (InputModel.SelectedItemIds6.Count == 0)
+                    {
+                        <p class="block">None</p>
+                    }
+                    else
+                    {
+                        <div class="content">
+                            <ul>
+                                @foreach (var id in InputModel.SelectedItemIds6)
+                                {
+                                    <li>@id</li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
             </div>
 

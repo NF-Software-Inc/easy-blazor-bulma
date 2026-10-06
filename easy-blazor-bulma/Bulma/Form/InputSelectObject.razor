@@ -1,16 +1,17 @@
 ﻿@namespace easy_blazor_bulma
+@typeparam TItem
 @typeparam TValue
 @inherits InputBase<TValue>
 
 <div class='@MainCssClass'>
-    <select class='input' @onchange=OnSelectionChanged @ref=Element @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
+    <select class='input' @bind="CurrentValueAsString" @ref=Element @attributes='AdditionalAttributes.ConvertReadonlyToDisabled().GetFilteredAttributes(Filter)'>
         @if (IsNullable)
         {
-            <option value="" selected='@(CurrentValue == null)'>@NullText</option>
+            <option value="">@NullText</option>
         }
-        @foreach (var item in Items)
+        @for (var i = 0; i < ItemsList.Count; i++)
         {
-            <option value="@DisplayValue(item)" selected='@(AreEqual(item, CurrentValue))'>@DisplayValue(item)</option>
+            <option value="@i">@DisplayValue(ItemsList[i])</option>
         }
     </select>
 </div>
