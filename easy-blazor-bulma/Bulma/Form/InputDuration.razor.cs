@@ -73,6 +73,27 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     public InputStatus DisplayStatus { get; set; }
 
     /// <summary>
+    /// A standard or custom format string used for the main textbox while it does not have focus.
+    /// </summary>
+    /// <remarks>
+    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/formatting-types">Formatting Documentation</see>
+    /// </remarks>
+    [Parameter]
+    public string? DisplayFormat { get; set; }
+
+    /// <summary>
+    /// An optional function to apply custom formatting to the main textbox while it does not have focus. Takes precedence over <see cref="DisplayFormat"/>.
+    /// </summary>
+    [Parameter]
+    public Func<TValue?, string?>? Formatter { get; set; }
+
+    /// <summary>
+	/// The culture to use when formatting and parsing values.
+	/// </summary>
+	[Parameter]
+    public CultureInfo? Culture { get; set; }
+
+    /// <summary>
     /// The configuration options to apply to the component.
     /// </summary>
     [Parameter]
@@ -106,9 +127,19 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     private TimeSpan PopoutValue;
     private bool IsPopoutDisplayed;
 
+    /// <summary>
+    /// Indicates whether the main input is currently focused. Used to determine whether to apply formatting to the value.
+    /// </summary>
+    private bool IsMainInputFocused;
+
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDuration<TValue>>? Logger;
+
+    /// <summary>
+    /// Gets the culture to use for formatting and parsing values. Defaults to <see cref="CultureInfo.InvariantCulture"/> if <see cref="Culture"/> is not set.
+    /// </summary>
+    private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
 
     private string MainCssClass
     {
@@ -488,12 +519,22 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     }
 
     /// <inheritdoc />
-    protected override string FormatValueAsString(TValue? value) => value switch
+    protected override string FormatValueAsString(TValue? value)
     {
-        TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
-        TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
-        _ => string.Empty
-    };
+        if (IsMainInputFocused == false && Formatter != null)
+            return Formatter(value) ?? string.Empty;
+        else if (value == null)
+            return string.Empty;
+        else if (IsMainInputFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
+            return formattable.ToString(DisplayFormat, FormatProvider);
+
+        return value switch
+        {
+            TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
+            TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
+            _ => string.Empty
+        };
+    }
 
     private string FormatTimeSpan(TimeSpan value)
     {
@@ -571,6 +612,20 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
             ResetStatus();
     }
+
+    /// <summary>
+    /// Handles the focus event for the main input. Sets the <see cref="IsMainInputFocused"/> property to true and opens the popout if applicable.
+    /// </summary>
+    private void OnMainInputFocus()
+    {
+        IsMainInputFocused = true;
+        OpenPopout();
+    }
+
+    /// <summary>
+    /// Handles the blur event for the main input. Sets the <see cref="IsMainInputFocused"/> property to false.
+    /// </summary>
+    private void OnMainInputFocusOut() => IsMainInputFocused = false;
 
     private void ClosePopout(bool save = false, bool reset = false, bool clear = false)
     {

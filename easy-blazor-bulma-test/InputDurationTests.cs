@@ -26,6 +26,34 @@ public class InputDurationTests
     }
 
     [Fact]
+    public void DisplayFormatFormatsMainInputValue()
+    {
+        var input = new TestInputDuration(AllUnits)
+        {
+            DisplayFormat = @"d\.hh\:mm\:ss\.fff"
+        };
+        var value = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
+
+        var formatted = input.Format(value);
+
+        Assert.Equal("1.02:03:04.005", formatted);
+    }
+
+    [Fact]
+    public void FormatterTakesPrecedenceOverDisplayFormat()
+    {
+        var input = new TestInputDuration(AllUnits)
+        {
+            DisplayFormat = "c",
+            Formatter = _ => "custom duration"
+        };
+
+        var formatted = input.Format(TimeSpan.FromMinutes(1));
+
+        Assert.Equal("custom duration", formatted);
+    }
+
+    [Fact]
     public void FormattedValueWithMillisecondsCanBeParsed()
     {
         var input = new TestInputDuration(AllUnits);
