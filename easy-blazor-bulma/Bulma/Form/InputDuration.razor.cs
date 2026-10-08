@@ -124,6 +124,10 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
 
 	private TimeSpan InitialValue;
+
+    /// <summary>
+    /// The value currently being edited in the popout. This is separate from the main input value to allow for canceling changes.
+    /// </summary>
     private TimeSpan PopoutValue;
     private bool IsPopoutDisplayed;
 
@@ -131,10 +135,56 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     /// Indicates whether the main input is currently focused. Used to determine whether to apply formatting to the value.
     /// </summary>
     private bool IsMainInputFocused;
+    private bool IsDaysInputFocused;
+    private bool IsHoursInputFocused;
+    private bool IsMinutesInputFocused;
+    private bool IsSecondsInputFocused;
+    private bool IsMillisecondsInputFocused;
+
+    /// <summary>
+    /// Number of minutes in the popout input. If the DisplayHoursAsMinutes option is set, this will return the total number of minutes, otherwise it will return the minutes component of the TimeSpan.
+    /// </summary>
+    private long PopoutMinutes => Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes)
+        ? PopoutValue < TimeSpan.Zero ? Math.Abs((long)Math.Ceiling(PopoutValue.TotalMinutes)) : (long)Math.Floor(PopoutValue.TotalMinutes)
+        : Math.Abs(PopoutValue.Minutes);
+
+    /// <summary>
+    /// Number of days in the popout input. This always return the days component of the TimeSpan.
+    /// </summary>
+    private int PopoutDays => Math.Abs(PopoutValue.Days);
+
+    /// <summary>
+    /// Number of hours in the popout input. If DisplayDaysAsHours, return the total number of hours, otherwise the hours component of the TimeSpan.
+    /// </summary>
+    private long PopoutHours => Options.HasFlag(InputDurationOptions.DisplayDaysAsHours)
+        ? PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalHours)) : (int)Math.Floor(PopoutValue.TotalHours)
+        : Math.Abs(PopoutValue.Hours);
+
+    /// <summary>
+    /// Number of seconds in the popout input. If DisplayMinutesAsSeconds, return the total number of seconds, otherwise the seconds component of the TimeSpan.
+    /// </summary>
+    private long PopoutSeconds => Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds)
+        ? PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalSeconds)) : (int)Math.Floor(PopoutValue.TotalSeconds)
+        : Math.Abs(PopoutValue.Seconds);
+
+    /// <summary>
+    /// Number of milliseconds in the popout input. This always returns the milliseconds component of the TimeSpan.
+    /// </summary>
+    private int PopoutMilliseconds => Math.Abs(PopoutValue.Milliseconds);
+
+    /// <summary>
+    /// Gets the CSS class to apply to the timepicker input in the popout. Changes based on whether any of the unit inputs are focused.
+    /// </summary>
+    private string TimepickerInputCssClass => IsDaysInputFocused || IsHoursInputFocused || IsMinutesInputFocused || IsSecondsInputFocused || IsMillisecondsInputFocused ? "timepicker-input is-input" : "timepicker-input";
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDuration<TValue>>? Logger;
+
+    private int? MaximumHours => Options.HasFlag(InputDurationOptions.DisplayDaysAsHours) ? null : 23;
+    private int? MaximumMinutes => Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes) ? null : 59;
+    private int? MaximumSeconds => Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds) ? null : 59;
+    private const int MaximumMilliseconds = 999;
 
     /// <summary>
     /// Gets the culture to use for formatting and parsing values. Defaults to <see cref="CultureInfo.InvariantCulture"/> if <see cref="Culture"/> is not set.
@@ -668,6 +718,60 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 
         if (Options.HasFlag(InputDurationOptions.UpdateOnPopoutChange))
             CurrentValueAsString = FormatTimeSpan(PopoutValue);
+    }
+
+    private void OnDaysInputFocusIn() => IsDaysInputFocused = true;
+
+    private void OnDaysInputFocusOut() => IsDaysInputFocused = false;
+
+    private void OnHoursInputFocusIn() => IsHoursInputFocused = true;
+
+    private void OnHoursInputFocusOut() => IsHoursInputFocused = false;
+
+    private void OnMinutesInputFocusIn() => IsMinutesInputFocused = true;
+
+    private void OnMinutesInputFocusOut() => IsMinutesInputFocused = false;
+
+    private void OnSecondsInputFocusIn() => IsSecondsInputFocused = true;
+
+    private void OnSecondsInputFocusOut() => IsSecondsInputFocused = false;
+
+    private void OnMillisecondsInputFocusIn() => IsMillisecondsInputFocused = true;
+
+    private void OnMillisecondsInputFocusOut() => IsMillisecondsInputFocused = false;
+
+    private void OnPopoutDaysChanged(ChangeEventArgs args) =>
+        UpdatePopoutUnit(args, PopoutDays, null, TimeSpan.TicksPerDay);
+
+    private void OnPopoutMinutesChanged(ChangeEventArgs args) =>
+        UpdatePopoutUnit(args, PopoutMinutes, MaximumMinutes, TimeSpan.TicksPerMinute);
+
+    private void OnPopoutHoursChanged(ChangeEventArgs args) =>
+        UpdatePopoutUnit(args, PopoutHours, MaximumHours, TimeSpan.TicksPerHour);
+
+    private void OnPopoutSecondsChanged(ChangeEventArgs args) =>
+        UpdatePopoutUnit(args, PopoutSeconds, MaximumSeconds, TimeSpan.TicksPerSecond);
+
+    private void OnPopoutMillisecondsChanged(ChangeEventArgs args) =>
+        UpdatePopoutUnit(args, PopoutMilliseconds, MaximumMilliseconds, TimeSpan.TicksPerMillisecond);
+
+    /// <summary>
+    /// Handles the change event for a unit input in the popout. Validates and updates the <see cref="PopoutValue"/> based on the new unit value, ensuring it adheres to the configured options.
+    /// </summary>
+    /// <param name="args">The change event arguments containing the new unit value.</param>
+    /// <param name="displayedUnits">The current value of the unit before the change.</param>
+    /// <param name="maxUnits">The maximum allowed value for the unit.</param>
+    /// <param name="ticksPerUnit">The number of ticks per unit.</param>
+    private void UpdatePopoutUnit(ChangeEventArgs args, long displayedUnits, int? maxUnits, long ticksPerUnit)
+    {
+        // Parse the new unit value from the input. If parsing fails, do not update the PopoutValue.
+        if (int.TryParse(args.Value?.ToString(), NumberStyles.None, FormatProvider, out var units) == false)
+            return;
+
+        // Adjust only the selected unit, preserving the sign and all untouched component ticks
+        var allowedUnits = Math.Min(units, maxUnits ?? TimeSpan.MaxValue.Ticks / ticksPerUnit);
+        var adjustment = TimeSpan.FromTicks((allowedUnits - displayedUnits) * ticksPerUnit);
+        UpdatePopoutValue(PopoutValue < TimeSpan.Zero ? -adjustment : adjustment);
     }
 
     private void ResetStatus()
