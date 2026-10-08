@@ -124,10 +124,6 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
 
 	private TimeSpan InitialValue;
-
-    /// <summary>
-    /// The value currently being edited in the popout. This is separate from the main input value to allow for canceling changes.
-    /// </summary>
     private TimeSpan PopoutValue;
     private bool IsPopoutDisplayed;
 
@@ -719,41 +715,6 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         if (Options.HasFlag(InputDurationOptions.UpdateOnPopoutChange))
             CurrentValueAsString = FormatTimeSpan(PopoutValue);
     }
-
-    private void OnDaysInputFocusIn() => IsDaysInputFocused = true;
-
-    private void OnDaysInputFocusOut() => IsDaysInputFocused = false;
-
-    private void OnHoursInputFocusIn() => IsHoursInputFocused = true;
-
-    private void OnHoursInputFocusOut() => IsHoursInputFocused = false;
-
-    private void OnMinutesInputFocusIn() => IsMinutesInputFocused = true;
-
-    private void OnMinutesInputFocusOut() => IsMinutesInputFocused = false;
-
-    private void OnSecondsInputFocusIn() => IsSecondsInputFocused = true;
-
-    private void OnSecondsInputFocusOut() => IsSecondsInputFocused = false;
-
-    private void OnMillisecondsInputFocusIn() => IsMillisecondsInputFocused = true;
-
-    private void OnMillisecondsInputFocusOut() => IsMillisecondsInputFocused = false;
-
-    private void OnPopoutDaysChanged(ChangeEventArgs args) =>
-        UpdatePopoutUnit(args, PopoutDays, null, TimeSpan.TicksPerDay);
-
-    private void OnPopoutMinutesChanged(ChangeEventArgs args) =>
-        UpdatePopoutUnit(args, PopoutMinutes, MaximumMinutes, TimeSpan.TicksPerMinute);
-
-    private void OnPopoutHoursChanged(ChangeEventArgs args) =>
-        UpdatePopoutUnit(args, PopoutHours, MaximumHours, TimeSpan.TicksPerHour);
-
-    private void OnPopoutSecondsChanged(ChangeEventArgs args) =>
-        UpdatePopoutUnit(args, PopoutSeconds, MaximumSeconds, TimeSpan.TicksPerSecond);
-
-    private void OnPopoutMillisecondsChanged(ChangeEventArgs args) =>
-        UpdatePopoutUnit(args, PopoutMilliseconds, MaximumMilliseconds, TimeSpan.TicksPerMillisecond);
 
     /// <summary>
     /// Handles the change event for a unit input in the popout. Validates and updates the <see cref="PopoutValue"/> based on the new unit value, ensuring it adheres to the configured options.

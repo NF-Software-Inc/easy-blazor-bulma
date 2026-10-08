@@ -9,7 +9,7 @@ public class InputDateTimeTests
     [Fact]
     public void DisplayFormatFormatsDateTime()
     {
-        var input = new TestInputDateTime<DateTime> { DisplayFormat = "yyyy-MM-dd HH:mm:ss" };
+        var input = new TestInputDateTime<DateTime>("yyyy-MM-dd HH:mm:ss");
 
         Assert.Equal("2026-02-08 03:15:43", input.Format(new DateTime(2026, 2, 8, 3, 15, 43)));
     }
@@ -17,7 +17,7 @@ public class InputDateTimeTests
     [Fact]
     public void DisplayFormatFormatsDateOnly()
     {
-        var input = new TestInputDateTime<DateOnly> { DisplayFormat = "yyyy-MM-dd" };
+        var input = new TestInputDateTime<DateOnly>("yyyy-MM-dd");
 
         Assert.Equal("2026-02-08", input.Format(new DateOnly(2026, 2, 8)));
     }
@@ -25,7 +25,7 @@ public class InputDateTimeTests
     [Fact]
     public void DisplayFormatFormatsTimeOnly()
     {
-        var input = new TestInputDateTime<TimeOnly> { DisplayFormat = "HH:mm:ss" };
+        var input = new TestInputDateTime<TimeOnly>("HH:mm:ss");
 
         Assert.Equal("03:15:43", input.Format(new TimeOnly(3, 15, 43)));
     }
@@ -33,7 +33,7 @@ public class InputDateTimeTests
     [Fact]
     public void DisplayFormatFormatsTimeSpan()
     {
-        var input = new TestInputDateTime<TimeSpan> { DisplayFormat = @"hh\:mm\:ss" };
+        var input = new TestInputDateTime<TimeSpan>(@"hh\:mm\:ss");
 
         Assert.Equal("03:15:43", input.Format(new TimeSpan(3, 15, 43)));
     }
@@ -41,11 +41,7 @@ public class InputDateTimeTests
     [Fact]
     public void FormatterTakesPrecedenceOverDisplayFormat()
     {
-        var input = new TestInputDateTime<DateTime>
-        {
-            DisplayFormat = "yyyy-MM-dd",
-            Formatter = _ => "custom date"
-        };
+        var input = new TestInputDateTime<DateTime>("yyyy-MM-dd", formatter: _ => "custom date");
 
         Assert.Equal("custom date", input.Format(new DateTime(2026, 2, 8)));
     }
@@ -53,17 +49,20 @@ public class InputDateTimeTests
     [Fact]
     public void DisplayFormatUsesConfiguredCulture()
     {
-        var input = new TestInputDateTime<DateTime>
-        {
-            DisplayFormat = "MMMM",
-            Culture = CultureInfo.GetCultureInfo("fr-FR")
-        };
+        var input = new TestInputDateTime<DateTime>("MMMM", CultureInfo.GetCultureInfo("fr-FR"));
 
         Assert.Equal("février", input.Format(new DateTime(2026, 2, 8)));
     }
 
     private sealed class TestInputDateTime<TValue> : InputDateTime<TValue>
     {
+        public TestInputDateTime(string? displayFormat = null, CultureInfo? culture = null, Func<TValue?, string?>? formatter = null)
+        {
+            DisplayFormat = displayFormat;
+            Culture = culture;
+            Formatter = formatter;
+        }
+
         public string Format(TValue value) => FormatValueAsString(value);
     }
 }

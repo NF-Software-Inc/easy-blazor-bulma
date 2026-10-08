@@ -1,3 +1,4 @@
+using System.Globalization;
 using easy_blazor_bulma;
 using Xunit;
 
@@ -28,10 +29,7 @@ public class InputDurationTests
     [Fact]
     public void DisplayFormatFormatsMainInputValue()
     {
-        var input = new TestInputDuration(AllUnits)
-        {
-            DisplayFormat = @"d\.hh\:mm\:ss\.fff"
-        };
+        var input = new TestInputDuration(AllUnits, displayFormat: @"d\.hh\:mm\:ss\.fff");
         var value = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
 
         var formatted = input.Format(value);
@@ -42,11 +40,7 @@ public class InputDurationTests
     [Fact]
     public void FormatterTakesPrecedenceOverDisplayFormat()
     {
-        var input = new TestInputDuration(AllUnits)
-        {
-            DisplayFormat = "c",
-            Formatter = _ => "custom duration"
-        };
+        var input = new TestInputDuration(AllUnits, "c", _ => "custom duration");
 
         var formatted = input.Format(TimeSpan.FromMinutes(1));
 
@@ -135,9 +129,12 @@ public class InputDurationTests
 
     private sealed class TestInputDuration : InputDuration<TimeSpan>
     {
-        public TestInputDuration(InputDurationOptions options)
+        public TestInputDuration(InputDurationOptions options, string? displayFormat = null, Func<TimeSpan, string?>? formatter = null, CultureInfo? culture = null)
         {
             Options = options;
+            DisplayFormat = displayFormat;
+            Formatter = formatter;
+            Culture = culture;
         }
 
         public string Format(TimeSpan value) => FormatValueAsString(value);

@@ -126,9 +126,9 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private DateTime InitialValue;
 	private DateTime PopoutValue;
 	private bool IsPopoutDisplayed;
-	private bool IsMainInputFocused;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
-	private bool IsHoursInputFocused;
+	private bool IsMainInputFocused;
+    private bool IsHoursInputFocused;
 	private bool IsMinutesInputFocused;
 	private bool IsSecondsInputFocused;
 
@@ -505,27 +505,6 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
 		}
 	}
-
-	private void OnHoursInputFocusIn() => IsHoursInputFocused = true;
-
-	private void OnHoursInputFocusOut() => IsHoursInputFocused = false;
-
-	private void OnMinutesInputFocusIn() => IsMinutesInputFocused = true;
-
-	private void OnMinutesInputFocusOut() => IsMinutesInputFocused = false;
-
-	private void OnSecondsInputFocusIn() => IsSecondsInputFocused = true;
-
-	private void OnSecondsInputFocusOut() => IsSecondsInputFocused = false;
-
-	private void OnPopoutHoursChanged(ChangeEventArgs args) =>
-		UpdatePopoutUnit(args, PopoutValue.Hour, MaximumHours, TimeSpan.TicksPerHour);
-
-	private void OnPopoutMinutesChanged(ChangeEventArgs args) =>
-		UpdatePopoutUnit(args, PopoutValue.Minute, MaximumMinutes, TimeSpan.TicksPerMinute);
-
-	private void OnPopoutSecondsChanged(ChangeEventArgs args) =>
-		UpdatePopoutUnit(args, PopoutValue.Second, MaximumSeconds, TimeSpan.TicksPerSecond);
 
     /// <summary>
     /// Updates the popout value based on the user input for hours, minutes, or seconds.
