@@ -1,4 +1,6 @@
 using easy_blazor_bulma;
+using Microsoft.AspNetCore.Components;
+using System.Globalization;
 using Xunit;
 
 namespace easy_blazor_bulma_test;
@@ -105,15 +107,58 @@ public class InputDurationTests
         Assert.Equal(expected, result);
     }
 
+    [Fact]
+    public void DisplayFormatAndFormatterAreAppliedToDurationValues()
+    {
+        var value = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
+        var formatted = new TestInputDuration(AllUnits, "c", CultureInfo.InvariantCulture).Format(value);
+        var customFormatted = new TestInputDuration(AllUnits, "c", formatter: _ => "custom").Format(value);
+
+        Assert.Equal("1.02:03:04.0050000", formatted);
+        Assert.Equal("custom", customFormatted);
+    }
+
+    [Fact]
+    public void DurationUnitsCanBeEnteredDirectly()
+    {
+        var initialValue = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
+        var input = new TestInputDuration(InputDurationOptions.AllowGreaterThan24Hours);
+        input.SetPopoutValue(initialValue);
+
+        input.ChangeUnit(2, TimeSpan.TicksPerDay, 1);
+        input.ChangeUnit(3, TimeSpan.TicksPerHour, 2);
+        input.ChangeUnit(4, TimeSpan.TicksPerMinute, 3);
+        input.ChangeUnit(5, TimeSpan.TicksPerSecond, 4);
+        input.ChangeUnit(6, TimeSpan.TicksPerMillisecond, 5);
+
+        Assert.Equal(new TimeSpan(days: 2, hours: 3, minutes: 4, seconds: 5, milliseconds: 6), input.GetPopoutValue());
+
+        input = new TestInputDuration(InputDurationOptions.AllowNegative | InputDurationOptions.AllowGreaterThan24Hours);
+        input.SetPopoutValue(-initialValue);
+        input.ChangeUnit(5, TimeSpan.TicksPerSecond, 4);
+
+        Assert.Equal(-initialValue.Add(TimeSpan.FromSeconds(1)), input.GetPopoutValue());
+    }
+
     private sealed class TestInputDuration : InputDuration<TimeSpan>
     {
-        public TestInputDuration(InputDurationOptions options)
+        public TestInputDuration(InputDurationOptions options, string? displayFormat = null, CultureInfo? culture = null, Func<TimeSpan, string?>? formatter = null)
         {
             Options = options;
+            DisplayFormat = displayFormat;
+            Culture = culture;
+            Formatter = formatter;
         }
 
         public string Format(TimeSpan value) => FormatValueAsString(value);
 
         public bool TryParse(string value, out TimeSpan result, out string? validationErrorMessage) => TryParseValueFromString(value, out result, out validationErrorMessage);
+
+        public void SetPopoutValue(TimeSpan value) => PopoutValue = value;
+
+        public TimeSpan GetPopoutValue() => PopoutValue;
+
+        public void ChangeUnit(int value, long ticksPerUnit, int currentValue) =>
+            UpdateTimeUnit(new ChangeEventArgs { Value = value }, ticksPerUnit, currentValue);
     }
 }
