@@ -1135,6 +1135,111 @@ window.easyBlazorBulma = {
 
             return true;
         },
+    },
+
+    /**
+     * Wrapper functions around qrcode.js instances.
+     */
+    QrCode: {
+        _instances: new Map(),
+
+        /**
+         * Creates a qrcode.js instance on the element with the specified identity value.
+         * @param {any} id The identity value of the DOM element to draw into.
+         * @param {any} options The qrcode.js constructor options. Use text, width, height, colorDark, colorLight, correctLevel, and useSVG.
+         * @returns {boolean} true when the instance is created, otherwise false.
+         */
+        Initialize: function (id, options) {
+            var element = document.getElementById(id);
+
+            if (element === null || typeof QRCode === "undefined")
+                return false;
+
+            this.Destroy(id);
+
+            try {
+                var instance = new QRCode(element, options || {});
+                this._instances.set(id, instance);
+
+                return true;
+            } catch (error) {
+                console.error("Failed to initialize QR code.", error);
+                element.innerHTML = "";
+                element.removeAttribute("title");
+
+                return false;
+            }
+        },
+
+        /**
+         * Encodes new text on an existing qrcode.js instance, or clears it when text is empty.
+         * @param {any} id The identity value of the qrcode.js instance.
+         * @param {string} text The text to encode.
+         * @returns {boolean} true when the code is drawn or cleared, otherwise false.
+         */
+        MakeCode: function (id, text) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            try {
+                if (text === null || text === undefined || text === "") {
+                    instance.clear();
+                    return true;
+                }
+
+                instance.makeCode(String(text));
+                return true;
+            } catch (error) {
+                console.error("Failed to generate QR code.", error);
+                return false;
+            }
+        },
+
+        /**
+         * Clears the drawing for the qrcode.js instance with the specified identity value.
+         * @param {any} id The identity value of the qrcode.js instance to clear.
+         * @returns {boolean} true when the drawing is cleared, otherwise false.
+         */
+        Clear: function (id) {
+            var instance = this._instances.get(id);
+
+            if (!instance)
+                return false;
+
+            instance.clear();
+            return true;
+        },
+
+        /**
+         * Removes the qrcode.js instance and its generated markup.
+         * @param {any} id The identity value of the qrcode.js instance to destroy.
+         * @returns {boolean} true when an instance was removed, otherwise false.
+         */
+        Destroy: function (id) {
+            var instance = this._instances.get(id);
+            var element = document.getElementById(id);
+            var removed = false;
+
+            if (instance) {
+                try {
+                    instance.clear();
+                } catch (error) {
+                    console.debug("QR code clear failed during destroy.", error);
+                }
+
+                this._instances.delete(id);
+                removed = true;
+            }
+
+            if (element !== null) {
+                element.innerHTML = "";
+                element.removeAttribute("title");
+            }
+
+            return removed;
+        }
     }
 }
 

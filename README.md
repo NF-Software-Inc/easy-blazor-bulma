@@ -65,6 +65,7 @@ The following components are currently available for use. All of them are docume
 * `<DeleteButton />`, creates a button to delete a record with a confirmation modal
 * `<Notification />`, creates a bold notification block, to alert your users of something
 * `<ProgressBar />`, creates a meter to display completion or loading status
+* `<QrCode />`, creates a QR code image from text (requires `JavaScript/qrcode.min.js` or `JavaScript/qrcode.js`)
 * `<ResetButton />`, creates a button to reset contents of a form
 * `<SubmitButton />`, creates a button to submit contents of a form
 * `<Table />`, creates an HTML table
@@ -207,6 +208,7 @@ To use an icon just add a `<span>` with the desired icon text and the `.material
 | Bulma Jumbo Tiny | Submodule | MIT | [GitHub](https://github.com/NF-Software-Inc/Bulma-Jumbo-Tiny) |
 | Material Symbols | Embedded | Apache 2.0 | [GitHub](https://github.com/google/material-design-icons) |
 | Masonry.js | Embedded | MIT | [GitHub](https://github.com/desandro/masonry) |
+| qrcode.js | Embedded | MIT | [GitHub](https://github.com/davidshimjs/qrcodejs) |
 
 ## Authors
 

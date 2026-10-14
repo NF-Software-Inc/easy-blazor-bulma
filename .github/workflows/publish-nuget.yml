@@ -57,6 +57,15 @@ jobs:
 
         cp JavaScript/easy-blazor-bulma.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
         cp JavaScript/masonry.pkgd.min.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
+
+        if [ -f JavaScript/qrcode.min.js ]; then
+          cp JavaScript/qrcode.min.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
+        elif [ -f JavaScript/qrcode.js ]; then
+          cp JavaScript/qrcode.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/qrcode.min.js
+        else
+          echo "Add JavaScript/qrcode.min.js from davidshimjs/qrcodejs before publishing. QrCode loads _content/Easy.Blazor.Bulma/js/qrcode.min.js."
+          exit 1
+        fi
       working-directory: easy-blazor-bulma
     - name: Setup .NET
       uses: actions/setup-dotnet@v4.3.1

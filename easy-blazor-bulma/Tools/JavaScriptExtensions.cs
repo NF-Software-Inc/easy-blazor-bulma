@@ -895,4 +895,54 @@ public static class JavaScriptExtensions
 	}
 
 	#endregion
+
+	#region Internal QR Code Interop
+
+	/// <summary>
+	/// Clears the drawing for a qrcode.js instance.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to call qrcode.js.</param>
+	/// <param name="id">The id of the QR code container element.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> QrCodeClear(this IJSRuntime jsRuntime, string id, CancellationToken? token = null)
+	{
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.QrCode.Clear", token ?? CancellationToken.None, id);
+	}
+
+	/// <summary>
+	/// Removes a qrcode.js instance and its generated markup.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to call qrcode.js.</param>
+	/// <param name="id">The id of the QR code container element.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> QrCodeDestroy(this IJSRuntime jsRuntime, string id, CancellationToken? token = null)
+	{
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.QrCode.Destroy", token ?? CancellationToken.None, id);
+	}
+
+	/// <summary>
+	/// Creates a qrcode.js instance for the specified element id.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to call qrcode.js.</param>
+	/// <param name="id">The id of the element to draw the QR code into.</param>
+	/// <param name="options">The qrcode.js constructor options. Default is null.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> QrCodeInitialize(this IJSRuntime jsRuntime, string id, object? options = null, CancellationToken? token = null)
+	{
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.QrCode.Initialize", token ?? CancellationToken.None, id, options);
+	}
+
+	/// <summary>
+	/// Encodes new text on an existing qrcode.js instance, or clears it when text is empty.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to call qrcode.js.</param>
+	/// <param name="id">The id of the QR code container element.</param>
+	/// <param name="text">The text to encode. Null or empty clears the drawing.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> QrCodeMakeCode(this IJSRuntime jsRuntime, string id, string? text, CancellationToken? token = null)
+	{
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.QrCode.MakeCode", token ?? CancellationToken.None, id, text);
+	}
+
+	#endregion
 }
