@@ -3,12 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// Error correction levels supported by qrcode.js.
+/// Error correction levels supported QR code generation.
 /// </summary>
-/// <remarks>
-/// Numeric values match <c>QRCode.CorrectLevel</c> and are not ordered by recovery percentage.
-/// See <see href="https://github.com/davidshimjs/qrcodejs">qrcode.js</see>.
-/// </remarks>
 public enum QrCodeCorrectLevel
 {
 	/// <summary>

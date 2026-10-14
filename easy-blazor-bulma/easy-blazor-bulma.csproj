@@ -118,12 +118,10 @@
 		<Content Remove="JavaScript\easy-blazor-bulma.js" />
 		<Content Remove="JavaScript\masonry.pkgd.min.js" />
 		<Content Remove="JavaScript\qrcode.js" />
-		<Content Remove="JavaScript\qrcode.min.js" />
 		<None Include="compilerconfig.json" />
 		<None Include="JavaScript\easy-blazor-bulma.js" />
 		<None Include="JavaScript\masonry.pkgd.min.js" />
-		<None Include="JavaScript\qrcode.js" Condition="Exists('$(MSBuildProjectDirectory)\JavaScript\qrcode.js')" />
-		<None Include="JavaScript\qrcode.min.js" Condition="Exists('$(MSBuildProjectDirectory)\JavaScript\qrcode.min.js')" />
+		<None Include="JavaScript\qrcode.js" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -181,8 +179,7 @@
 
 		<Copy SourceFiles="$(ProjectDir)JavaScript\easy-blazor-bulma.js" DestinationFiles="$(ProjectDir)wwwroot\js\easy-blazor-bulma.js" />
 		<Copy SourceFiles="$(ProjectDir)JavaScript\masonry.pkgd.min.js" DestinationFiles="$(ProjectDir)wwwroot\js\masonry.pkgd.min.js" />
-		<Copy SourceFiles="$(ProjectDir)JavaScript\qrcode.min.js" DestinationFiles="$(ProjectDir)wwwroot\js\qrcode.min.js" Condition="Exists('$(ProjectDir)JavaScript\qrcode.min.js')" />
-		<Copy SourceFiles="$(ProjectDir)JavaScript\qrcode.js" DestinationFiles="$(ProjectDir)wwwroot\js\qrcode.min.js" Condition="!Exists('$(ProjectDir)JavaScript\qrcode.min.js') And Exists('$(ProjectDir)JavaScript\qrcode.js')" />
+		<Copy SourceFiles="$(ProjectDir)JavaScript\qrcode.js" DestinationFiles="$(ProjectDir)wwwroot\js\qrcode.js" />
 	</Target>
 
 	<!-- Release -->

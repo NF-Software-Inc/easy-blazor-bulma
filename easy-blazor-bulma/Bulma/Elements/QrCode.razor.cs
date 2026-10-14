@@ -5,74 +5,54 @@ using Microsoft.JSInterop;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// Displays a QR code image generated from text by qrcode.js.
+/// Displays a QR code image generated from text.
 /// </summary>
-/// <remarks>
-/// Requires <c>easy-blazor-bulma.js</c>. On first render the component loads <c>_content/Easy.Blazor.Bulma/js/qrcode.min.js</c>,
-/// which must be the davidshimjs qrcode.js build that exposes the global <c>QRCode</c> function.
-/// Place that file at <c>JavaScript/qrcode.min.js</c> (or <c>JavaScript/qrcode.js</c>) so the project and NuGet package copy it to <c>wwwroot/js/qrcode.min.js</c>.
-/// Constructor options are exposed as <see cref="Width"/>, <see cref="Height"/>, <see cref="ColorDark"/>, <see cref="ColorLight"/>, <see cref="CorrectLevel"/>, and <see cref="UseSvg"/>.
-/// qrcode.js selects the symbol version from the value length.
-/// See <see href="https://github.com/davidshimjs/qrcodejs">qrcode.js</see>.
-/// </remarks>
 public partial class QrCode : ComponentBase, IAsyncDisposable
 {
 	/// <summary>
-	/// Text encoded into the QR code. Maps to the qrcode.js <c>text</c> option.
+	/// Text encoded into the QR code.
 	/// </summary>
-	/// <remarks>
-	/// Null or empty values clear the drawing instead of calling <c>makeCode</c>.
-	/// </remarks>
 	[Parameter]
 	public string? Value { get; set; }
 
 	/// <summary>
-	/// Width of the generated code in pixels. Maps to the qrcode.js <c>width</c> option.
+	/// Width of the generated code in pixels.
 	/// </summary>
 	[Parameter]
 	public int Width { get; set; } = 256;
 
 	/// <summary>
-	/// Height of the generated code in pixels. Maps to the qrcode.js <c>height</c> option.
+	/// Height of the generated code in pixels.
 	/// </summary>
 	[Parameter]
 	public int Height { get; set; } = 256;
 
 	/// <summary>
-	/// CSS color used for dark modules. Maps to the qrcode.js <c>colorDark</c> option.
+	/// CSS color used for dark modules.
 	/// </summary>
-	/// <remarks>
-	/// Null or blank values use the library default, <c>#000000</c>.
-	/// </remarks>
 	[Parameter]
 	public string? ColorDark { get; set; } = "#000000";
 
 	/// <summary>
-	/// CSS color used for light modules. Maps to the qrcode.js <c>colorLight</c> option.
+	/// CSS color used for light modules.
 	/// </summary>
-	/// <remarks>
-	/// Null or blank values use the library default, <c>#ffffff</c>.
-	/// </remarks>
 	[Parameter]
 	public string? ColorLight { get; set; } = "#ffffff";
 
 	/// <summary>
-	/// Error correction level. Maps to the qrcode.js <c>correctLevel</c> option.
+	/// Error correction level.
 	/// </summary>
-	/// <remarks>
-	/// The library default is <see cref="QrCodeCorrectLevel.H"/>.
-	/// </remarks>
 	[Parameter]
 	public QrCodeCorrectLevel CorrectLevel { get; set; } = QrCodeCorrectLevel.H;
 
 	/// <summary>
-	/// Renders an SVG instead of a canvas when true. Maps to the qrcode.js <c>useSVG</c> option.
+	/// Renders an SVG instead of a canvas when true.
 	/// </summary>
 	[Parameter]
 	public bool UseSvg { get; set; }
 
 	/// <summary>
-	/// Loads qrcode.js and draws the code after the first render when true.
+	/// Whether to draw the QR code on the first render. Set to false to delay drawing until <see cref="Refresh"/> is called.
 	/// </summary>
 	[Parameter]
 	public bool InitializeOnRender { get; set; } = true;
@@ -195,7 +175,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Loads qrcode.js if needed and creates or replaces the QR code instance.
+	/// Prepares the component for use and creates or replaces the QR code instance.
 	/// </summary>
 	private async Task<bool> Initialize()
 	{
@@ -207,7 +187,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 			if (Volatile.Read(ref IsDisposed) != 0)
 				return false;
 
-			var ready = await JsRuntime.LoadScript("_content/Easy.Blazor.Bulma/js/qrcode.min.js", "QRCode", TimeSpan.FromSeconds(1));
+			var ready = await JsRuntime.LoadScript("_content/Easy.Blazor.Bulma/js/qrcode.js", "QRCode", TimeSpan.FromSeconds(1));
 
 			if (ready == false || Volatile.Read(ref IsDisposed) != 0)
 				return false;
@@ -231,7 +211,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Applies a value-only change with <c>makeCode</c>, or recreates the instance when drawing options changed.
+	/// Applies a value-only change or recreates the instance when drawing options changed.
 	/// </summary>
 	private async Task<bool> Update()
 	{
@@ -288,7 +268,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Builds the options object passed to the qrcode.js constructor.
+	/// Builds the options for the component.
 	/// </summary>
 	private Dictionary<string, object?> BuildOptions()
 	{
@@ -317,7 +297,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Builds a fingerprint of drawing options that require a new qrcode.js instance.
+	/// Builds a fingerprint of drawing options that require a new instance.
 	/// </summary>
 	private string BuildRenderOptionsFingerprint()
 	{
@@ -325,7 +305,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Stores fingerprints for the options last applied to qrcode.js.
+	/// Stores fingerprints for the options last applied.
 	/// </summary>
 	private void RememberOptions()
 	{

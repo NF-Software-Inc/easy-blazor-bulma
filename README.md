@@ -65,7 +65,7 @@ The following components are currently available for use. All of them are docume
 * `<DeleteButton />`, creates a button to delete a record with a confirmation modal
 * `<Notification />`, creates a bold notification block, to alert your users of something
 * `<ProgressBar />`, creates a meter to display completion or loading status
-* `<QrCode />`, creates a QR code image from text (requires `JavaScript/qrcode.min.js` or `JavaScript/qrcode.js`)
+* `<QrCode />`, creates a QR code image from text
 * `<ResetButton />`, creates a button to reset contents of a form
 * `<SubmitButton />`, creates a button to submit contents of a form
 * `<Table />`, creates an HTML table
@@ -124,7 +124,7 @@ The following components are currently available for use. All of them are docume
 * `<Hero />`, creates an imposing hero banner to showcase something
 * `<Level />` and `<LevelItem />`, displays a multi-purpose horizontal level
 * `<MarkupViewer />`, creates a viewer for displaying HTML markup safely
-* `<Masonry />`, `<MasonryItem />`, and `<MasonryInfiniteScroll />`, creates a masonry layout for displaying items in a grid (requires JavaScript)
+* `<Masonry />`, `<MasonryItem />`, and `<MasonryInfiniteScroll />`, creates a masonry layout for displaying items in a grid
 * `<MediaObject />`, creates a media object prevalent in social media interfaces
 * `<ThreeColumns />`, creates a simple three column layout
 * `<TruncatedText />`, creates a block of text that is truncated after a set number of characters

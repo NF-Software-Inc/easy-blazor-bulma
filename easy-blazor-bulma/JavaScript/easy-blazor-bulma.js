@@ -1144,7 +1144,7 @@ window.easyBlazorBulma = {
         _instances: new Map(),
 
         /**
-         * Creates a qrcode.js instance on the element with the specified identity value.
+         * Creates an instance on the element with the specified identity value.
          * @param {any} id The identity value of the DOM element to draw into.
          * @param {any} options The qrcode.js constructor options. Use text, width, height, colorDark, colorLight, correctLevel, and useSVG.
          * @returns {boolean} true when the instance is created, otherwise false.
@@ -1164,6 +1164,7 @@ window.easyBlazorBulma = {
                 return true;
             } catch (error) {
                 console.error("Failed to initialize QR code.", error);
+
                 element.innerHTML = "";
                 element.removeAttribute("title");
 
@@ -1172,8 +1173,8 @@ window.easyBlazorBulma = {
         },
 
         /**
-         * Encodes new text on an existing qrcode.js instance, or clears it when text is empty.
-         * @param {any} id The identity value of the qrcode.js instance.
+         * Encodes new text on an existing instance, or clears it when text is empty.
+         * @param {any} id The identity value of the instance.
          * @param {string} text The text to encode.
          * @returns {boolean} true when the code is drawn or cleared, otherwise false.
          */
@@ -1198,8 +1199,8 @@ window.easyBlazorBulma = {
         },
 
         /**
-         * Clears the drawing for the qrcode.js instance with the specified identity value.
-         * @param {any} id The identity value of the qrcode.js instance to clear.
+         * Clears the drawing for the instance with the specified identity value.
+         * @param {any} id The identity value of the instance to clear.
          * @returns {boolean} true when the drawing is cleared, otherwise false.
          */
         Clear: function (id) {
@@ -1213,8 +1214,8 @@ window.easyBlazorBulma = {
         },
 
         /**
-         * Removes the qrcode.js instance and its generated markup.
-         * @param {any} id The identity value of the qrcode.js instance to destroy.
+         * Removes the instance and its generated markup.
+         * @param {any} id The identity value of the instance to destroy.
          * @returns {boolean} true when an instance was removed, otherwise false.
          */
         Destroy: function (id) {
