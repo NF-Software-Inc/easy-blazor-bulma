@@ -118,7 +118,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
-	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
+	private readonly string[] Filter = ["class", "datetimepicker-class", "icon-class"];
 
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
@@ -128,15 +128,6 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private bool IsPopoutDisplayed;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
 	private bool IsMainInputFocused;
-    private bool IsHoursInputFocused;
-	private bool IsMinutesInputFocused;
-	private bool IsSecondsInputFocused;
-
-	private const int MaximumHours = 23;
-	private const int MaximumMinutes = 59;
-	private const int MaximumSeconds = 59;
-
-	private string TimepickerInputCssClass => IsHoursInputFocused || IsMinutesInputFocused || IsSecondsInputFocused ? "timepicker-input is-input" : "timepicker-input";
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
@@ -510,16 +501,14 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
     /// Updates the popout value based on the user input for hours, minutes, or seconds.
     /// </summary>
     /// <param name="args">The change event arguments containing the new value.</param>
-    /// <param name="displayedUnits">The currently displayed units (hours, minutes, or seconds).</param>
-    /// <param name="maxUnits">The maximum allowed units (hours, minutes, or seconds).</param>
+    /// <param name="current">The currently displayed units (hours, minutes, or seconds).</param>
     /// <param name="ticksPerUnit">The number of ticks per unit (hours, minutes, or seconds).</param>
-    private void UpdatePopoutUnit(ChangeEventArgs args, int displayedUnits, int maxUnits, long ticksPerUnit)
+    private void UpdatePopoutValue(ChangeEventArgs args, long current, long ticksPerUnit)
 	{
-		if (int.TryParse(args.Value?.ToString(), NumberStyles.None, FormatProvider, out var units) == false)
+		if (int.TryParse(args.Value?.ToString(), NumberStyles.AllowLeadingSign, FormatProvider, out var updated) == false)
 			return;
 
-		// Replace only the edited time component, preserving the date and remaining precision.
-		UpdatePopoutValue(TimeSpan.FromTicks((Math.Min(units, maxUnits) - displayedUnits) * ticksPerUnit));
+		UpdatePopoutValue(TimeSpan.FromTicks((updated - current) * ticksPerUnit));
 	}
 
 	private void UpdatePopoutValue(int year, int month, int day)
