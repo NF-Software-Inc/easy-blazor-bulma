@@ -118,13 +118,13 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	protected async override Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && InitializeOnRender)
-			await Initialize();
+			_ = await Initialize();
 
 		if (PendingOptionsUpdate && IsInitialized)
 		{
 			PendingOptionsUpdate = false;
 
-			await UpdateOptions();
+			_ = await UpdateOptions();
 		}
 	}
 
@@ -154,12 +154,12 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 		if (ready == false)
 			return false;
 
-		IsInitialized = await JsRuntime.MasonryInitialize(ContainerId, BuildOptions());
+		IsInitialized = true;
 
 		if (IsInitialized)
 			LastOptionsFingerprint = BuildOptionsFingerprint();
 
-		return IsInitialized;
+		return await JsRuntime.MasonryInitialize(ContainerId, BuildOptions());
 	}
 
 	/// <summary>

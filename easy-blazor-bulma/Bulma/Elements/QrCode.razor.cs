@@ -84,13 +84,13 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender && InitializeOnRender)
-			await Initialize();
+			_ = await Initialize();
 
 		if (PendingOptionsUpdate && IsInitialized)
 		{
 			PendingOptionsUpdate = false;
 
-			await Update();
+			_ = await Update();
 		}
 	}
 
@@ -120,12 +120,12 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 		if (ready == false)
 			return false;
 
-		IsInitialized = await JsRuntime.QrCodeInitialize(ContainerId, BuildOptions());
+		IsInitialized = true;
 
 		if (IsInitialized)
 			LastOptionsFingerprint = BuildOptionsFingerprint();
 
-		return IsInitialized;
+		return await JsRuntime.QrCodeInitialize(ContainerId, BuildOptions());
 	}
 
 	/// <summary>
@@ -234,14 +234,6 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	{
 		if (IsInitialized)
 			await JsRuntime.QrCodeDestroy(ContainerId);
-
-		try
-		{
-			await LayoutGate.WaitAsync();
-
-			LayoutGate.Release();
-		}
-		catch (ObjectDisposedException) { }
 
 		LayoutGate.Dispose();
 		GC.SuppressFinalize(this);
