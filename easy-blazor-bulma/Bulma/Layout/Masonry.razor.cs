@@ -6,7 +6,7 @@ using System.Globalization;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// Provides a Masonry.js-powered cascading grid layout container.
+/// Provides a masonry cascading grid layout container.
 /// </summary>
 /// <remarks>
 /// Use with <see cref="MasonryItem"/> or any child elements matching <see cref="ItemSelector"/>.
@@ -71,6 +71,9 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// <summary>
 	/// Automatically initializes Masonry on first render when true.
 	/// </summary>
+	/// <remarks>
+	/// Must call <see cref="Initialize"/> manually if false.
+	/// </remarks>
 	[Parameter]
 	public bool InitializeOnRender { get; set; } = true;
 
@@ -136,10 +139,16 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Initializes the Masonry.js layout by loading the script if necessary and applying the configuration options.
+	/// Initializes the masonry layout by loading the script if necessary and applying the configuration options.
 	/// </summary>
-	private async Task<bool> Initialize()
+	/// <remarks>
+	/// Only required when <see cref="InitializeOnRender"/> is false; subsequent calls are ignored once initialized.
+	/// </remarks>
+	public async Task<bool> Initialize()
 	{
+		if (IsInitialized)
+			return true;
+
 		var ready = await JsRuntime.LoadScript("_content/Easy.Blazor.Bulma/js/masonry.pkgd.min.js", "Masonry", TimeSpan.FromSeconds(1));
 
 		if (ready == false)
@@ -157,7 +166,6 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// Applies current option values to the existing Masonry instance.
 	/// </summary>
 	/// <param name="relayout">When true, recalculates item positions after options are applied.</param>
-	/// <returns>True if the operation was successful; otherwise, false.</returns>
 	public async Task<bool> UpdateOptions(bool relayout = true)
 	{
 		if (IsInitialized == false)
@@ -262,7 +270,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Builds the options object to pass to Masonry.js based on the component parameters.
+	/// Builds the options object to pass to masonry based on the component parameters.
 	/// </summary>
 	private Dictionary<string, object?> BuildOptions()
 	{
@@ -295,7 +303,7 @@ public partial class Masonry : ComponentBase, IAsyncDisposable
 	/// </summary>
 	private string BuildOptionsFingerprint()
 	{
-		return string.Join("|", BuildOptions().Select(x => x.Value?.ToString()));
+		return string.Join('|', BuildOptions().Select(x => x.Value?.ToString()));
 	}
 
 	/// <inheritdoc />
