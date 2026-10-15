@@ -30,16 +30,25 @@ var QRCode;
             var byteArray = [];
             var code = this.data.charCodeAt(i);
 
-            if (code > 0x10000) {
+            if (code >= 0xD800 && code <= 0xDBFF && i + 1 < l) {
+                var low = this.data.charCodeAt(i + 1);
+
+                if (low >= 0xDC00 && low <= 0xDFFF) {
+                    code = ((code - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
+                    i++;
+                }
+            }
+
+            if (code >= 0x10000) {
                 byteArray[0] = 0xF0 | ((code & 0x1C0000) >>> 18);
                 byteArray[1] = 0x80 | ((code & 0x3F000) >>> 12);
                 byteArray[2] = 0x80 | ((code & 0xFC0) >>> 6);
                 byteArray[3] = 0x80 | (code & 0x3F);
-            } else if (code > 0x800) {
+            } else if (code >= 0x800) {
                 byteArray[0] = 0xE0 | ((code & 0xF000) >>> 12);
                 byteArray[1] = 0x80 | ((code & 0xFC0) >>> 6);
                 byteArray[2] = 0x80 | (code & 0x3F);
-            } else if (code > 0x80) {
+            } else if (code >= 0x80) {
                 byteArray[0] = 0xC0 | ((code & 0x7C0) >>> 6);
                 byteArray[1] = 0x80 | (code & 0x3F);
             } else {
@@ -319,23 +328,31 @@ var QRCode;
             var nCount = oQRCode.getModuleCount();
             var nWidth = Math.floor(_htOption.width / nCount);
             var nHeight = Math.floor(_htOption.height / nCount);
-            var aHTML = ['<table style="border:0;border-collapse:collapse;">'];
+
+            var elTable = document.createElement("table");
+
+            elTable.style.border = "0";
+            elTable.style.borderCollapse = "collapse";
 
             for (var row = 0; row < nCount; row++) {
-                aHTML.push('<tr>');
+                var elRow = elTable.insertRow(-1);
 
                 for (var col = 0; col < nCount; col++) {
-                    aHTML.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:' + nWidth + 'px;height:' + nHeight + 'px;background-color:' + (oQRCode.isDark(row, col) ? _htOption.colorDark : _htOption.colorLight) + ';"></td>');
-                }
+                    var elCell = elRow.insertCell(-1);
 
-                aHTML.push('</tr>');
+                    elCell.style.border = "0";
+                    elCell.style.padding = "0";
+                    elCell.style.margin = "0";
+                    elCell.style.width = nWidth + "px";
+                    elCell.style.height = nHeight + "px";
+                    elCell.style.backgroundColor = oQRCode.isDark(row, col) ? _htOption.colorDark : _htOption.colorLight;
+                }
             }
 
-            aHTML.push('</table>');
-            _el.innerHTML = aHTML.join('');
+            this.clear();
+            _el.appendChild(elTable);
 
             // Fix the margin values as real size.
-            var elTable = _el.childNodes[0];
             var nLeftMarginTable = (_htOption.width - elTable.offsetWidth) / 2;
             var nTopMarginTable = (_htOption.height - elTable.offsetHeight) / 2;
 
@@ -529,7 +546,7 @@ var QRCode;
         var nType = 1;
         var length = _getUTF8Length(sText);
 
-        for (var i = 0, len = QRCodeLimitLength.length; i <= len; i++) {
+        for (var i = 0, len = QRCodeLimitLength.length; i < len; i++) {
             var nLimit = 0;
 
             switch (nCorrectLevel) {
