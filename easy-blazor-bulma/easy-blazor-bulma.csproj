@@ -110,6 +110,10 @@
 		<NoWarn>IDE0130</NoWarn>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Remove="external\**" />
 		<Content Remove="external\**" />
@@ -186,7 +190,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<DocumentationFile>$(ProjectDir)$(AssemblyName).xml</DocumentationFile>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageIcon>icon.png</PackageIcon>

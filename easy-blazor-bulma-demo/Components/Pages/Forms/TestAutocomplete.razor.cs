@@ -6,7 +6,12 @@ namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 
 public partial class TestAutocomplete : ComponentBase
 {
-	private readonly PageModel InputModel = new()
+	/// <summary>
+	/// Identifies the runtime type for the generic `InputAutocomplete` component.
+	/// </summary>
+    private static readonly Type ComponentType = typeof(InputAutocomplete<,>);
+
+    private readonly PageModel InputModel = new()
 	{
 		SelectedItem1 = AllItems[2]
 	};

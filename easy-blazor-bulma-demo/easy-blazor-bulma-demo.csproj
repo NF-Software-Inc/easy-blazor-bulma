@@ -78,4 +78,12 @@
 		<PackageReference Include="Easy.Blazor.Bulma" Version="10.2.*" />
 	</ItemGroup>
 
+	<!-- Embeds the library's XML docs (next to its DLL) so the demo can show API documentation -->
+	<Target Name="EmbedLibraryXmlDocs" AfterTargets="ResolveAssemblyReferences">
+		<ItemGroup>
+			<_LibraryXmlDocs Include="@(ReferencePath->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferencePath.Filename)' == 'easy-blazor-bulma'" />
+			<EmbeddedResource Include="@(_LibraryXmlDocs)" Condition="Exists('%(FullPath)')" LogicalName="easy-blazor-bulma.xml" />
+		</ItemGroup>
+	</Target>
+
 </Project>

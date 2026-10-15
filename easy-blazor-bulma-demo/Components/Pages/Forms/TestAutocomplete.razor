@@ -1,4 +1,6 @@
-﻿@page "/inputAutocomplete"
+﻿@using easy_blazor_bulma_demo.Services
+
+@page "/inputAutocomplete"
 @inherits ComponentBase
 
 <TitleBlock Title="Input Autocomplete Test" />
@@ -6,6 +8,43 @@
 <div class="columns p-3">
     <div class="column is-4">
         <Message Title="Information" Color="BulmaColors.Cyan">
+            @{
+                var typeDoc = XmlDocs.GetTypeDoc(ComponentType);
+            }
+
+            <div class="block">@XmlDocs.ToHtml(typeDoc?.Element("summary"))</div>
+            <div class="block">@XmlDocs.ToHtml(typeDoc?.Element("remarks"))</div>
+
+            <p class="block"><b>Type Parameters:</b></p>
+            <div class="content">
+                <ul class="content">
+                    @foreach (var tp in typeDoc?.Elements("typeparam") ?? [])
+                    {
+                        <li><code>@tp.Attribute("name")?.Value</code>: @XmlDocs.ToHtml(tp)</li>
+                    }
+                </ul>
+            </div>
+
+            <p class="block"><b>Parameters:</b></p>
+            <div class="content">
+                <ul class="content">
+                    @foreach (var p in XmlDocs.GetParameters(ComponentType))
+                    {
+                        var doc = XmlDocs.GetPropertyDoc(p);
+                        var remarks = XmlDocs.ToHtml(doc?.Element("remarks"));
+                        <li>
+                            <b>@p.Name</b> <code>@XmlDocs.GetTypeName(p.PropertyType)</code>: @XmlDocs.ToHtml(doc?.Element("summary"))
+                            @if (string.IsNullOrEmpty(remarks.Value) == false)
+                            {
+                                <div class="is-size-7 mt-1">@remarks</div>
+                            }
+                        </li>
+                    }
+
+                </ul>
+            </div>
+
+
             <p class="block">Note that the Input Autocomplete component supports keyboard navigation using the following keys:</p>
             <div class="content">
                 <ul class="content">
