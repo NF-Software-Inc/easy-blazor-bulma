@@ -52,8 +52,11 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	public bool UseSvg { get; set; }
 
 	/// <summary>
-	/// Whether to draw the QR code on the first render. Set to false to delay drawing until <see cref="Refresh"/> is called.
+	/// Whether to draw the QR code on the first render.
 	/// </summary>
+	/// <remarks>
+	/// Must call <see cref="Initialize"/> manually if false.
+	/// </remarks>
 	[Parameter]
 	public bool InitializeOnRender { get; set; } = true;
 
@@ -68,13 +71,12 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 
 	private readonly string[] Filter = ["class"];
 	private readonly string ContainerId = $"qr-code-{Guid.NewGuid().ToHtmlId():N}";
-	private readonly SemaphoreSlim Gate = new(1, 1);
 
 	private bool IsInitialized;
 	private bool PendingOptionsUpdate;
-	private int IsDisposed;
 	private string? LastOptionsFingerprint;
-	private string? LastRenderOptionsFingerprint;
+
+	private readonly SemaphoreSlim LayoutGate = new(1, 1);
 
 	private string MainCssClass => string.Join(' ', "qr-code", AdditionalAttributes.GetValue("class"));
 
@@ -87,6 +89,7 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 		if (PendingOptionsUpdate && IsInitialized)
 		{
 			PendingOptionsUpdate = false;
+
 			await Update();
 		}
 	}
@@ -102,9 +105,32 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
+	/// Prepares the component for use and creates or replaces the QR code instance.
+	/// </summary>
+	/// <remarks>
+	/// Only required when <see cref="InitializeOnRender"/> is false; subsequent calls are ignored once initialized.
+	/// </remarks>
+	public async Task<bool> Initialize()
+	{
+		if (IsInitialized)
+			return true;
+
+		var ready = await JsRuntime.LoadScript("_content/Easy.Blazor.Bulma/js/qrcode.js", "QRCode", TimeSpan.FromSeconds(1));
+
+		if (ready == false)
+			return false;
+
+		IsInitialized = await JsRuntime.QrCodeInitialize(ContainerId, BuildOptions());
+
+		if (IsInitialized)
+			LastOptionsFingerprint = BuildOptionsFingerprint();
+
+		return IsInitialized;
+	}
+
+	/// <summary>
 	/// Regenerates the QR code from the current value and options.
 	/// </summary>
-	/// <returns>True when the code is drawn or cleared; otherwise, false.</returns>
 	public async Task<bool> Refresh()
 	{
 		if (IsInitialized == false)
@@ -116,97 +142,23 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	/// <summary>
 	/// Clears the current drawing without changing <see cref="Value"/>.
 	/// </summary>
-	/// <returns>True when the drawing is cleared; otherwise, false.</returns>
 	/// <remarks>
 	/// The next value or option change redraws from the current parameters.
 	/// </remarks>
 	public async Task<bool> Clear()
 	{
-		if (IsInitialized == false || await TryEnterGate() == false)
+		if (IsInitialized == false)
 			return false;
+
+		await LayoutGate.WaitAsync();
 
 		try
 		{
-			if (IsInitialized == false)
-				return false;
-
 			return await JsRuntime.QrCodeClear(ContainerId);
 		}
 		finally
 		{
-			Gate.Release();
-		}
-	}
-
-	/// <inheritdoc />
-	public async ValueTask DisposeAsync()
-	{
-		if (Interlocked.Exchange(ref IsDisposed, 1) != 0)
-			return;
-
-		try
-		{
-			await Gate.WaitAsync();
-
-			try
-			{
-				if (IsInitialized)
-				{
-					IsInitialized = false;
-					await JsRuntime.QrCodeDestroy(ContainerId);
-				}
-			}
-			finally
-			{
-				Gate.Release();
-			}
-		}
-		catch (JSDisconnectedException)
-		{
-		}
-		catch (ObjectDisposedException)
-		{
-		}
-		finally
-		{
-			Gate.Dispose();
-			GC.SuppressFinalize(this);
-		}
-	}
-
-	/// <summary>
-	/// Prepares the component for use and creates or replaces the QR code instance.
-	/// </summary>
-	private async Task<bool> Initialize()
-	{
-		if (await TryEnterGate() == false)
-			return false;
-
-		try
-		{
-			if (Volatile.Read(ref IsDisposed) != 0)
-				return false;
-
-			var ready = await JsRuntime.LoadScript("_content/Easy.Blazor.Bulma/js/qrcode.js", "QRCode", TimeSpan.FromSeconds(1));
-
-			if (ready == false || Volatile.Read(ref IsDisposed) != 0)
-				return false;
-
-			IsInitialized = await JsRuntime.QrCodeInitialize(ContainerId, BuildOptions());
-
-			if (IsInitialized)
-			{
-				RememberOptions();
-
-				if (string.Equals(LastOptionsFingerprint, BuildOptionsFingerprint(), StringComparison.Ordinal) == false)
-					PendingOptionsUpdate = true;
-			}
-
-			return IsInitialized;
-		}
-		finally
-		{
-			Gate.Release();
+			LayoutGate.Release();
 		}
 	}
 
@@ -215,56 +167,29 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	/// </summary>
 	private async Task<bool> Update()
 	{
-		if (Volatile.Read(ref IsDisposed) != 0)
+		if (IsInitialized == false)
 			return false;
 
-		if (string.Equals(LastRenderOptionsFingerprint, BuildRenderOptionsFingerprint(), StringComparison.Ordinal) == false)
-			return await Initialize();
-
-		if (await TryEnterGate() == false)
-			return false;
+		await LayoutGate.WaitAsync();
 
 		try
 		{
-			if (IsInitialized == false || Volatile.Read(ref IsDisposed) != 0)
-				return false;
+			bool updated;
 
-			var updated = await JsRuntime.QrCodeMakeCode(ContainerId, Value);
+			if (FingerprintOptionsChanged(LastOptionsFingerprint, BuildOptionsFingerprint()))
+				updated = await JsRuntime.QrCodeInitialize(ContainerId, BuildOptions());
+			else
+				updated = await JsRuntime.QrCodeMakeCode(ContainerId, Value);
 
 			if (updated)
-				RememberOptions();
+				LastOptionsFingerprint = BuildOptionsFingerprint();
 
 			return updated;
 		}
 		finally
 		{
-			Gate.Release();
+			LayoutGate.Release();
 		}
-	}
-
-	/// <summary>
-	/// Enters the interop gate unless the component has already been disposed.
-	/// </summary>
-	/// <returns>True when the caller owns the gate and must release it.</returns>
-	private async Task<bool> TryEnterGate()
-	{
-		if (Volatile.Read(ref IsDisposed) != 0)
-			return false;
-
-		try
-		{
-			await Gate.WaitAsync();
-		}
-		catch (ObjectDisposedException)
-		{
-			return false;
-		}
-
-		if (Volatile.Read(ref IsDisposed) == 0)
-			return true;
-
-		Gate.Release();
-		return false;
 	}
 
 	/// <summary>
@@ -296,20 +221,29 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 		return string.Join('|', BuildOptions().Select(x => $"{x.Key}={x.Value}"));
 	}
 
-	/// <summary>
-	/// Builds a fingerprint of drawing options that require a new instance.
-	/// </summary>
-	private string BuildRenderOptionsFingerprint()
+	private static bool FingerprintOptionsChanged(string? fingerprint1, string fingerprint2)
 	{
-		return string.Join('|', BuildOptions().Where(x => x.Key != "text").Select(x => $"{x.Key}={x.Value}"));
+		var value1 = fingerprint1 != null ? string.Join('|', fingerprint1.Split('|').Where(x => x.StartsWith("text=") == false)) : null;
+		var value2 = string.Join('|', fingerprint2.Split('|').Where(x => x.StartsWith("text=") == false));
+
+		return string.Equals(value1, value2, StringComparison.Ordinal) == false;
 	}
 
-	/// <summary>
-	/// Stores fingerprints for the options last applied.
-	/// </summary>
-	private void RememberOptions()
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
 	{
-		LastOptionsFingerprint = BuildOptionsFingerprint();
-		LastRenderOptionsFingerprint = BuildRenderOptionsFingerprint();
+		if (IsInitialized)
+			await JsRuntime.QrCodeDestroy(ContainerId);
+
+		try
+		{
+			await LayoutGate.WaitAsync();
+
+			LayoutGate.Release();
+		}
+		catch (ObjectDisposedException) { }
+
+		LayoutGate.Dispose();
+		GC.SuppressFinalize(this);
 	}
 }

@@ -29,8 +29,12 @@
                         <InputText class="input" @bind-Value="ColorLight" />
                     </div>
                     <div class="column is-12">
-                        <label class="label is-size-7">Correct Level</label>
-                        <InputSelectObject class="is-fullwidth" @bind-Value="CorrectLevel" DisplayValue="FormatLevel" Items="Levels" />
+                        <div class="field">
+                            <label class="label is-size-7">Correct Level</label>
+                            <div class="control has-icons-left has-icons-right">
+                                <InputSelectObject class="is-fullwidth" @bind-Value="CorrectLevel" DisplayValue="FormatLevel" Items="Levels" />
+                            </div>
+                        </div>
                     </div>
                     <div class="column is-12">
                         <InputSwitch @bind-Value="UseSvg" Label="Use SVG" IsBoxed="false" />
@@ -38,13 +42,7 @@
                 </div>
             </div>
             <div class="column is-12-mobile is-5-tablet has-text-centered">
-                <QrCode Value="@Text"
-                        Width="Width"
-                        Height="Height"
-                        ColorDark="@ColorDark"
-                        ColorLight="@ColorLight"
-                        CorrectLevel="CorrectLevel"
-                        UseSvg="UseSvg" />
+                <QrCode style="display:inline-block" Value="@Text" Width="Width" Height="Height" ColorDark="@ColorDark" ColorLight="@ColorLight" CorrectLevel="CorrectLevel" UseSvg="UseSvg" />
             </div>
         </div>
     </Panel>
