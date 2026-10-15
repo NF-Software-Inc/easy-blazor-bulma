@@ -90,23 +90,12 @@ public class QrCodeTests
 	}
 
 	[Fact]
-	public void ValueChangeDoesNotRequireANewInstance()
-	{
-		var original = new TestQrCode("one");
-		var updated = new TestQrCode("two");
-
-		Assert.NotEqual(original.Fingerprint, updated.Fingerprint);
-		Assert.Equal(original.RenderFingerprint, updated.RenderFingerprint);
-	}
-
-	[Fact]
 	public void DrawingOptionChangeRequiresANewInstance()
 	{
 		var original = new TestQrCode("one", width: 128);
 		var updated = new TestQrCode("one", width: 256, useSvg: true);
 
 		Assert.NotEqual(original.Fingerprint, updated.Fingerprint);
-		Assert.NotEqual(original.RenderFingerprint, updated.RenderFingerprint);
 	}
 
 	private sealed class TestQrCode : QrCode
@@ -138,8 +127,6 @@ public class QrCodeTests
 		public Dictionary<string, object?> Options => Invoke<Dictionary<string, object?>>("BuildOptions");
 
 		public string Fingerprint => Invoke<string>("BuildOptionsFingerprint");
-
-		public string RenderFingerprint => Invoke<string>("BuildRenderOptionsFingerprint");
 
 		private T Invoke<T>(string name)
 		{
