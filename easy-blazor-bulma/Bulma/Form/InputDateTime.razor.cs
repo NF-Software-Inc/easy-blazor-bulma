@@ -70,6 +70,27 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
     [Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
+    /// <summary>
+    /// A standard or custom format string used for the main textbox while it does not have focus.
+    /// </summary>
+    /// <remarks>
+    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/formatting-types">Formatting Documentation</see>
+    /// </remarks>
+    [Parameter]
+	public string? DisplayFormat { get; set; }
+
+	/// <summary>
+	/// An optional formatter for the unfocused main textbox. Takes precedence over <see cref="DisplayFormat"/>.
+	/// </summary>
+	[Parameter]
+	public Func<TValue?, string?>? Formatter { get; set; }
+
+	/// <summary>
+	/// The culture used with <see cref="DisplayFormat"/>. Defaults to <see cref="CultureInfo.InvariantCulture"/>.
+	/// </summary>
+	[Parameter]
+	public CultureInfo? Culture { get; set; }
+
 	/// <summary>
 	/// The configuration options to apply to the component.
 	/// </summary>
@@ -97,7 +118,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
-	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
+	private readonly string[] Filter = ["class", "datetimepicker-class", "icon-class"];
 
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
@@ -106,10 +127,12 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private DateTime PopoutValue;
 	private bool IsPopoutDisplayed;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
+	private bool IsMainInputFocused;
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDateTime<TValue>>? Logger;
+	private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
 
 	private string MainCssClass
 	{
@@ -324,14 +347,25 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	}
 
 	/// <inheritdoc />
-	protected override string FormatValueAsString(TValue? value) => value switch
+	protected override string FormatValueAsString(TValue? value)
 	{
-		DateTime dateTimeValue => FormatDateTime(dateTimeValue),
-		DateOnly dateOnlyValue => FormatDateOnly(dateOnlyValue),
-		TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
-		TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
-		_ => string.Empty
-	};
+		if (IsMainInputFocused == false && Formatter != null)
+			return Formatter(value) ?? string.Empty;
+		else if (value == null)
+			return string.Empty;
+		else if (IsMainInputFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
+			return formattable.ToString(DisplayFormat, FormatProvider);
+
+		// Keep the existing editable representation independent of custom display formatting.
+		return value switch
+		{
+			DateTime dateTimeValue => FormatDateTime(dateTimeValue),
+			DateOnly dateOnlyValue => FormatDateOnly(dateOnlyValue),
+			TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
+			TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
+			_ => string.Empty
+		};
+	}
 
 	private string FormatDateTime(DateTime value)
 	{
@@ -387,6 +421,14 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
 			ResetStatus();
 	}
+
+	private void OnMainInputFocus()
+	{
+		IsMainInputFocused = true;
+		OpenPopout();
+	}
+
+	private void OnMainInputFocusOut() => IsMainInputFocused = false;
 
 	private void ClosePopout(bool save = false, bool reset = false, bool clear = false, DateTime? value = null)
 	{
@@ -453,6 +495,20 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			else
 				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
 		}
+	}
+
+    /// <summary>
+    /// Updates the popout value based on the user input for hours, minutes, or seconds.
+    /// </summary>
+    /// <param name="args">The change event arguments containing the new value.</param>
+    /// <param name="current">The currently displayed units (hours, minutes, or seconds).</param>
+    /// <param name="ticksPerUnit">The number of ticks per unit (hours, minutes, or seconds).</param>
+    private void UpdatePopoutValue(ChangeEventArgs args, long current, long ticksPerUnit)
+	{
+		if (int.TryParse(args.Value?.ToString(), NumberStyles.AllowLeadingSign, FormatProvider, out var updated) == false)
+			return;
+
+		UpdatePopoutValue(TimeSpan.FromTicks((updated - current) * ticksPerUnit));
 	}
 
 	private void UpdatePopoutValue(int year, int month, int day)
