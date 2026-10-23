@@ -115,7 +115,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
-	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
+	private readonly bool UsesLegacyIdentitySelection = typeof(TItem) == (Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue));
 	private ILogger<InputAutocompleteMultiple<TItem, TValue>>? Logger;
 
 	private bool IsPopoutDisplayed;

@@ -77,7 +77,7 @@ public partial class InputSelectMultipleObject<[DynamicallyAccessedMembers(Dynam
 
 	private readonly string[] Filter = ["class", "button-class"];
 
-	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
+	private readonly bool UsesLegacyIdentitySelection = typeof(TItem) == (Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue));
 
 	private string MainCssClass => string.Join(' ', "select is-multiple", CssClass);
 	private string GroupButtonCssClass => string.Join(' ', "button is-small is-fullwidth mt-2", AdditionalAttributes.GetValue("button-class"));
