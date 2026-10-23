@@ -79,7 +79,7 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private readonly string[] Filter = ["class"];
 
-	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
+	private static readonly bool UsesLegacyIdentitySelection = (Nullable.GetUnderlyingType(typeof(TItem)) ?? typeof(TItem)) == (Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue));
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 
