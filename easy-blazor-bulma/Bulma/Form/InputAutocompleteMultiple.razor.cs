@@ -55,7 +55,11 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	/// Projects a suggestion from <see cref="Items"/> to the value stored in the bound selection list.
 	/// </summary>
 	/// <remarks>
-	/// When omitted, <typeparamref name="TItem"/> and <typeparamref name="TValue"/> must be identical.
+	/// When omitted, <typeparamref name="TItem"/> must be assignable to <typeparamref name="TValue"/>,
+	/// ignoring nullability. This allows identity binding as well as binding an item type to a base class
+	/// or interface it implements. Projected values are compared using <see cref="AreEqual"/> when resolving
+	/// selected labels and highlighting suggestions. When <typeparamref name="TItem"/> is nullable and
+	/// <typeparamref name="TValue"/> is not, callers must ensure <see cref="Items"/> contains no null entries.
 	/// </remarks>
 	[Parameter]
 	public Func<TItem, TValue>? ValueSelector { get; set; }
@@ -115,7 +119,18 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
-	private static readonly bool UsesLegacyIdentitySelection = (Nullable.GetUnderlyingType(typeof(TItem)) ?? typeof(TItem)) == (Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue));
+	private static readonly Type UnderlyingItemType = Nullable.GetUnderlyingType(typeof(TItem)) ?? typeof(TItem);
+	private static readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+
+	/// <summary>
+	/// Indicates items can be used as bound values directly, without a <see cref="ValueSelector"/>.
+	/// </summary>
+	/// <remarks>
+	/// True when <typeparamref name="TItem"/> is assignable to <typeparamref name="TValue"/>, ignoring
+	/// nullability. This permits identity binding as well as binding a derived or implementing item type
+	/// to a base class or interface value type.
+	/// </remarks>
+	private static readonly bool UsesDirectAssignment = UnderlyingType.IsAssignableFrom(UnderlyingItemType);
 	private ILogger<InputAutocompleteMultiple<TItem, TValue>>? Logger;
 
 	private bool IsPopoutDisplayed;
@@ -218,13 +233,16 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	}
 
 	/// <inheritdoc />
-	/// <exception cref="InvalidOperationException">A selector is missing when item and value types differ.</exception>
+	/// <exception cref="InvalidOperationException">A selector is missing when items cannot be assigned to the value type, ignoring nullability.</exception>
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
 
-		if (ValueSelector == null && UsesLegacyIdentitySelection == false)
-			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+		if (ValueSelector == null && UsesDirectAssignment == false)
+			throw new InvalidOperationException(
+				$"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. " +
+				$"{nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and " +
+				$"{nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
 	}
 
 	/// <inheritdoc />
@@ -493,16 +511,19 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		if (ValueSelector != null)
 			return ValueSelector(item);
 
-		if (UsesLegacyIdentitySelection)
+		if (UsesDirectAssignment)
 			return (TValue)(object?)item!;
 
-		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+		throw new InvalidOperationException(
+			$"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. " +
+			$"{nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and " +
+			$"{nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
 	}
 
 	private string GetItemDisplayValue(TValue value)
 	{
-		if (UsesLegacyIdentitySelection)
-			return DisplayValue((TItem)(object?)value!);
+		if (UsesDirectAssignment && value is TItem direct)
+			return DisplayValue(direct);
 
 		foreach (var item in Items)
 			if (AreEqual(GetValue(item), value))
