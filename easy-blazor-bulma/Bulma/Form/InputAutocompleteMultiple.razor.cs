@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
 
 namespace easy_blazor_bulma;
@@ -55,11 +54,8 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	/// Projects a suggestion from <see cref="Items"/> to the value stored in the bound selection list.
 	/// </summary>
 	/// <remarks>
-	/// When omitted, <typeparamref name="TItem"/> must be assignable to <typeparamref name="TValue"/>,
-	/// ignoring nullability. This allows identity binding as well as binding an item type to a base class
-	/// or interface it implements. Projected values are compared using <see cref="AreEqual"/> when resolving
-	/// selected labels and highlighting suggestions. When <typeparamref name="TItem"/> is nullable and
-	/// <typeparamref name="TValue"/> is not, callers must ensure <see cref="Items"/> contains no null entries.
+	/// When omitted, <typeparamref name="TItem"/> must be assignable to <typeparamref name="TValue"/>, ignoring nullability.
+	/// This allows identity binding as well as binding an item type to a base class or interface it implements.
 	/// </remarks>
 	[Parameter]
 	public Func<TItem, TValue>? ValueSelector { get; set; }
@@ -126,9 +122,8 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	/// Indicates items can be used as bound values directly, without a <see cref="ValueSelector"/>.
 	/// </summary>
 	/// <remarks>
-	/// True when <typeparamref name="TItem"/> is assignable to <typeparamref name="TValue"/>, ignoring
-	/// nullability. This permits identity binding as well as binding a derived or implementing item type
-	/// to a base class or interface value type.
+	/// True when <typeparamref name="TItem"/> is assignable to <typeparamref name="TValue"/>, ignoring nullability.
+	/// This permits identity binding as well as binding a derived or implementing item type to a base class or interface value type.
 	/// </remarks>
 	private static readonly bool UsesDirectAssignment = UnderlyingType.IsAssignableFrom(UnderlyingItemType);
 	private ILogger<InputAutocompleteMultiple<TItem, TValue>>? Logger;
@@ -239,10 +234,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		base.OnParametersSet();
 
 		if (ValueSelector == null && UsesDirectAssignment == false)
-			throw new InvalidOperationException(
-				$"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. " +
-				$"{nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and " +
-				$"{nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
 	}
 
 	/// <inheritdoc />
@@ -514,16 +506,13 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		if (UsesDirectAssignment)
 			return (TValue)(object?)item!;
 
-		throw new InvalidOperationException(
-			$"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. " +
-			$"{nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and " +
-			$"{nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
+		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
 	}
 
 	private string GetItemDisplayValue(TValue value)
 	{
-		if (UsesDirectAssignment && value is TItem direct)
-			return DisplayValue(direct);
+		if (UsesDirectAssignment)
+			return DisplayValue((TItem)(object?)value!);
 
 		foreach (var item in Items)
 			if (AreEqual(GetValue(item), value))

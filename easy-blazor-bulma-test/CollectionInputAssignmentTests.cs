@@ -70,23 +70,35 @@ public class CollectionInputAssignmentTests
 	}
 
 	/// <summary>
-	/// Verifies other interface implementations use equality lookup instead of a blind downcast.
+	/// Verifies the select inputs resolve other interface implementations with an equality lookup.
+	/// </summary>
+	/// <param name="component">The collection input to exercise.</param>
+	[Theory]
+	[InlineData(2)]
+	[InlineData(3)]
+	public void OtherImplementationsUseSelectedValueLookup(int component)
+	{
+		var input = Create<GenericAutocomplete, IAutocomplete>(component, [new GenericAutocomplete(10, "Alpha")], x => x.Name, (x, y) => x.Id == y?.Id);
+		Invoke(input, "OnParametersSet");
+
+		Assert.Equal("0", Format(input, new OtherAutocomplete(10, "Other")));
+		Assert.Equal(string.Empty, Format(input, new OtherAutocomplete(20, "Missing")));
+	}
+
+	/// <summary>
+	/// Verifies the autocomplete inputs display directly assigned values without requiring a matching item.
 	/// </summary>
 	/// <param name="component">The collection input to exercise.</param>
 	[Theory]
 	[InlineData(0)]
 	[InlineData(1)]
-	[InlineData(2)]
-	[InlineData(3)]
-	public void OtherImplementationsUseSelectedValueLookup(int component)
+	public void DirectAssignmentDisplaysSuppliedValue(int component)
 	{
-		var input = Create<GenericAutocomplete, IAutocomplete>(
-			component, [new GenericAutocomplete(10, "Alpha")], x => x.Name,
-			(x, y) => x.Id == y?.Id);
+		var input = Create<GenericAutocomplete, IAutocomplete>(component, [new GenericAutocomplete(10, "Alpha")], x => x.Name, (x, y) => x.Id == y?.Id);
 		Invoke(input, "OnParametersSet");
 
-		Assert.Equal(component >= 2 ? "0" : "Alpha", Format(input, new OtherAutocomplete(10, "Other")));
-		Assert.Equal(string.Empty, Format(input, new OtherAutocomplete(20, "Missing")));
+		Assert.Equal("Alpha", Format(input, new GenericAutocomplete(10, "Alpha")));
+		Assert.Equal("Missing", Format(input, new GenericAutocomplete(20, "Missing")));
 	}
 
 	/// <summary>
@@ -118,33 +130,34 @@ public class CollectionInputAssignmentTests
 		Invoke(input, "OnParametersSet");
 
 		var value = Invoke(input, "GetValue", item!);
+
 		Assert.Equal(DayOfWeek.Monday, value);
 		Assert.Equal(component >= 2 ? "0" : "Monday", Format(input, value!));
 	}
 
-	private static ComponentBase Create<
-		[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem,
-		[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>(
-		int component, IEnumerable<TItem> items, Func<TItem, string> display,
-		Func<TValue, TValue?, bool>? areEqual = null) => component switch
-		{
-			0 => new TestAutocomplete<TItem, TValue>(items, display, areEqual),
-			1 => new TestAutocompleteMultiple<TItem, TValue>(items, display, areEqual),
-			2 => new TestSelect<TItem, TValue>(items, display, areEqual),
-			3 => new TestSelectMultiple<TItem, TValue>(items, display, areEqual),
-			_ => throw new ArgumentOutOfRangeException(nameof(component))
-		};
+	private static ComponentBase Create<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>(int component, IEnumerable<TItem> items, Func<TItem, string> display, Func<TValue, TValue?, bool>? areEqual = null) => component switch
+	{
+		0 => new TestAutocomplete<TItem, TValue>(items, display, areEqual),
+		1 => new TestAutocompleteMultiple<TItem, TValue>(items, display, areEqual),
+		2 => new TestSelect<TItem, TValue>(items, display, areEqual),
+		3 => new TestSelectMultiple<TItem, TValue>(items, display, areEqual),
+		_ => throw new ArgumentOutOfRangeException(nameof(component))
+	};
 
 	private static string Format(ComponentBase input, object value)
 	{
 		var componentType = input.GetType().BaseType!;
+
 		if (componentType.GetGenericTypeDefinition() == typeof(InputSelectMultipleObject<,>))
 		{
-			componentType.GetProperty("Value")!.SetValue(input,
-				Activator.CreateInstance(typeof(List<>).MakeGenericType(componentType.GenericTypeArguments[1])));
+			componentType.GetProperty("Value")!.SetValue(input, Activator.CreateInstance(typeof(List<>).MakeGenericType(componentType.GenericTypeArguments[1])));
+
 			var values = (System.Collections.IList)componentType.GetProperty("Value")!.GetValue(input)!;
+
 			values.Add(value);
+
 			var indices = (string[])componentType.GetProperty("SelectedIndices", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(input)!;
+
 			return string.Join(',', indices);
 		}
 
@@ -156,7 +169,9 @@ public class CollectionInputAssignmentTests
 	private static object? Invoke(ComponentBase input, string methodName, params object[] arguments)
 	{
 		var method = input.GetType().BaseType!.GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+
 		Assert.NotNull(method);
+
 		try
 		{
 			return method.Invoke(input, arguments);
@@ -171,6 +186,7 @@ public class CollectionInputAssignmentTests
 	private interface IAutocomplete
 	{
 		long Id { get; }
+		string Name { get; }
 	}
 
 	private sealed record GenericAutocomplete(long Id, string Name) : IAutocomplete;
@@ -178,53 +194,53 @@ public class CollectionInputAssignmentTests
 	private record BaseSuggestion(long Id, string Name);
 	private sealed record DerivedSuggestion(long Id, string Name) : BaseSuggestion(Id, Name);
 
-	private sealed class TestAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>
-		: InputAutocomplete<TItem, TValue>
+	private sealed class TestAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputAutocomplete<TItem, TValue>
 	{
 		[SetsRequiredMembers]
 		public TestAutocomplete(IEnumerable<TItem> items, Func<TItem, string> display, Func<TValue, TValue?, bool>? areEqual)
 		{
 			Items = items;
 			DisplayValue = display;
+
 			if (areEqual != null)
 				AreEqual = areEqual;
 		}
 	}
 
-	private sealed class TestAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>
-		: InputAutocompleteMultiple<TItem, TValue>
+	private sealed class TestAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputAutocompleteMultiple<TItem, TValue>
 	{
 		[SetsRequiredMembers]
 		public TestAutocompleteMultiple(IEnumerable<TItem> items, Func<TItem, string> display, Func<TValue, TValue?, bool>? areEqual)
 		{
 			Items = items;
 			DisplayValue = display;
+
 			if (areEqual != null)
 				AreEqual = areEqual;
 		}
 	}
 
-	private sealed class TestSelect<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>
-		: InputSelectObject<TItem, TValue>
+	private sealed class TestSelect<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputSelectObject<TItem, TValue>
 	{
 		[SetsRequiredMembers]
 		public TestSelect(IEnumerable<TItem> items, Func<TItem, string> display, Func<TValue, TValue?, bool>? areEqual)
 		{
 			Items = items;
 			DisplayValue = display;
+
 			if (areEqual != null)
 				AreEqual = areEqual;
 		}
 	}
 
-	private sealed class TestSelectMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>
-		: InputSelectMultipleObject<TItem, TValue>
+	private sealed class TestSelectMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputSelectMultipleObject<TItem, TValue>
 	{
 		[SetsRequiredMembers]
 		public TestSelectMultiple(IEnumerable<TItem> items, Func<TItem, string> display, Func<TValue, TValue?, bool>? areEqual)
 		{
 			Items = items;
 			DisplayValue = display;
+
 			if (areEqual != null)
 				Contains = (values, value) => values != null && values.Any(x => areEqual(x, value));
 		}
