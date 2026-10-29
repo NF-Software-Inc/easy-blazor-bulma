@@ -1,6 +1,7 @@
 ﻿@namespace easy_blazor_bulma
+
+@inherits EasyInputBase<TValue>
 @typeparam TValue
-@inherits InputBase<TValue>
 
 <div class="datetimepicker-parent">
     <input type="text" class="@MainCssClass" value='@CurrentValueAsString' onfocusin="this.select();" @ref=Element @onchange='OnChange' @onclick='OpenPopout' @onfocus='OnMainInputFocus' @onfocusout='OnMainInputFocusOut' @onkeydown='CheckKeyPress' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
@@ -36,10 +37,10 @@
                             }
                             else
                             {
-                                <div class="datetimepicker-selection-day">@ValueAsDateTime.ToString("dd")</div>
+                                <div class="datetimepicker-selection-day">@ValueAsDateTime.ToString("dd", DisplayProvider)</div>
                                 <div class="datetimepicker-selection-date">
-                                    <span>@ValueAsDateTime.ToString("MMMM yyyy")</span>
-                                    <span>@ValueAsDateTime.ToString("dddd")</span>
+                                    <span>@ValueAsDateTime.ToString("MMMM yyyy", DisplayProvider)</span>
+                                    <span>@ValueAsDateTime.ToString("dddd", DisplayProvider)</span>
                                 </div>
                             }
                         </div>
@@ -54,7 +55,7 @@
                                 }
                                 else
                                 {
-                                    <span>@ValueAsDateTime.ToString("t")</span>
+                                    <span>@ValueAsDateTime.ToString("t", DisplayProvider)</span>
                                 }
                             </div>
                         </div>
@@ -65,8 +66,8 @@
                         <span class="material-icons icon">arrow_back</span>
                     </button>
                     <div>
-                        <span class="is-clickable" @onclick='() => UpdateDisplayMode(PopoutDisplayMode.Months)' @onclick:stopPropagation="true">@PopoutValue.ToString("MMMM")</span>
-                        <span class="is-clickable has-text-weight-bold" @onclick='() => UpdateDisplayMode(PopoutDisplayMode.Years)' @onclick:stopPropagation="true">@PopoutValue.ToString("yyyy")</span>
+                        <span class="is-clickable" @onclick='() => UpdateDisplayMode(PopoutDisplayMode.Months)' @onclick:stopPropagation="true">@PopoutValue.ToString("MMMM", DisplayProvider)</span>
+                        <span class="is-clickable has-text-weight-bold" @onclick='() => UpdateDisplayMode(PopoutDisplayMode.Years)' @onclick:stopPropagation="true">@PopoutValue.ToString("yyyy", DisplayProvider)</span>
                     </div>
                     <button type="button" class="button is-small is-rounded" @onclick='() => UpdatePopoutValue(true)' disabled='@(DisplayMode != PopoutDisplayMode.Calendar)'>
                         <span class="material-icons icon">arrow_forward</span>
@@ -77,7 +78,7 @@
                         <div class="datepicker-weekdays">
                             @for (var date = DateTime.Today.GetPreviousWeekday(StartOfWeek); date < DateTime.Today.GetPreviousWeekday(StartOfWeek).AddDays(7); date = date.AddDays(1))
                             {
-                                <div class="datepicker-date">@date.ToString("ddd")</div>
+                                <div class="datepicker-date">@date.ToString("ddd", DisplayProvider)</div>
                             }
                         </div>
                         <div class="datepicker-days">
@@ -86,11 +87,11 @@
                                 <div class='@(PopoutValue.Month == date.Month ? "datepicker-date is-current-month" : "datepicker-date")'>
                                     @if (Options.HasFlag(InputDateTimeOptions.CloseOnDateClicked))
                                     {
-                                        <button type="button" class='@(PopoutValue.Date == date.Date ? "date-item is-active" : "date-item")' @onclick='() => ClosePopout(true, value: date.Add(PopoutValue.TimeOfDay))'>@date.ToString("dd")</button>
+                                        <button type="button" class='@(PopoutValue.Date == date.Date ? "date-item is-active" : "date-item")' @onclick='() => ClosePopout(true, value: date.Add(PopoutValue.TimeOfDay))'>@date.ToString("dd", DisplayProvider)</button>
                                     }
                                     else
                                     {
-                                        <button type="button" class='@(PopoutValue.Date == date.Date ? "date-item is-active" : "date-item")' @onclick='() => UpdatePopoutValue(date.Year, date.Month, date.Day)'>@date.ToString("dd")</button>
+                                        <button type="button" class='@(PopoutValue.Date == date.Date ? "date-item is-active" : "date-item")' @onclick='() => UpdatePopoutValue(date.Year, date.Month, date.Day)'>@date.ToString("dd", DisplayProvider)</button>
                                     }
                                 </div>
                             }
@@ -99,7 +100,7 @@
                     <div class='@(DisplayMode == PopoutDisplayMode.Months ? "datepicker-months is-active" : "datepicker-months")'>
                         @foreach (var month in GetCalendarMonths())
                         {
-                            <div class='@(PopoutValue.Month == month.Month ? "datepicker-month is-active" : "datepicker-month")' @onclick='() => OnMonthSelected(month.Month)'>@month.ToString("MMM")</div>
+                            <div class='@(PopoutValue.Month == month.Month ? "datepicker-month is-active" : "datepicker-month")' @onclick='() => OnMonthSelected(month.Month)'>@month.ToString("MMM", DisplayProvider)</div>
                         }
                     </div>
                     <div class='@(DisplayMode == PopoutDisplayMode.Years ? "datepicker-years is-active" : "datepicker-years")'>
@@ -136,7 +137,12 @@
                         <div class="timepicker-hours">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(StepHours))'>arrow_upward</span>
                             <div class="timepicker-input is-input">
-                                <input type="number" class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2" style="height: auto" value="@PopoutValue.Hour" @onchange="args => UpdatePopoutValue(args, PopoutValue.Hour, TimeSpan.TicksPerHour)" step="@StepHours">
+                                <input type="number"
+                                       class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                       style="height: auto"
+                                       value="@(IsPopoutRefreshing == DateTimePart.Hours ? PopoutValue.Hour + 1 : PopoutValue.Hour)"
+                                       step="@StepHours"
+                                       @onchange="args => UpdatePopoutValue(args, DateTimePart.Hours)">
                             </div>
                             <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(-StepHours))'>arrow_downward</span>
                         </div>
@@ -149,8 +155,13 @@
                     {
                         <div class="timepicker-minutes">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(StepMinutes))'>arrow_upward</span>
-                            <div class="timepicker-input is-input is-size-3">
-                                <input type="number" class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2" style="height: auto" value="@PopoutValue.Minute" @onchange="args => UpdatePopoutValue(args, PopoutValue.Minute, TimeSpan.TicksPerMinute)" step="@StepMinutes">
+                            <div class="timepicker-input is-input">
+                                <input type="number"
+                                       class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                       style="height: auto"
+                                       value="@(IsPopoutRefreshing == DateTimePart.Minutes ? PopoutValue.Minute + 1 : PopoutValue.Minute)"
+                                       step="@StepMinutes"
+                                       @onchange="args => UpdatePopoutValue(args, DateTimePart.Minutes)">
                             </div>
                             <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(-StepMinutes))'>arrow_downward</span>
                         </div>
@@ -163,8 +174,13 @@
                     {
                         <div class="timepicker-seconds">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(StepSeconds))'>arrow_upward</span>
-                            <div class="timepicker-input is-input is-size-3">
-                                <input type="number" class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2" style="height: auto" value="@PopoutValue.Second" @onchange="args => UpdatePopoutValue(args, PopoutValue.Second, TimeSpan.TicksPerSecond)" step="@StepSeconds">
+                            <div class="timepicker-input is-input">
+                                <input type="number"
+                                       class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                       style="height: auto"
+                                       value="@(IsPopoutRefreshing == DateTimePart.Seconds ? PopoutValue.Second + 1 : PopoutValue.Second)"
+                                       step="@StepSeconds"
+                                       @onchange="args => UpdatePopoutValue(args, DateTimePart.Seconds)">
                             </div>
                             <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(-StepSeconds))'>arrow_downward</span>
                         </div>

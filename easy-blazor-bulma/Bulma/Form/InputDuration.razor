@@ -1,6 +1,7 @@
 ﻿@namespace easy_blazor_bulma
+
+@inherits EasyInputBase<TValue>
 @typeparam TValue
-@inherits InputBase<TValue>
 
 <div class="datetimepicker-parent">
     <input type="text" class="@MainCssClass" value='@CurrentValueAsString' onfocusin="this.select();" @ref=Element @onchange='OnChange' @onclick='OpenPopout' @onfocus='OnMainInputFocus' @onfocusout='OnMainInputFocusOut' @onkeydown='CheckKeyPress' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
@@ -52,12 +53,13 @@
                 {
                     <div class="timepicker-days">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromDays(StepDays))'>arrow_upward</span>
-                        <div class="@TimepickerInputCssClass" @onfocusin="() => IsDaysInputFocused = true" @onfocusout="() => IsDaysInputFocused = false">
-                            <input type="number" class="is-spinnerless" value="@PopoutDays" @onchange="args => UpdatePopoutUnit(args, PopoutDays, null, TimeSpan.TicksPerDay)" min="0" step="1">
-                            <div class="timepicker-input-number">
-                                <span>@(PopoutValue < TimeSpan.Zero ? "-" : "")</span>
-                                <span>@PopoutValue.ToString("%d")</span>
-                            </div>
+                        <div class="timepicker-input is-input">
+                            <input type="number"
+                                   class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                   style="height: auto"
+                                   value="@(IsPopoutRefreshing == TimeSpanPart.Days ? GetPopoutPart(TimeSpanPart.Days) + 1 : GetPopoutPart(TimeSpanPart.Days))"
+                                   step="@StepDays"
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Days)">
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromDays(-StepDays))'>arrow_downward</span>
                     </div>
@@ -70,19 +72,13 @@
                 {
                     <div class="timepicker-hours">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(StepHours))'>arrow_upward</span>
-                        <div class="@TimepickerInputCssClass" @onfocusin="() => IsHoursInputFocused = true" @onfocusout="() => IsHoursInputFocused = false">
-                            <input type="number" class="is-spinnerless" value="@PopoutHours" @onchange="args => UpdatePopoutUnit(args, PopoutHours, MaximumHours, TimeSpan.TicksPerHour)" min="0" step="1" max="@MaximumHours">
-                            <div class="timepicker-input-number">
-                                @if (Options.HasFlag(InputDurationOptions.DisplayDaysAsHours))
-                                {
-                                    <span>@(PopoutValue < TimeSpan.Zero ? "-" : "")</span>
-                                    <span>@PopoutHours</span>
-                                }
-                                else
-                                {
-                                    <span>@PopoutValue.ToString("hh")</span>
-                                }
-                            </div>
+                        <div class="timepicker-input is-input">
+                            <input type="number"
+                                   class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                   style="height: auto"
+                                   value="@(IsPopoutRefreshing == TimeSpanPart.Hours ? GetPopoutPart(TimeSpanPart.Hours) + 1 : GetPopoutPart(TimeSpanPart.Hours))"
+                                   step="@StepHours"
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Hours)">
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(-StepHours))'>arrow_downward</span>
                     </div>
@@ -95,19 +91,13 @@
                 {
                     <div class="timepicker-minutes">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(StepMinutes))'>arrow_upward</span>
-                        <div class="@TimepickerInputCssClass" @onfocusin="() => IsMinutesInputFocused = true" @onfocusout="() => IsMinutesInputFocused = false">
-                            <input type="number" class="is-spinnerless" value="@PopoutMinutes" @onchange="args => UpdatePopoutUnit(args, PopoutMinutes, MaximumMinutes, TimeSpan.TicksPerMinute)" min="0" step="1" max="@MaximumMinutes">
-                            <div class="timepicker-input-number">
-                                @if (Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes))
-                                {
-                                    <span>@(PopoutValue < TimeSpan.Zero ? "-" : "")</span>
-                                    <span>@PopoutMinutes</span>
-                                }
-                                else
-                                {
-                                    <span>@PopoutValue.ToString("mm")</span>
-                                }
-                            </div>
+                        <div class="timepicker-input is-input">
+                            <input type="number"
+                                   class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                   style="height: auto"
+                                   value="@(IsPopoutRefreshing == TimeSpanPart.Minutes ? GetPopoutPart(TimeSpanPart.Minutes) + 1 : GetPopoutPart(TimeSpanPart.Minutes))"
+                                   step="@StepMinutes"
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Minutes)">
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(-StepMinutes))'>arrow_downward</span>
                     </div>
@@ -120,19 +110,13 @@
                 {
                     <div class="timepicker-seconds">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(StepSeconds))'>arrow_upward</span>
-                        <div class="@TimepickerInputCssClass" @onfocusin="() => IsSecondsInputFocused = true" @onfocusout="() => IsSecondsInputFocused = false">
-                            <input type="number" class="is-spinnerless" value="@PopoutSeconds" @onchange="args => UpdatePopoutUnit(args, PopoutSeconds, MaximumSeconds, TimeSpan.TicksPerSecond)" min="0" step="1" max="@MaximumSeconds">
-                            <div class="timepicker-input-number">
-                                @if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds))
-                                {
-                                    <span>@(PopoutValue < TimeSpan.Zero ? "-" : "")</span>
-                                    <span>@PopoutSeconds</span>
-                                }
-                                else
-                                {
-                                    <span>@PopoutValue.ToString("ss")</span>
-                                }
-                            </div>
+                        <div class="timepicker-input is-input">
+                            <input type="number"
+                                   class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                   style="height: auto"
+                                   value="@(IsPopoutRefreshing == TimeSpanPart.Seconds ? GetPopoutPart(TimeSpanPart.Seconds) + 1 : GetPopoutPart(TimeSpanPart.Seconds))"
+                                   step="@StepSeconds"
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Seconds)">
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(-StepSeconds))'>arrow_downward</span>
                     </div>
@@ -145,11 +129,13 @@
                 {
                     <div class="timepicker-seconds timepicker-milliseconds">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(StepMilliseconds))'>arrow_upward</span>
-                        <div class="@TimepickerInputCssClass" @onfocusin="() => IsMillisecondsInputFocused = true" @onfocusout="() => IsMillisecondsInputFocused = false">
-                            <input type="number" class="is-spinnerless" value="@PopoutMilliseconds" @onchange="args => UpdatePopoutUnit(args, PopoutMilliseconds, MaximumMilliseconds, TimeSpan.TicksPerMillisecond)" min="0" step="1" max="@MaximumMilliseconds">
-                            <div class="timepicker-input-number">
-                                <span>@PopoutValue.ToString("fff")</span>
-                            </div>
+                        <div class="timepicker-input is-input">
+                            <input type="number"
+                                   class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
+                                   style="height: auto"
+                                   value="@(IsPopoutRefreshing == TimeSpanPart.Milliseconds ? GetPopoutPart(TimeSpanPart.Milliseconds) + 1 : GetPopoutPart(TimeSpanPart.Milliseconds))"
+                                   step="@StepMilliseconds"
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Milliseconds)">
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(-StepMilliseconds))'>arrow_downward</span>
                     </div>

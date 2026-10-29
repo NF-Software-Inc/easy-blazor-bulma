@@ -17,7 +17,7 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// There are 2 additional attributes that can be used: datetimepicker-class and icon-class. Each of which apply CSS classes to the resulting elements as per their names.
 /// </remarks>
-public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : EasyInputBase<TValue>
 {
     /// <summary>
     /// The number of days to adjust by when the up or down arrows are clicked.
@@ -121,71 +121,44 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
-	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
+	private readonly string[] Filter = ["class", "datetimepicker-class", "icon-class"];
 
-	private TimeSpan InitialValue;
+	private TimeSpan? InitialValue;
     private TimeSpan PopoutValue;
     private bool IsPopoutDisplayed;
+	private TimeSpanPart? IsPopoutRefreshing;
+
+	/// <summary>
+	/// Indicates whether the main input is currently focused. Used to determine whether to apply formatting to the value.
+	/// </summary>
+	private bool IsFocused;
 
     /// <summary>
-    /// Indicates whether the main input is currently focused. Used to determine whether to apply formatting to the value.
+    /// Returns the largest time component currently displayed in the popout.
     /// </summary>
-    private bool IsMainInputFocused;
-    private bool IsDaysInputFocused;
-    private bool IsHoursInputFocused;
-    private bool IsMinutesInputFocused;
-    private bool IsSecondsInputFocused;
-    private bool IsMillisecondsInputFocused;
-
-    /// <summary>
-    /// Number of minutes in the popout input. If the DisplayHoursAsMinutes option is set, this will return the total number of minutes, otherwise it will return the minutes component of the TimeSpan.
-    /// </summary>
-    private long PopoutMinutes => Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes)
-        ? PopoutValue < TimeSpan.Zero ? Math.Abs((long)Math.Ceiling(PopoutValue.TotalMinutes)) : (long)Math.Floor(PopoutValue.TotalMinutes)
-        : Math.Abs(PopoutValue.Minutes);
-
-    /// <summary>
-    /// Number of days in the popout input. This always return the days component of the TimeSpan.
-    /// </summary>
-    private int PopoutDays => Math.Abs(PopoutValue.Days);
-
-    /// <summary>
-    /// Number of hours in the popout input. If DisplayDaysAsHours, return the total number of hours, otherwise the hours component of the TimeSpan.
-    /// </summary>
-    private long PopoutHours => Options.HasFlag(InputDurationOptions.DisplayDaysAsHours)
-        ? PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalHours)) : (int)Math.Floor(PopoutValue.TotalHours)
-        : Math.Abs(PopoutValue.Hours);
-
-    /// <summary>
-    /// Number of seconds in the popout input. If DisplayMinutesAsSeconds, return the total number of seconds, otherwise the seconds component of the TimeSpan.
-    /// </summary>
-    private long PopoutSeconds => Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds)
-        ? PopoutValue < TimeSpan.Zero ? Math.Abs((int)Math.Ceiling(PopoutValue.TotalSeconds)) : (int)Math.Floor(PopoutValue.TotalSeconds)
-        : Math.Abs(PopoutValue.Seconds);
-
-    /// <summary>
-    /// Number of milliseconds in the popout input. This always returns the milliseconds component of the TimeSpan.
-    /// </summary>
-    private int PopoutMilliseconds => Math.Abs(PopoutValue.Milliseconds);
-
-    /// <summary>
-    /// Gets the CSS class to apply to the timepicker input in the popout. Changes based on whether any of the unit inputs are focused.
-    /// </summary>
-    private string TimepickerInputCssClass => IsDaysInputFocused || IsHoursInputFocused || IsMinutesInputFocused || IsSecondsInputFocused || IsMillisecondsInputFocused ? "timepicker-input is-input" : "timepicker-input";
+    private TimeSpanPart TopMostPart
+    {
+        get
+        {
+            if (Options.HasFlag(InputDurationOptions.ShowDays))
+                return TimeSpanPart.Days;
+            else if (Options.HasFlag(InputDurationOptions.ShowHours))
+                return TimeSpanPart.Hours;
+            else if (Options.HasFlag(InputDurationOptions.ShowMinutes))
+                return TimeSpanPart.Minutes;
+            else if (Options.HasFlag(InputDurationOptions.ShowSeconds))
+                return TimeSpanPart.Seconds;
+            else
+                return TimeSpanPart.Milliseconds;
+        }
+    }
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDuration<TValue>>? Logger;
 
-    private int? MaximumHours => Options.HasFlag(InputDurationOptions.DisplayDaysAsHours) ? null : 23;
-    private int? MaximumMinutes => Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes) ? null : 59;
-    private int? MaximumSeconds => Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds) ? null : 59;
-    private const int MaximumMilliseconds = 999;
-
-    /// <summary>
-    /// Gets the culture to use for formatting and parsing values. Defaults to <see cref="CultureInfo.InvariantCulture"/> if <see cref="Culture"/> is not set.
-    /// </summary>
-    private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
+	private CultureInfo DisplayProvider => Culture ?? CultureInfo.CurrentCulture;
+	private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
 
     private string MainCssClass
     {
@@ -333,9 +306,9 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             Logger?.LogWarning("Cannot set AllowNegative or AllowGreaterThan24Hours flags when using {type} with InputDuration.", nameof(TimeOnly));
         }
 
-        // Set starting values
-        InitialValue = ValueAsTimeSpan;
-        PopoutValue = ValueAsTimeSpan;
+		// Set starting values
+		InitialValue = IsNullable && CurrentValue == null ? null : ValueAsTimeSpan;
+		PopoutValue = ValueAsTimeSpan;
     }
 
     /// <inheritdoc/>
@@ -356,7 +329,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must contain only digits, '-', '.', and ':'.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(DisplayProvider, "The {0} field must contain only digits, '-', '.', and ':'.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
 
@@ -367,7 +340,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field does not have the AllowNegative option enabled.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(DisplayProvider, "The {0} field does not have the AllowNegative option enabled.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
 
@@ -381,7 +354,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field contains too many separators.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(DisplayProvider, "The {0} field contains too many separators.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
 
@@ -392,7 +365,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The negative sign may only appear at the start of the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(DisplayProvider, "The negative sign may only appear at the start of the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
 
@@ -403,7 +376,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "Cannot enter decimal values when DisplayMinutesAsSeconds is active in the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(DisplayProvider, "Cannot enter decimal values when DisplayMinutesAsSeconds is active in the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
         }
@@ -419,13 +392,13 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             {
                 var parts = value.Split('.');
 
-                if (float.TryParse($"0.{parts[1]}", out var parsed) && (parsed * 60.0) < 59.5)
-                    value = $"{parts[0]}:{((int)Math.Round(parsed * 60.0)).ToString().PadLeft(2, '0')}";
+                if (float.TryParse($"0.{parts[1]}", CultureInfo.InvariantCulture, out var parsed) && (parsed * 60.0) < 59.5)
+                    value = $"{parts[0]}:{((int)Math.Round(parsed * 60.0)).ToString(CultureInfo.InvariantCulture).PadLeft(2, '0')}";
                 else
                     throw new FormatException("Failed converting decimal to minutes or seconds.");
             }
 
-            if (IsNullable == false && string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 result = default!;
 
@@ -435,7 +408,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 validationErrorMessage = null;
                 return true;
             }
-            else if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+            else if (BindConverter.TryConvertTo(value, FormatProvider, out result))
             {
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundSuccess;
@@ -450,7 +423,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
                 if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                     DisplayStatus |= InputStatus.BackgroundDanger;
 
-                validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a time.", DisplayName ?? FieldIdentifier.FieldName);
+                validationErrorMessage = string.Format(DisplayProvider, "The {0} field must be a time.", DisplayName ?? FieldIdentifier.FieldName);
                 return false;
             }
         }
@@ -461,7 +434,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             if (Options.HasFlag(InputDurationOptions.UseAutomaticStatusColors))
                 DisplayStatus |= InputStatus.BackgroundDanger;
 
-            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} could not be parsed as a time. Example: 1.03:15:43 = 1 day, 3 hours, 15 minutes, 43 seconds", DisplayName ?? FieldIdentifier.FieldName);
+            validationErrorMessage = string.Format(DisplayProvider, "The {0} could not be parsed as a time. Example: 1.03:15:43 = 1 day, 3 hours, 15 minutes, 43 seconds", DisplayName ?? FieldIdentifier.FieldName);
             return false;
         }
     }
@@ -498,16 +471,16 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             if (Options.HasFlag(InputDurationOptions.DisplayDaysAsHours))
             {
                 var parts = value.Split('.');
-                var partial = float.Parse($"0.{parts[1]}") * 60.0;
-                var end = partial < 59.5 ? ((int)Math.Round(partial)).ToString().PadLeft(2, '0') : "59";
+                var partial = float.Parse($"0.{parts[1]}", CultureInfo.InvariantCulture) * 60.0;
+                var end = partial < 59.5 ? ((int)Math.Round(partial)).ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') : "59";
 
                 value = $"{parts[0]}:{end}:00";
             }
             else if (Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes))
             {
                 var parts = value.Split('.');
-                var partial = float.Parse($"0.{parts[1]}") * 60.0;
-                var end = partial < 59.5 ? ((int)Math.Round(partial)).ToString().PadLeft(2, '0') : "59";
+                var partial = float.Parse($"0.{parts[1]}", CultureInfo.InvariantCulture) * 60.0;
+                var end = partial < 59.5 ? ((int)Math.Round(partial)).ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') : "59";
 
                 value = $"{parts[0]}:{end}";
             }
@@ -567,19 +540,17 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     /// <inheritdoc />
     protected override string FormatValueAsString(TValue? value)
     {
-        if (IsMainInputFocused == false && Formatter != null)
+        if (IsFocused == false && Formatter != null)
             return Formatter(value) ?? string.Empty;
-        else if (value == null)
-            return string.Empty;
-        else if (IsMainInputFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
-            return formattable.ToString(DisplayFormat, FormatProvider);
-
-        return value switch
-        {
-            TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
-            TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
-            _ => string.Empty
-        };
+        else if (IsFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value != null && value is IFormattable formattable)
+            return formattable.ToString(DisplayFormat, DisplayProvider);
+        else
+            return value switch
+            {
+                TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
+                TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
+                _ => string.Empty
+            };
     }
 
     private string FormatTimeSpan(TimeSpan value)
@@ -597,36 +568,36 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             formatted += '-';
 
         if (Options.HasFlag(InputDurationOptions.ShowDays))
-            formatted += value.ToString("%d") + '.';
+            formatted += value.ToString("%d", FormatProvider) + '.';
 
         if (Options.HasFlag(InputDurationOptions.ShowHours))
         {
             if (Options.HasFlag(InputDurationOptions.ShowDays))
-                formatted += value.ToString("hh") + ':';
+                formatted += value.ToString("hh", FormatProvider) + ':';
             else if (Options.HasFlag(InputDurationOptions.DisplayDaysAsHours))
-                formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalHours)) : (int)Math.Floor(value.TotalHours)).ToString() + ':';
+                formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalHours)) : (int)Math.Floor(value.TotalHours)).ToString(FormatProvider) + ':';
             else
-                formatted += value.ToString("%h") + ':';
+                formatted += value.ToString("%h", FormatProvider) + ':';
         }
 
         if (Options.HasFlag(InputDurationOptions.ShowMinutes))
         {
             if (Options.HasFlag(InputDurationOptions.ShowHours))
-                formatted += value.ToString("mm") + ':';
+                formatted += value.ToString("mm", FormatProvider) + ':';
             else if (Options.HasFlag(InputDurationOptions.DisplayHoursAsMinutes))
-                formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalMinutes)) : (int)Math.Floor(value.TotalMinutes)).ToString() + ':';
+                formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalMinutes)) : (int)Math.Floor(value.TotalMinutes)).ToString(FormatProvider) + ':';
             else
-                formatted += value.ToString("%m") + ':';
+                formatted += value.ToString("%m", FormatProvider) + ':';
         }
 
         if (Options.HasFlag(InputDurationOptions.ShowSeconds))
         {
             if (Options.HasFlag(InputDurationOptions.ShowMinutes))
-                formatted += value.ToString("ss");
+                formatted += value.ToString("ss", FormatProvider);
             else if (Options.HasFlag(InputDurationOptions.DisplayMinutesAsSeconds))
-                formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalSeconds)) : (int)Math.Floor(value.TotalSeconds)).ToString();
+                formatted += (negative ? Math.Abs((int)Math.Ceiling(value.TotalSeconds)) : (int)Math.Floor(value.TotalSeconds)).ToString(FormatProvider);
             else
-                formatted += value.ToString("%s");
+                formatted += value.ToString("%s", FormatProvider);
         }
 
         if (Options.HasFlag(InputDurationOptions.ShowMilliseconds))
@@ -634,7 +605,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             if (Options.HasAnyFlag(InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds))
                 formatted += '.';
 
-            formatted += value.ToString("fff");
+            formatted += value.ToString("fff", FormatProvider);
         }
 
         return formatted.TrimEnd('.', ':');
@@ -660,39 +631,43 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
     }
 
     /// <summary>
-    /// Handles the focus event for the main input. Sets the <see cref="IsMainInputFocused"/> property to true and opens the popout if applicable.
+    /// Handles the focus event for the main input. Sets the <see cref="IsFocused"/> property to true and opens the popout if applicable.
     /// </summary>
     private void OnMainInputFocus()
     {
-        IsMainInputFocused = true;
+        IsFocused = true;
         OpenPopout();
     }
 
     /// <summary>
-    /// Handles the blur event for the main input. Sets the <see cref="IsMainInputFocused"/> property to false.
+    /// Handles the blur event for the main input. Sets the <see cref="IsFocused"/> property to false.
     /// </summary>
-    private void OnMainInputFocusOut() => IsMainInputFocused = false;
+    private void OnMainInputFocusOut() => IsFocused = false;
 
-    private void ClosePopout(bool save = false, bool reset = false, bool clear = false)
+    private void ClosePopout(bool save = false, bool reset = false)
     {
         if ((IsPopoutDisplayed == false && Options.HasFlag(InputDurationOptions.HoverPopout) == false) || Options.HasFlag(InputDurationOptions.NoPopout))
             return;
 
         IsPopoutDisplayed = false;
 
-        if (reset)
-            PopoutValue = InitialValue;
+		if (reset && InitialValue != null)
+			PopoutValue = InitialValue.Value;
+		else if (reset)
+			PopoutValue = TimeSpan.Zero;
 
-		if (clear)
-			PopoutValue = default;
-
-		if (save || reset || clear)
+		if (reset && IsNullable && InitialValue == null)
+			CurrentValueAsString = null;
+		else if (save || reset)
             CurrentValueAsString = FormatTimeSpan(PopoutValue);
     }
 
     private void ResetButtonHandler()
     {
-        CurrentValueAsString = FormatTimeSpan(InitialValue);
+		if (IsNullable && InitialValue == null)
+			CurrentValueAsString = null;
+		else
+			CurrentValueAsString = FormatTimeSpan(InitialValue!.Value);
     }
 
     private void OnChange(ChangeEventArgs args)
@@ -716,24 +691,79 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
             CurrentValueAsString = FormatTimeSpan(PopoutValue);
     }
 
-    /// <summary>
-    /// Handles the change event for a unit input in the popout. Validates and updates the <see cref="PopoutValue"/> based on the new unit value, ensuring it adheres to the configured options.
-    /// </summary>
-    /// <param name="args">The change event arguments containing the new unit value.</param>
-    /// <param name="displayedUnits">The current value of the unit before the change.</param>
-    /// <param name="maxUnits">The maximum allowed value for the unit.</param>
-    /// <param name="ticksPerUnit">The number of ticks per unit.</param>
-    private void UpdatePopoutUnit(ChangeEventArgs args, long displayedUnits, int? maxUnits, long ticksPerUnit)
-    {
-        // Parse the new unit value from the input. If parsing fails, do not update the PopoutValue.
-        if (int.TryParse(args.Value?.ToString(), NumberStyles.None, FormatProvider, out var units) == false)
-            return;
+	/// <summary>
+	/// Updates the popout value based on the user input for days, hours, minutes, seconds, or milliseconds.
+	/// </summary>
+	/// <param name="args">The change event arguments containing the new value.</param>
+	/// <param name="part">The part of the time being updated (days, hours, minutes, seconds, or milliseconds).</param>
+	/// <remarks>
+	/// Values within the natural range of the component replace the current value, any other value is added to it instead.
+	/// Entries into <see cref="TopMostPart"/> are always absolute and signed, entries into any other component are applied in the direction of the current sign so that they adjust the magnitude of the value.
+	/// </remarks>
+	private async Task UpdatePopoutValue(ChangeEventArgs args, TimeSpanPart part)
+	{
+		if (long.TryParse(args.Value?.ToString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var updated) == false)
+			return;
 
-        // Adjust only the selected unit, preserving the sign and all untouched component ticks
-        var allowedUnits = Math.Min(units, maxUnits ?? TimeSpan.MaxValue.Ticks / ticksPerUnit);
-        var adjustment = TimeSpan.FromTicks((allowedUnits - displayedUnits) * ticksPerUnit);
-        UpdatePopoutValue(PopoutValue < TimeSpan.Zero ? -adjustment : adjustment);
-    }
+		var (ticks, maximum) = part switch
+		{
+			TimeSpanPart.Days => (TimeSpan.TicksPerDay, (int?)null),
+			TimeSpanPart.Hours => (TimeSpan.TicksPerHour, 23),
+			TimeSpanPart.Minutes => (TimeSpan.TicksPerMinute, 59),
+			TimeSpanPart.Seconds => (TimeSpan.TicksPerSecond, 59),
+			_ => (TimeSpan.TicksPerMillisecond, 999)
+		};
+
+		var value = GetPopoutPart(part);
+		var sign = (part == TopMostPart && updated < 0) || (part != TopMostPart && PopoutValue < TimeSpan.Zero) ? -1 : 1;
+
+        if (part == TopMostPart)
+			UpdatePopoutValue(TimeSpan.FromTicks((updated * ticks) + (sign * Math.Abs(PopoutValue.Ticks % ticks)) - PopoutValue.Ticks));
+		else if (updated >= 0 && updated <= maximum)
+			UpdatePopoutValue(TimeSpan.FromTicks(sign * (updated - value) * ticks));
+		else
+			UpdatePopoutValue(TimeSpan.FromTicks(sign * updated * ticks));
+
+		if (GetPopoutPart(part) != value)
+			return;
+
+		IsPopoutRefreshing = part;
+
+		try
+		{
+			await StateHasChangedAsync();
+		}
+		finally
+		{
+			IsPopoutRefreshing = null;
+		}
+	}
+
+	/// <summary>
+	/// Returns the value of the specified time component as displayed in the popout.
+	/// </summary>
+	/// <param name="part">The time component to read.</param>
+	private long GetPopoutPart(TimeSpanPart part)
+	{
+		if (part == TopMostPart)
+			return part switch
+			{
+				TimeSpanPart.Days => PopoutValue.Days,
+				TimeSpanPart.Hours => (long)PopoutValue.TotalHours,
+				TimeSpanPart.Minutes => (long)PopoutValue.TotalMinutes,
+				TimeSpanPart.Seconds => (long)PopoutValue.TotalSeconds,
+				_ => (long)PopoutValue.TotalMilliseconds
+			};
+        else
+		    return part switch
+		    {
+			    TimeSpanPart.Days => Math.Abs(PopoutValue.Days),
+			    TimeSpanPart.Hours => Math.Abs(PopoutValue.Hours),
+			    TimeSpanPart.Minutes => Math.Abs(PopoutValue.Minutes),
+			    TimeSpanPart.Seconds => Math.Abs(PopoutValue.Seconds),
+			    _ => Math.Abs(PopoutValue.Milliseconds)
+		    };
+	}
 
     private void ResetStatus()
     {
@@ -741,4 +771,13 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
         DisplayStatus &= ~InputStatus.BackgroundWarning;
         DisplayStatus &= ~InputStatus.BackgroundSuccess;
     }
+
+	private enum TimeSpanPart
+	{
+        Days,
+		Hours,
+		Minutes,
+		Seconds,
+		Milliseconds
+	}
 }
