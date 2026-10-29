@@ -254,3 +254,12 @@ textarea.input
   .label + .input + .icon,
   .label + div + .icon
     top: calc($size-normal + 0.5em + $control-padding-vertical)
+
+input[type="number"].is-spinnerless
+  -moz-appearance: textfield
+  appearance: textfield
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button
+    -webkit-appearance: none
+    margin: 0

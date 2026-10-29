@@ -1,3 +1,4 @@
+using System.Globalization;
 using easy_blazor_bulma;
 using Xunit;
 
@@ -23,6 +24,27 @@ public class InputDurationTests
         var formatted = input.Format(value);
 
         Assert.Equal("1.02:03:04.005", formatted);
+    }
+
+    [Fact]
+    public void DisplayFormatFormatsMainInputValue()
+    {
+        var input = new TestInputDuration(AllUnits, displayFormat: @"d\.hh\:mm\:ss\.fff");
+        var value = new TimeSpan(days: 1, hours: 2, minutes: 3, seconds: 4, milliseconds: 5);
+
+        var formatted = input.Format(value);
+
+        Assert.Equal("1.02:03:04.005", formatted);
+    }
+
+    [Fact]
+    public void FormatterTakesPrecedenceOverDisplayFormat()
+    {
+        var input = new TestInputDuration(AllUnits, "c", _ => "custom duration");
+
+        var formatted = input.Format(TimeSpan.FromMinutes(1));
+
+        Assert.Equal("custom duration", formatted);
     }
 
     [Fact]
@@ -107,9 +129,12 @@ public class InputDurationTests
 
     private sealed class TestInputDuration : InputDuration<TimeSpan>
     {
-        public TestInputDuration(InputDurationOptions options)
+        public TestInputDuration(InputDurationOptions options, string? displayFormat = null, Func<TimeSpan, string?>? formatter = null, CultureInfo? culture = null)
         {
             Options = options;
+            DisplayFormat = displayFormat;
+            Formatter = formatter;
+            Culture = culture;
         }
 
         public string Format(TimeSpan value) => FormatValueAsString(value);

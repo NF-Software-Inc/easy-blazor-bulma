@@ -17,7 +17,7 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// There are 2 additional attributes that can be used: datetimepicker-class and icon-class. Each of which apply CSS classes to the resulting elements as per their names.
 /// </remarks>
-public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : EasyInputBase<TValue>
 {
 	/// <summary>
 	/// The number of hours to adjust by when the up or down arrows are clicked.
@@ -70,6 +70,27 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
     [Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
+    /// <summary>
+    /// A standard or custom format string used for the main textbox while it does not have focus.
+    /// </summary>
+    /// <remarks>
+    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/formatting-types">Formatting Documentation</see>
+    /// </remarks>
+    [Parameter]
+	public string? DisplayFormat { get; set; }
+
+	/// <summary>
+	/// An optional formatter for the unfocused main textbox. Takes precedence over <see cref="DisplayFormat"/>.
+	/// </summary>
+	[Parameter]
+	public Func<TValue?, string?>? Formatter { get; set; }
+
+	/// <summary>
+	/// The culture used with <see cref="DisplayFormat"/>. Defaults to <see cref="CultureInfo.InvariantCulture"/>.
+	/// </summary>
+	[Parameter]
+	public CultureInfo? Culture { get; set; }
+
 	/// <summary>
 	/// The configuration options to apply to the component.
 	/// </summary>
@@ -97,19 +118,28 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
-	private readonly string[] Filter = new string[] { "class", "datetimepicker-class", "icon-class" };
+	private readonly string[] Filter = ["class", "datetimepicker-class", "icon-class"];
 
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
-	private DateTime InitialValue;
+	private DateTime? InitialValue;
 	private DateTime PopoutValue;
 	private bool IsPopoutDisplayed;
+	private DateTimePart? IsPopoutRefreshing;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
+
+	/// <summary>
+	/// Indicates whether the main input is currently focused. Used to determine whether to apply formatting to the value.
+	/// </summary>
+	private bool IsFocused;
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 	private ILogger<InputDateTime<TValue>>? Logger;
+
+	private CultureInfo DisplayProvider => Culture ?? CultureInfo.CurrentCulture;
+	private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
 
 	private string MainCssClass
 	{
@@ -231,7 +261,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		}
 
 		// Set starting values
-		InitialValue = ValueAsDateTime;
+		InitialValue = IsNullable && CurrentValue == null ? null : ValueAsDateTime;
 		PopoutValue = ValueAsDateTime;
 	}
 
@@ -251,7 +281,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
 					DisplayStatus |= InputStatus.BackgroundDanger;
 
-				validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The '-', '/' and ':' characters may only appear twice in the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
+				validationErrorMessage = string.Format(DisplayProvider, "The '-', '/' and ':' characters may only appear twice in the {0} field.", DisplayName ?? FieldIdentifier.FieldName);
 				return false;
 			}
 		}
@@ -276,13 +306,13 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			{
 				var parts = value.Split('.');
 
-				if (float.TryParse($"0.{parts[1]}", out var parsed) && (parsed * 60.0) < 59.5)
-					value = $"{parts[0]}:{((int)Math.Round(parsed * 60.0)).ToString().PadLeft(2, '0')}";
+				if (float.TryParse($"0.{parts[1]}", CultureInfo.InvariantCulture, out var parsed) && (parsed * 60.0) < 59.5)
+					value = $"{parts[0]}:{((int)Math.Round(parsed * 60.0)).ToString(CultureInfo.InvariantCulture).PadLeft(2, '0')}";
 				else
 					throw new FormatException("Failed converting decimal to minutes or seconds.");
 			}
 
-			if (IsNullable == false && string.IsNullOrWhiteSpace(value))
+			if (string.IsNullOrWhiteSpace(value))
 			{
 				result = default!;
 
@@ -292,7 +322,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 				validationErrorMessage = null;
 				return true;
 			}
-			else if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+			else if (BindConverter.TryConvertTo(value, FormatProvider, out result))
 			{
 				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
 					DisplayStatus |= InputStatus.BackgroundSuccess;
@@ -307,7 +337,7 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 				if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
 					DisplayStatus |= InputStatus.BackgroundDanger;
 
-				validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a date or time.", DisplayName ?? FieldIdentifier.FieldName);
+				validationErrorMessage = string.Format(DisplayProvider, "The {0} field must be a date or time.", DisplayName ?? FieldIdentifier.FieldName);
 				return false;
 			}
 		}
@@ -318,33 +348,41 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			if (Options.HasFlag(InputDateTimeOptions.UseAutomaticStatusColors))
 				DisplayStatus |= InputStatus.BackgroundDanger;
 
-			validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} could not be parsed as a date or time. Example: 2024-02-08 03:15:43", DisplayName ?? FieldIdentifier.FieldName);
+			validationErrorMessage = string.Format(DisplayProvider, "The {0} could not be parsed as a date or time. Example: 2024-02-08 03:15:43", DisplayName ?? FieldIdentifier.FieldName);
 			return false;
 		}
 	}
 
 	/// <inheritdoc />
-	protected override string FormatValueAsString(TValue? value) => value switch
+	protected override string FormatValueAsString(TValue? value)
 	{
-		DateTime dateTimeValue => FormatDateTime(dateTimeValue),
-		DateOnly dateOnlyValue => FormatDateOnly(dateOnlyValue),
-		TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
-		TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
-		_ => string.Empty
-	};
+		if (IsFocused == false && Formatter != null)
+			return Formatter(value) ?? string.Empty;
+		else if (IsFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value != null && value is IFormattable formattable)
+			return formattable.ToString(DisplayFormat, DisplayProvider);
+		else
+			return value switch
+			{
+				DateTime dateTimeValue => FormatDateTime(dateTimeValue),
+				DateOnly dateOnlyValue => FormatDateOnly(dateOnlyValue),
+				TimeSpan timeSpanValue => FormatTimeSpan(timeSpanValue),
+				TimeOnly timeOnlyValue => FormatTimeOnly(timeOnlyValue),
+				_ => string.Empty
+			};
+	}
 
 	private string FormatDateTime(DateTime value)
 	{
 		var formatted = "";
 
 		if (Options.HasFlag(InputDateTimeOptions.ShowDate))
-			formatted += value.ToString("d") + ' ';
+			formatted += value.ToString("d", FormatProvider) + ' ';
 
 		formatted += (Options.HasFlag(InputDateTimeOptions.ShowHours), Options.HasFlag(InputDateTimeOptions.ShowMinutes), Options.HasFlag(InputDateTimeOptions.ShowSeconds)) switch
 		{
-			(true, true, true) => value.ToString("T"),
-			(true, true, _) => value.ToString("t"),
-			(true, _, _) => value.ToString("HH"),
+			(true, true, true) => value.ToString("T", FormatProvider),
+			(true, true, _) => value.ToString("t", FormatProvider),
+			(true, _, _) => value.ToString("HH", FormatProvider),
 			_ => ""
 		};
 
@@ -362,13 +400,13 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		if (Options.HasFlag(InputDateTimeOptions.ShowFullValueBelow) == false || Value == null)
 			return null;
 		else if (UnderlyingType == typeof(DateTime))
-			return ((DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime))).ToString("F");
+			return ((DateTime)Convert.ChangeType(CurrentValue!, typeof(DateTime))).ToString("F", DisplayProvider);
 		else if (UnderlyingType == typeof(DateOnly))
-			return ((DateOnly)Convert.ChangeType(CurrentValue!, typeof(DateOnly))).ToString("D");
+			return ((DateOnly)Convert.ChangeType(CurrentValue!, typeof(DateOnly))).ToString("D", DisplayProvider);
 		else if (UnderlyingType == typeof(TimeSpan))
-			return ((TimeSpan)Convert.ChangeType(CurrentValue!, typeof(TimeSpan))).ToString("G");
+			return ((TimeSpan)Convert.ChangeType(CurrentValue!, typeof(TimeSpan))).ToString("G", DisplayProvider);
 		else
-			return DateTime.Today.Add(((TimeOnly)Convert.ChangeType(CurrentValue!, typeof(TimeOnly))).ToTimeSpan()).ToString("T");
+			return DateTime.Today.Add(((TimeOnly)Convert.ChangeType(CurrentValue!, typeof(TimeOnly))).ToTimeSpan()).ToString("T", DisplayProvider);
 	}
 
 	private void CheckKeyPress(KeyboardEventArgs args)
@@ -388,7 +426,15 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 			ResetStatus();
 	}
 
-	private void ClosePopout(bool save = false, bool reset = false, bool clear = false, DateTime? value = null)
+	private void OnMainInputFocus()
+	{
+		IsFocused = true;
+		OpenPopout();
+	}
+
+	private void OnMainInputFocusOut() => IsFocused = false;
+
+	private void ClosePopout(bool save = false, bool reset = false, DateTime? value = null)
 	{
 		if ((IsPopoutDisplayed == false && Options.HasFlag(InputDateTimeOptions.HoverPopout) == false) || Options.HasFlag(InputDateTimeOptions.NoPopout))
 			return;
@@ -398,21 +444,24 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 
 		if (value != null)
 			PopoutValue = value.Value;
+		else if (reset && InitialValue != null)
+			PopoutValue = InitialValue.Value;
+		else if (reset)
+			PopoutValue = DateTime.Now;
 
-		if (reset)
-			PopoutValue = InitialValue;
-
-		if (clear)
-			PopoutValue = default;
-
-		if (save || reset || clear)
+		if (reset && IsNullable && InitialValue == null)
+			CurrentValueAsString = null;
+		else if (save || reset)
 			CurrentValueAsString = FormatDateTime(PopoutValue);
 	}
 
 	private void ResetButtonHandler()
 	{
-        CurrentValueAsString = FormatDateTime(InitialValue);
-    }
+		if (IsNullable && InitialValue == null)
+			CurrentValueAsString = null;
+		else
+			CurrentValueAsString = FormatDateTime(InitialValue!.Value);
+	}
 
 	private void OnChange(ChangeEventArgs args)
 	{
@@ -452,6 +501,46 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 				CurrentValueAsString = FormatTimeSpan(PopoutValue.TimeOfDay);
 			else
 				CurrentValueAsString = FormatTimeOnly(TimeOnly.FromTimeSpan(PopoutValue.TimeOfDay));
+		}
+	}
+
+	/// <summary>
+	/// Updates the popout value based on the user input for hours, minutes, or seconds.
+	/// </summary>
+	/// <param name="args">The change event arguments containing the new value.</param>
+	/// <param name="part">The part of the time being updated (hours, minutes, or seconds).</param>
+	private async Task UpdatePopoutValue(ChangeEventArgs args, DateTimePart part)
+	{
+		if (long.TryParse(args.Value?.ToString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var updated) == false)
+			return;
+
+		var (ticks, value, maximum) = part switch
+		{
+			DateTimePart.Hours => (TimeSpan.TicksPerHour, PopoutValue.Hour, 23),
+			DateTimePart.Minutes => (TimeSpan.TicksPerMinute, PopoutValue.Minute, 59),
+			_ => (TimeSpan.TicksPerSecond, PopoutValue.Second, 59)
+		};
+
+		if (updated >= 0 && updated <= maximum)
+			UpdatePopoutValue(TimeSpan.FromTicks((updated - value) * ticks));
+		else
+			UpdatePopoutValue(TimeSpan.FromTicks(updated * ticks));
+
+		if (
+			(part == DateTimePart.Hours && PopoutValue.Hour != value) ||
+			(part == DateTimePart.Minutes && PopoutValue.Minute != value) ||
+			(part == DateTimePart.Seconds && PopoutValue.Second != value)
+		) return;
+
+		IsPopoutRefreshing = part;
+
+		try
+		{
+			await StateHasChangedAsync();
+		}
+		finally
+		{
+			IsPopoutRefreshing = null;
 		}
 	}
 
@@ -533,5 +622,12 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		Calendar,
 		Months,
 		Years
+	}
+
+	private enum DateTimePart
+	{
+		Hours,
+		Minutes,
+		Seconds
 	}
 }
