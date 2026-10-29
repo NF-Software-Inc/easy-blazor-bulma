@@ -92,13 +92,13 @@ public partial class TestAutocomplete : ComponentBase
 	private class PageModel
 	{
 		[Display(Name = "Janitor Applicant", Description = "Please type the name of the applicant to hire for the Janitor position.")]
-		public DemoAutocomplete SelectedItem1 { get; set; } = AllItems[0];
+		public IAutocomplete SelectedItem1 { get; set; } = AllItems[0];
 
 		[Display(Name = "Accountant Applicant", Description = "Please type the name of the applicant to hire for the Accountant position.")]
 		public DemoAutocomplete? SelectedItem2 { get; set; }
 
 		[Display(Name = "Accountant Applicant with AutoSelect on Exit", Description = "Select an applicant in the drop down with arrow keys and press tab")]
-		public DemoAutocomplete? SelectedItem3 { get; set; }
+		public IAutocomplete? SelectedItem3 { get; set; }
 
 		[Display(Name = "Interview Selections", Description = "Select one or more applicants from the drop down.")]
 		public List<DemoAutocomplete> SelectedItems4 { get; set; } = [];
@@ -113,7 +113,7 @@ public partial class TestAutocomplete : ComponentBase
 		public DemoAutocomplete? FieldSelection = AllItems[1];
 	}
 
-	private record class DemoAutocomplete
+	private record class DemoAutocomplete : IAutocomplete, IEquatable<DemoAutocomplete>, IEquatable<IAutocomplete>
 	{
 		public int Id { get; init; }
 
@@ -122,5 +122,22 @@ public partial class TestAutocomplete : ComponentBase
 		public int Age { get; init; }
 
 		public string Position { get; init; } = string.Empty;
+
+		/// <inheritdoc />
+		public bool Equals(IAutocomplete? other)
+		{
+			if (other != null && Id == other.Id)
+			{
+				return Name == other.Name;
+			}
+
+			return false;
+		}
+	}
+
+	private interface IAutocomplete
+	{
+		public int Id { get; }
+		public string Name { get; }
 	}
 }

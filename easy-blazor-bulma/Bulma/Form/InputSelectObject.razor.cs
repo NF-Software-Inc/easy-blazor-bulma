@@ -35,7 +35,8 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 	/// A function to return the bound value for items provided in the <see cref="Items"/> collection.
 	/// </summary>
 	/// <remarks>
-	/// When omitted, <typeparamref name="TItem"/> and <typeparamref name="TValue"/> must be identical.
+	/// When omitted, <typeparamref name="TItem"/> must be assignable to <typeparamref name="TValue"/>, ignoring nullability.
+	/// This allows identity binding as well as binding an item type to a base class or interface it implements.
 	/// </remarks>
 	[Parameter]
 	public Func<TItem, TValue>? ValueSelector { get; set; }
@@ -79,8 +80,17 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private readonly string[] Filter = ["class"];
 
-	private static readonly bool UsesLegacyIdentitySelection = typeof(TItem) == typeof(TValue);
-	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+	private static readonly Type UnderlyingItemType = Nullable.GetUnderlyingType(typeof(TItem)) ?? typeof(TItem);
+	private static readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
+
+	/// <summary>
+	/// Indicates items can be used as bound values directly, without a <see cref="ValueSelector"/>.
+	/// </summary>
+	/// <remarks>
+	/// True when <typeparamref name="TItem"/> is assignable to <typeparamref name="TValue"/>, ignoring nullability.
+	/// This permits identity binding as well as binding a derived or implementing item type to a base class or interface value type.
+	/// </remarks>
+	private static readonly bool UsesDirectAssignment = UnderlyingType.IsAssignableFrom(UnderlyingItemType);
 	private bool IsNullable;
 
 	private string MainCssClass
@@ -140,12 +150,13 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 	}
 
 	/// <inheritdoc/>
+	/// <exception cref="InvalidOperationException">A selector is missing when items cannot be assigned to the value type, ignoring nullability.</exception>
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
 
-		if (ValueSelector == null && UsesLegacyIdentitySelection == false)
-			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+		if (ValueSelector == null && UsesDirectAssignment == false)
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
 
 		ItemsList = Items as IReadOnlyList<TItem> ?? Items.ToList();
 	}
@@ -202,10 +213,10 @@ public partial class InputSelectObject<[DynamicallyAccessedMembers(DynamicallyAc
 		if (ValueSelector != null)
 			return ValueSelector(item);
 
-		if (UsesLegacyIdentitySelection)
+		if (UsesDirectAssignment)
 			return (TValue)(object?)item!;
 
-		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} and {nameof(TValue)} are different types.");
+		throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
 	}
 
 	private void ResetStatus()

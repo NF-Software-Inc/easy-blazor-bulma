@@ -1,0 +1,49 @@
+@page "/qrcode"
+@inherits ComponentBase
+
+<TitleBlock Title="QR Code Test" />
+
+<div class="container pt-3">
+    <Panel Title="QR Code" Color="BulmaColors.Blue">
+        <div class="columns is-variable is-4">
+            <div class="column is-12-mobile is-7-tablet">
+                <div class="field">
+                    <label class="label is-size-7">Value</label>
+                    <InputText class="input" @bind-Value="Text" />
+                </div>
+                <div class="columns is-multiline">
+                    <div class="column is-6">
+                        <label class="label is-size-7">Width</label>
+                        <InputNumber class="input" @bind-Value="Width" min="32" />
+                    </div>
+                    <div class="column is-6">
+                        <label class="label is-size-7">Height</label>
+                        <InputNumber class="input" @bind-Value="Height" min="32" />
+                    </div>
+                    <div class="column is-6">
+                        <label class="label is-size-7">Dark Color</label>
+                        <InputText class="input" @bind-Value="ColorDark" />
+                    </div>
+                    <div class="column is-6">
+                        <label class="label is-size-7">Light Color</label>
+                        <InputText class="input" @bind-Value="ColorLight" />
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label is-size-7">Correct Level</label>
+                            <div class="control has-icons-left has-icons-right">
+                                <InputSelectObject class="is-fullwidth" @bind-Value="CorrectLevel" DisplayValue="FormatLevel" Items="Levels" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <InputSwitch @bind-Value="UseSvg" Label="Use SVG" IsBoxed="false" />
+                    </div>
+                </div>
+            </div>
+            <div class="column is-12-mobile is-5-tablet has-text-centered">
+                <QrCode style="display:inline-block" Value="@Text" Width="Width" Height="Height" ColorDark="@ColorDark" ColorLight="@ColorLight" CorrectLevel="CorrectLevel" UseSvg="UseSvg" />
+            </div>
+        </div>
+    </Panel>
+</div>
