@@ -75,20 +75,9 @@
     </div>
     <div class="column is-8">
 
-        <AutocompleteSingleObjectExample />
-        <details class="mt-3">
-            <summary class="is-clickable has-text-link">Show code</summary>
-            <pre><code @ref="BasicCode" class="language-cshtml">@(ExampleSource.Get<AutocompleteSingleObjectExample>())</code></pre>
-        </details>
+        <ExampleSection ComponentType="typeof(AutocompleteSingleObjectExample)"/>
 
         <EditForm Model="InputModel" OnSubmit="OnSubmit">
-            <div class="field">
-                <Label For="() => InputModel.SelectedItem1" TooltipMode="TooltipDisplayMode" />
-                <div class="control has-icons-left is-expanded">
-                    @* Single selection bound to an item object from a static collection. *@
-                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
-                </div>
-            </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
@@ -142,14 +131,6 @@
 
         <Message class="mt-3" Title="New Hires" Color="BulmaColors.Green">
             <div class="columns is-multiline">
-                <div class="column">
-                    <p class="block">The person to be hired for the Janitor position is:</p>
-                    <div class="content">
-                        <ul>
-                            <li>Name: @InputModel.SelectedItem1?.Name</li>
-                        </ul>
-                    </div>
-                </div>
                 <div class="column">
                     <p class="block">The person to be hired for the Accountant position is:</p>
                     <div class="content">

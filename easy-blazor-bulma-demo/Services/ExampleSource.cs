@@ -21,11 +21,15 @@
         /// <summary>
         /// Gets the source code of an example component, e.g. Get&lt;AutocompleteBasicExample&gt;().
         /// </summary>
+        /// <typeparam name="TExample">The type of the example component.</typeparam>
+        /// <returns>The source code of the example component.</returns>
         public static string Get<TExample>() => Get(typeof(TExample));
 
         /// <summary>
         /// Gets the source code of an example component by its type.
         /// </summary>
+        /// <param name="exampleType">The type of the example component.</param>
+        /// <returns>The source code of the example component.</returns>
         public static string Get(Type exampleType) => Get(exampleType.Name + ".razor");
     }
 }

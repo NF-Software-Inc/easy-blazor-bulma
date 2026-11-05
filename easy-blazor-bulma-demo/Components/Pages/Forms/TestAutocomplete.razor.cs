@@ -1,5 +1,4 @@
 ﻿using easy_blazor_bulma;
-using easy_blazor_bulma_demo.Components.Pages.Forms.Autocomplete;
 using easy_blazor_bulma_demo.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -13,24 +12,6 @@ public partial class TestAutocomplete : ComponentBase
 	/// Identifies the runtime type for the generic `InputAutocomplete` component.
 	/// </summary>
     private static readonly Type ComponentType = typeof(InputAutocomplete<,>);
-
-    [Inject]
-    private IJSRuntime JsRuntime { get; init; } = default!;
-
-	/// <summary>
-	/// Reference to the basic code element.
-	/// </summary>
-    private ElementReference BasicCode;
-
-	/// <summary>
-	/// Highlights the code with Prism after the component's first render.
-	/// </summary>
-	/// <param name="firstRender">whether this is the component's first render.</param>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-		if (firstRender)
-			await JsRuntime.PrismHighlightCode(BasicCode);
-    }
 
     private readonly PageModel InputModel = new()
 	{
