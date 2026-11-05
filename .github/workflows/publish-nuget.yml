@@ -57,6 +57,7 @@ jobs:
 
         cp JavaScript/easy-blazor-bulma.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
         cp JavaScript/masonry.pkgd.min.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/
+        cp JavaScript/qrcode.js ${{ github.workspace }}/easy-blazor-bulma/wwwroot/js/qrcode.js
       working-directory: easy-blazor-bulma
     - name: Setup .NET
       uses: actions/setup-dotnet@v4.3.1
