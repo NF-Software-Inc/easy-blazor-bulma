@@ -1,0 +1,30 @@
+@using System.ComponentModel.DataAnnotations
+
+<EditForm Model="InputModel">
+	<div class="field">
+		<Label For="() => InputModel.SelectedApplicant" TooltipMode="AutocompleteSampleData.TooltipDisplayMode" />
+		<div class="control has-icons-left is-expanded">
+			<InputAutocomplete dropdown-class="is-fullwidth"
+							   @bind-Value="InputModel.SelectedApplicant"
+							   DisplayValue="x => x.Name"
+							   DisplayFilter="(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)"
+							   Items="AutocompleteSampleData.Applicants" />
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	private readonly ExampleModel InputModel = new();
+
+	/// <summary>
+	/// The example model used as the input model for the form.
+	/// </summary>
+	private class ExampleModel
+	{
+		/// <summary>
+		/// The selected applicant for the Janitor position.
+		/// </summary>
+		[Display(Name = "Janitor Applicant", Description = "Please type the name of the applicant to hire for the Janitor position.")]
+		public IAutocomplete SelectedApplicant { get; set; } = AutocompleteSampleData.Applicants[0];
+	}
+}

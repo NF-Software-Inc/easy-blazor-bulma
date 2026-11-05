@@ -1,5 +1,8 @@
 ﻿using easy_blazor_bulma;
+using easy_blazor_bulma_demo.Components.Pages.Forms.Autocomplete;
+using easy_blazor_bulma_demo.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 
 namespace easy_blazor_bulma_demo.Components.Pages.Forms;
@@ -10,6 +13,24 @@ public partial class TestAutocomplete : ComponentBase
 	/// Identifies the runtime type for the generic `InputAutocomplete` component.
 	/// </summary>
     private static readonly Type ComponentType = typeof(InputAutocomplete<,>);
+
+    [Inject]
+    private IJSRuntime JsRuntime { get; init; } = default!;
+
+	/// <summary>
+	/// Reference to the basic code element.
+	/// </summary>
+    private ElementReference BasicCode;
+
+	/// <summary>
+	/// Highlights the code with Prism after the component's first render.
+	/// </summary>
+	/// <param name="firstRender">whether this is the component's first render.</param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+		if (firstRender)
+			await JsRuntime.PrismHighlightCode(BasicCode);
+    }
 
     private readonly PageModel InputModel = new()
 	{
@@ -42,26 +63,9 @@ public partial class TestAutocomplete : ComponentBase
 		InputAutocompleteOptions.AutoSelectOnExit;
 
 
-	private static readonly List<DemoAutocomplete> AllItems =
-	[
-		new DemoAutocomplete { Id = 1, Name = "Jimbo Moneybags", Age = 30, Position = "Accountant" },
-		new DemoAutocomplete { Id = 2, Name = "Suzy Goldenfold", Age = 18, Position = "Accountant" },
-		new DemoAutocomplete { Id = 3, Name = "Sal Mopnbucket", Age = 44, Position = "Janitor" },
-		new DemoAutocomplete { Id = 4, Name = "Jill Broomhandel", Age = 61, Position = "Janitor" },
-		new DemoAutocomplete { Id = 5, Name = "Reggie Cashonlee", Age = 23, Position = "Accountant" },
-		new DemoAutocomplete { Id = 6, Name = "Oldie Butagoodie", Age = 72, Position = "Janitor" },
-		new DemoAutocomplete { Id = 7, Name = "Rickie Notapenny", Age = 56, Position = "Accountant" },
-		new DemoAutocomplete { Id = 8, Name = "Cheryl McMillions", Age = 33, Position = "Accountant" },
-		new DemoAutocomplete { Id = 9, Name = "Lindsay Spicnspan", Age = 46, Position = "Janitor" },
-		new DemoAutocomplete { Id = 10, Name = "Bob Skidmarks-McNastypants", Age = 55, Position = "Janitor" },
-		new DemoAutocomplete { Id = 11, Name = "Pat Waxon", Age = 24, Position = "Janitor" },
-		new DemoAutocomplete { Id = 12, Name = "Melissa Taxevader", Age = 36, Position = "Accountant" },
-		new DemoAutocomplete { Id = 13, Name = "Larry Robberson", Age = 47, Position = "Accountant" },
-		new DemoAutocomplete { Id = 14, Name = "Pat Waxoff", Age = 19, Position = "Janitor" },
-		new DemoAutocomplete { Id = 15, Name = "Betty Terletson", Age = 20, Position = "Janitor" }
-	];
+    private static readonly List<DemoAutocomplete> AllItems = AutocompleteSampleData.Applicants;
 
-	private IEnumerable<DemoAutocomplete> GetAutocompleteItems()
+    private IEnumerable<DemoAutocomplete> GetAutocompleteItems()
 	{
 		if (string.IsNullOrWhiteSpace(Filter) == false)
 			return AllItems.Where(x => x.Position == "Accountant" && x.Name.StartsWith(Filter, StringComparison.OrdinalIgnoreCase));
@@ -94,7 +98,7 @@ public partial class TestAutocomplete : ComponentBase
 		SubmitMessage = $"Submit at {DateTime.Now:G}";
 	}
 
-	private class PageModel
+    private class PageModel
 	{
 		[Display(Name = "Janitor Applicant", Description = "Please type the name of the applicant to hire for the Janitor position.")]
 		public IAutocomplete SelectedItem1 { get; set; } = AllItems[0];
@@ -118,31 +122,4 @@ public partial class TestAutocomplete : ComponentBase
 		public DemoAutocomplete? FieldSelection = AllItems[1];
 	}
 
-	private record class DemoAutocomplete : IAutocomplete, IEquatable<DemoAutocomplete>, IEquatable<IAutocomplete>
-	{
-		public int Id { get; init; }
-
-		public string Name { get; init; } = string.Empty;
-
-		public int Age { get; init; }
-
-		public string Position { get; init; } = string.Empty;
-
-		/// <inheritdoc />
-		public bool Equals(IAutocomplete? other)
-		{
-			if (other != null && Id == other.Id)
-			{
-				return Name == other.Name;
-			}
-
-			return false;
-		}
-	}
-
-	private interface IAutocomplete
-	{
-		public int Id { get; }
-		public string Name { get; }
-	}
 }

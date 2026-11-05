@@ -78,6 +78,11 @@
 		<PackageReference Include="Easy.Blazor.Bulma" Version="10.2.*" />
 	</ItemGroup>
 
+	<!-- Embeds demo page/example source so pages can show their code -->
+	<ItemGroup>
+		<EmbeddedResource Include="Components\Pages\**\*.razor" LogicalName="Examples.%(Filename)%(Extension)" />
+	</ItemGroup>
+
 	<!-- Embeds the library's XML docs (next to its DLL) so the demo can show API documentation -->
 	<Target Name="EmbedLibraryXmlDocs" AfterTargets="ResolveAssemblyReferences">
 		<ItemGroup>

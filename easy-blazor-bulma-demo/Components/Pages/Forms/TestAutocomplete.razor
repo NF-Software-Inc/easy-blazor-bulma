@@ -74,52 +74,67 @@
         </Message>
     </div>
     <div class="column is-8">
+
+        <AutocompleteSingleObjectExample />
+        <details class="mt-3">
+            <summary class="is-clickable has-text-link">Show code</summary>
+            <pre><code @ref="BasicCode" class="language-cshtml">@(ExampleSource.Get<AutocompleteSingleObjectExample>())</code></pre>
+        </details>
+
         <EditForm Model="InputModel" OnSubmit="OnSubmit">
             <div class="field">
                 <Label For="() => InputModel.SelectedItem1" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Single selection bound to an item object from a static collection. *@
                     <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem1" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
                 </div>
             </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Single selection with dynamically filtered items, an item-request callback, and custom options. *@
                     <InputAutocomplete dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options2" />
                 </div>
             </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItem3" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Single selection limited to five displayed matches, with automatic selection on exit. *@
                     <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" DisplayCount="5" Options="Options3" />
                 </div>
             </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItems4" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Multiple selection bound to a list of item objects. *@
                     <InputAutocompleteMultiple dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItems4" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" Options="Options4" />
                 </div>
             </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItemId5" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Single selection that binds the selected item's ID instead of the full object. *@
                     <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItemId5" ValueSelector="x => x.Id" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
                 </div>
             </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItemIds6" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Multiple selection that binds a list of selected item IDs. *@
                     <InputAutocompleteMultiple dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItemIds6" ValueSelector="x => x.Id" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" Options="Options4" />
                 </div>
             </div>
             <div class="field">
                 <Label For="() => InputModel.FieldSelection" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
+                    @* Single selection bound to a model field rather than a property. *@
                     <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.FieldSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
                 </div>
             </div>
             <div class="field">
                 <Label TValue="object" DisplayText="Private Member" />
                 <div class="control has-icons-left is-expanded">
+                    @* Single selection bound to a private component property outside the form model. *@
                     <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="PrivateSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
                 </div>
             </div>
