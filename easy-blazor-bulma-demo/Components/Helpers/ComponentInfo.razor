@@ -1,0 +1,23 @@
+@using easy_blazor_bulma_demo.Services
+
+@inherits ComponentBase
+
+<div class="block">@XmlDocs.ToHtml(TypeDoc?.Element("summary"))</div>
+
+<div class="block">@XmlDocs.ToHtml(TypeDoc?.Element("remarks"))</div>
+
+@if (TypeParams.Count > 0)
+{
+	<p class="has-text-weight-bold">Generic Types</p>
+	<p class="is-size-7 mt-1">Set these on the component, e.g. TItem="Person", if the compiler can't figure them out.</p>
+	<div class="content">
+		<ul>
+			@foreach (var tp in TypeParams)
+			{
+				<li><code>@tp.Attribute("name")?.Value</code>: @XmlDocs.ToHtml(tp)</li>
+			}
+		</ul>
+	</div>
+}
+
+@ChildContent

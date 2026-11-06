@@ -19,13 +19,17 @@
     </div>
 
     <div class="column">
-        <Message class="mt-3" Color="BulmaColors.Green">
-            <p class="block">The person to be hired for the Janitor position is:</p>
-            <div class="content mt-2">
-                <ul>
-                    <li>Name: @InputModel.SelectedApplicant?.Name</li>
-                    <li>Position: @((InputModel.SelectedApplicant as DemoAutocomplete)?.Position)</li>
-                </ul>
+        <Message Color="BulmaColors.Green">
+            <p class="block">This input displays a generic implementation.</p>
+
+            <div class="is-size-7">
+                <p>The person to be hired for the Janitor position is:</p>
+                <div class="content">
+                    <ul>
+                        <li>Name: @InputModel.SelectedApplicant?.Name</li>
+                        <li>Position: @((InputModel.SelectedApplicant as DemoAutocomplete)?.Position)</li>
+                    </ul>
+                </div>
             </div>
         </Message>
     </div>

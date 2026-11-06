@@ -9,9 +9,24 @@ namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 public partial class TestAutocomplete : ComponentBase
 {
 	/// <summary>
-	/// Identifies the runtime type for the generic `InputAutocomplete` component.
+	/// The open generic type definition for the autocomplete input component.
 	/// </summary>
-    private static readonly Type ComponentType = typeof(InputAutocomplete<,>);
+    private static readonly Type AutocompleteType = typeof(InputAutocomplete<,>);
+
+    /// <summary>
+    /// The open generic type definition for multiple-value autocomplete inputs.
+    /// </summary>
+    private static readonly Type AutocompleteMultipleType = typeof(InputAutocompleteMultiple<,>);
+
+    /// <summary>
+    /// References the parameters section element in the rendered component. Used for scrolling to the section when "View all parameters" button is clicked.
+    /// </summary>
+    private ElementReference ParametersSection;
+
+	/// <summary>
+	/// Moves focus to the parameters section.
+	/// </summary>
+	private async Task JumpToParameters() => await ParametersSection.FocusAsync();
 
     private readonly PageModel InputModel = new()
 	{

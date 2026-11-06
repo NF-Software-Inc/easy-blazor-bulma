@@ -8,43 +8,7 @@
 <div class="columns p-3">
     <div class="column is-4">
         <Message Title="Information" Color="BulmaColors.Cyan">
-            @{
-                var typeDoc = XmlDocs.GetTypeDoc(ComponentType);
-            }
-
-            <div class="block">@XmlDocs.ToHtml(typeDoc?.Element("summary"))</div>
-            <div class="block">@XmlDocs.ToHtml(typeDoc?.Element("remarks"))</div>
-
-            <p class="block"><b>Type Parameters:</b></p>
-            <div class="content">
-                <ul class="content">
-                    @foreach (var tp in typeDoc?.Elements("typeparam") ?? [])
-                    {
-                        <li><code>@tp.Attribute("name")?.Value</code>: @XmlDocs.ToHtml(tp)</li>
-                    }
-                </ul>
-            </div>
-
-            <p class="block"><b>Parameters:</b></p>
-            <div class="content">
-                <ul class="content">
-                    @foreach (var p in XmlDocs.GetParameters(ComponentType))
-                    {
-                        var doc = XmlDocs.GetPropertyDoc(p);
-                        var remarks = XmlDocs.ToHtml(doc?.Element("remarks"));
-                        <li>
-                            <b>@p.Name</b> <code>@XmlDocs.GetTypeName(p.PropertyType)</code>: @XmlDocs.ToHtml(doc?.Element("summary"))
-                            @if (string.IsNullOrEmpty(remarks.Value) == false)
-                            {
-                                <div class="is-size-7 mt-1">@remarks</div>
-                            }
-                        </li>
-                    }
-
-                </ul>
-            </div>
-
-
+            <ComponentInfo ComponentType="AutocompleteType">
             <p class="block">Note that the Input Autocomplete component supports keyboard navigation using the following keys:</p>
             <div class="content">
                 <ul class="content">
@@ -69,8 +33,13 @@
                 </ul>
             </div>
 
-            <p class="block">The first input displays a generic implementation.</p>
             <p class="block">The second input displays a more customized implementation. By using the OnItemsRequested method, the collection can be filtered before the value gets changed. In this case, typing More will add a new element to the list and typing Less will remove an element from the list.</p>
+            </ComponentInfo>
+
+            <p class="block">
+                <b>Looking for every option?</b>
+                <a class="is-clickable" @onclick="JumpToParameters">View all parameters ↓</a>
+            </p>
         </Message>
     </div>
     <div class="column is-8">
@@ -181,3 +150,11 @@
         </Message>
     </div>
 </div>
+
+<hr class="m-2 has-background-light" />
+
+@* Parameter Table *@
+<section @ref="ParametersSection" tabindex="-1" class="p-3">
+    <ApiTable ComponentType="AutocompleteType" />
+    <ApiTable ComponentType="AutocompleteMultipleType" />
+</section>
