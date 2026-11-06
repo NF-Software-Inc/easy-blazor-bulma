@@ -12,3 +12,10 @@ pre code .token.number {
     background: none;
     border-radius: 0;
 }
+
+/* Keeps the info panel visible while scrolling through the examples */
+.info-panel-sticky {
+    position: sticky;
+    top: 1rem;
+    align-self: flex-start;
+}

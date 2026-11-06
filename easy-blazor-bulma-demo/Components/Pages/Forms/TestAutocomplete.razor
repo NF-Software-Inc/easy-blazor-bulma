@@ -6,7 +6,7 @@
 <TitleBlock Title="Input Autocomplete Test" />
 
 <div class="columns p-3">
-    <div class="column is-4">
+    <div class="column is-4 info-panel-sticky">
         <Message Title="Information" Color="BulmaColors.Cyan">
             <ComponentInfo ComponentType="AutocompleteType">
             <p class="block">Note that the Input Autocomplete component supports keyboard navigation using the following keys:</p>
@@ -41,30 +41,14 @@
         </Message>
     </div>
     <div class="column is-8">
-
         <ExampleSection ComponentType="typeof(AutocompleteSingleObjectExample)"/>
         <ExampleSection ComponentType="typeof(AutocompleteSingleItemsRequestedExample)"/>
         <ExampleSection ComponentType="typeof(AutocompleteSingleAutoSelectExample)"/>
         <ExampleSection ComponentType="typeof(AutocompleteMultipleObjectsExample)"/>
         <ExampleSection ComponentType="typeof(AutocompleteSingleIdExample)"/>
         <ExampleSection ComponentType="typeof(AutocompleteMultipleIdsExample)"/>
-
-        <EditForm Model="InputModel">
-            <div class="field">
-                <Label For="() => InputModel.FieldSelection" TooltipMode="TooltipDisplayMode" />
-                <div class="control has-icons-left is-expanded">
-                    @* Single selection bound to a model field rather than a property. *@
-                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.FieldSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
-                </div>
-            </div>
-            <div class="field">
-                <Label TValue="object" DisplayText="Private Member" />
-                <div class="control has-icons-left is-expanded">
-                    @* Single selection bound to a private component property outside the form model. *@
-                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="PrivateSelection" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" />
-                </div>
-            </div>
-        </EditForm>
+        <ExampleSection ComponentType="typeof(AutocompleteModelFieldExample)"/>
+        <ExampleSection ComponentType="typeof(AutocompletePrivatePropertyExample)"/>
     </div>
 </div>
 

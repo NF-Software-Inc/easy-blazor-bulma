@@ -1,6 +1,5 @@
 ﻿using easy_blazor_bulma;
 using Microsoft.AspNetCore.Components;
-using System.ComponentModel.DataAnnotations;
 
 namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 
@@ -25,20 +24,5 @@ public partial class TestAutocomplete : ComponentBase
 	/// Moves focus to the parameters section.
 	/// </summary>
 	private async Task JumpToParameters() => await ParametersSection.FocusAsync();
-
-	private readonly PageModel InputModel = new();
-
-	private DemoAutocomplete? PrivateSelection { get; set; } = AllItems[0];
-
-	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
-
-
-    private static readonly List<DemoAutocomplete> AllItems = AutocompleteSampleData.Applicants;
-
-    private class PageModel
-	{
-		[Display(Name = "Field Applicant", Description = "Select an applicant using a field instead of property.")]
-		public DemoAutocomplete? FieldSelection = AllItems[1];
-	}
 
 }
