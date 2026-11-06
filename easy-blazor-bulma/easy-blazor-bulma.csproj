@@ -196,7 +196,6 @@
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<DocumentationFile>$(ProjectDir)$(AssemblyName).xml</DocumentationFile>
-		<!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageIcon>icon.png</PackageIcon>
