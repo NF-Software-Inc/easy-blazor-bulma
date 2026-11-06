@@ -44,15 +44,9 @@
 
         <ExampleSection ComponentType="typeof(AutocompleteSingleObjectExample)"/>
         <ExampleSection ComponentType="typeof(AutocompleteSingleItemsRequestedExample)"/>
+        <ExampleSection ComponentType="typeof(AutocompleteSingleAutoSelectExample)"/>
 
         <EditForm Model="InputModel" OnSubmit="OnSubmit">
-            <div class="field">
-                <Label For="() => InputModel.SelectedItem3" TooltipMode="TooltipDisplayMode" />
-                <div class="control has-icons-left is-expanded">
-                    @* Single selection limited to five displayed matches, with automatic selection on exit. *@
-                    <InputAutocomplete dropdown-class="is-fullwidth" @bind-Value="InputModel.SelectedItem3" DisplayValue='x => x.Name' DisplayFilter='(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)' Items="AllItems" DisplayCount="5" Options="Options3" />
-                </div>
-            </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItems4" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">

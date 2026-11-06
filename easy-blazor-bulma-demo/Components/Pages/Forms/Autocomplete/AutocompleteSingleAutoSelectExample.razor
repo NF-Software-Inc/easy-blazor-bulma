@@ -1,0 +1,58 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<div class="columns">
+    <div class="column">
+        <EditForm Model="InputModel">
+            <div class="field">
+                <Label For="() => InputModel.SelectedApplicant" TooltipMode="AutocompleteSampleData.TooltipDisplayMode" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth"
+                                       @bind-Value="InputModel.SelectedApplicant"
+                                       DisplayValue="x => x.Name"
+                                       DisplayFilter="(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)"
+                                       Items="AutocompleteSampleData.Applicants"
+                                       DisplayCount="5"
+                                       Options="Options" />
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+    <div class="column">
+        <Message Color="BulmaColors.Green">
+            <p class="block">Highlight an applicant with the arrow keys, then press Tab to select it automatically.</p>
+            <div class="is-size-7">
+                <p>The selected applicant is:</p>
+                <div class="content">
+                    <ul>
+                        <li>Name: @InputModel.SelectedApplicant?.Name</li>
+                        <li>Age: @((InputModel.SelectedApplicant as DemoAutocomplete)?.Age)</li>
+                        <li>Profession: @((InputModel.SelectedApplicant as DemoAutocomplete)?.Position)</li>
+                    </ul>
+                </div>
+            </div>
+        </Message>
+    </div>
+</div>
+
+@code {
+    private readonly AutoSelectExampleModel InputModel = new();
+
+    /// <summary>
+    /// Used to configure the behavior of the InputAutocomplete component. In this example, the options are set to display the popout above the input field, to use automatic status colors for the input field, and to automatically select an item when the user exits the input field.
+    /// </summary>
+    private readonly InputAutocompleteOptions Options =
+        InputAutocompleteOptions.TypePopout |
+        InputAutocompleteOptions.ClickPopout |
+        InputAutocompleteOptions.PopoutTop |
+        InputAutocompleteOptions.UseAutomaticStatusColors |
+        InputAutocompleteOptions.AutoSelectOnExit;
+
+    private class AutoSelectExampleModel
+    {
+        [Display(Name = "Accountant Applicant with AutoSelect on Exit", Description = "Select an applicant in the drop down with arrow keys and press tab")]
+        public IAutocomplete? SelectedApplicant { get; set; }
+    }
+}
