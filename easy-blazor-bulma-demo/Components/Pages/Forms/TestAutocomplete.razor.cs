@@ -31,31 +31,12 @@ public partial class TestAutocomplete : ComponentBase
 	private DemoAutocomplete? PrivateSelection { get; set; } = AllItems[0];
 
 	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
-	private string? SubmitMessage;
-
-	private readonly InputAutocompleteOptions Options4 =
-		InputAutocompleteOptions.TypePopout |
-		InputAutocompleteOptions.ClickPopout |
-		InputAutocompleteOptions.PopoutTop |
-		InputAutocompleteOptions.UseAutomaticStatusColors |
-		InputAutocompleteOptions.AutoSelectOnExit;
 
 
     private static readonly List<DemoAutocomplete> AllItems = AutocompleteSampleData.Applicants;
 
-	private void OnSubmit()
-	{
-		SubmitMessage = $"Submit at {DateTime.Now:G}";
-	}
-
     private class PageModel
 	{
-		[Display(Name = "Applicant ID", Description = "Select an applicant while binding only their ID.")]
-		public int? SelectedItemId5 { get; set; } = AllItems[7].Id;
-
-		[Display(Name = "Applicant IDs", Description = "Select multiple applicants while binding only their IDs.")]
-		public List<int> SelectedItemIds6 { get; set; } = [AllItems[3].Id, AllItems[7].Id];
-
 		[Display(Name = "Field Applicant", Description = "Select an applicant using a field instead of property.")]
 		public DemoAutocomplete? FieldSelection = AllItems[1];
 	}
