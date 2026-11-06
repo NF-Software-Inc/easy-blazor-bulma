@@ -1,0 +1,58 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<div class="columns">
+    <div class="column">
+        <EditForm Model="InputModel">
+            <div class="field">
+                <Label For="() => InputModel.SelectedApplicants" TooltipMode="AutocompleteSampleData.TooltipDisplayMode" />
+                <div class="control has-icons-left is-expanded">
+                    <InputAutocompleteMultiple dropdown-class="is-fullwidth"
+                                               tag-class="is-warning"
+                                               @bind-Value="InputModel.SelectedApplicants"
+                                               DisplayValue="x => x.Name"
+                                               DisplayFilter="(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)"
+                                               Items="AutocompleteSampleData.Applicants"
+                                               Options="Options" />
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+    <div class="column">
+        <Message Color="BulmaColors.Green">
+            <div class="is-size-7">
+                <p>The people to be interviewed for the Accountant position are:</p>
+                <div class="content">
+                    <ul>
+                        @foreach (var item in InputModel.SelectedApplicants)
+                        {
+                            <li>@item.Name (@item.Position)</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </Message>
+    </div>
+</div>
+
+@code {
+    private readonly MultipleObjectsExampleModel InputModel = new();
+
+    /// <summary>
+    /// Options for configuring the behavior of the InputAutocomplete component. In this example, the options are set to display the popout above the input field, to use automatic status colors for the input field, and to automatically select an item when the user exits the input field.
+    /// </summary>
+    private readonly InputAutocompleteOptions Options =
+        InputAutocompleteOptions.TypePopout |
+        InputAutocompleteOptions.ClickPopout |
+        InputAutocompleteOptions.PopoutTop |
+        InputAutocompleteOptions.UseAutomaticStatusColors |
+        InputAutocompleteOptions.AutoSelectOnExit;
+
+    private class MultipleObjectsExampleModel
+    {
+        [Display(Name = "Interview Selections", Description = "Select one or more applicants from the drop down.")]
+        public List<DemoAutocomplete> SelectedApplicants { get; set; } = [];
+    }
+}
