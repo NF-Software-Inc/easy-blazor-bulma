@@ -32,8 +32,6 @@
                     <li>tag-class</li>
                 </ul>
             </div>
-
-            <p class="block">The second input displays a more customized implementation. By using the OnItemsRequested method, the collection can be filtered before the value gets changed. In this case, typing More will add a new element to the list and typing Less will remove an element from the list.</p>
             </ComponentInfo>
 
             <p class="block">
@@ -45,15 +43,9 @@
     <div class="column is-8">
 
         <ExampleSection ComponentType="typeof(AutocompleteSingleObjectExample)"/>
+        <ExampleSection ComponentType="typeof(AutocompleteSingleItemsRequestedExample)"/>
 
         <EditForm Model="InputModel" OnSubmit="OnSubmit">
-            <div class="field">
-                <Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
-                <div class="control has-icons-left is-expanded">
-                    @* Single selection with dynamically filtered items, an item-request callback, and custom options. *@
-                    <InputAutocomplete dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options2" />
-                </div>
-            </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItem3" TooltipMode="TooltipDisplayMode" />
                 <div class="control has-icons-left is-expanded">
@@ -100,16 +92,6 @@
 
         <Message class="mt-3" Title="New Hires" Color="BulmaColors.Green">
             <div class="columns is-multiline">
-                <div class="column">
-                    <p class="block">The person to be hired for the Accountant position is:</p>
-                    <div class="content">
-                        <ul>
-                            <li>Name: @InputModel.SelectedItem2?.Name</li>
-                            <li>Age: @InputModel.SelectedItem2?.Age</li>
-                            <li>Profession: @InputModel.SelectedItem2?.Position</li>
-                        </ul>
-                    </div>
-                </div>
                 <div class="column">
                     <p class="block">The people to be interviewed for the Accountant position are:</p>
                     <div class="content">
