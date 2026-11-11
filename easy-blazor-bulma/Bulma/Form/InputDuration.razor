@@ -59,7 +59,7 @@
                                    style="height: auto"
                                    value="@(IsPopoutRefreshing == TimeSpanPart.Days ? GetPopoutPart(TimeSpanPart.Days) + 1 : GetPopoutPart(TimeSpanPart.Days))"
                                    step="@StepDays"
-                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Days)">
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Days)" />
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromDays(-StepDays))'>arrow_downward</span>
                     </div>
@@ -72,13 +72,15 @@
                 {
                     <div class="timepicker-hours">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(StepHours))'>arrow_upward</span>
-                        <div class="timepicker-input is-input">
+                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
                                    value="@(IsPopoutRefreshing == TimeSpanPart.Hours ? GetPopoutPart(TimeSpanPart.Hours) + 1 : GetPopoutPart(TimeSpanPart.Hours))"
                                    step="@StepHours"
-                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Hours)">
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Hours)"
+                                   @onkeydown="args => OnKeyDown(args, TimeSpanPart.Hours)"
+                                   @onwheel="args => OnWheel(args, TimeSpanPart.Hours)" />
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(-StepHours))'>arrow_downward</span>
                     </div>
@@ -91,13 +93,15 @@
                 {
                     <div class="timepicker-minutes">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(StepMinutes))'>arrow_upward</span>
-                        <div class="timepicker-input is-input">
+                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
                                    value="@(IsPopoutRefreshing == TimeSpanPart.Minutes ? GetPopoutPart(TimeSpanPart.Minutes) + 1 : GetPopoutPart(TimeSpanPart.Minutes))"
                                    step="@StepMinutes"
-                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Minutes)">
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Minutes)"
+                                   @onkeydown="args => OnKeyDown(args, TimeSpanPart.Minutes)"
+                                   @onwheel="args => OnWheel(args, TimeSpanPart.Minutes)" />
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(-StepMinutes))'>arrow_downward</span>
                     </div>
@@ -110,13 +114,15 @@
                 {
                     <div class="timepicker-seconds">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(StepSeconds))'>arrow_upward</span>
-                        <div class="timepicker-input is-input">
+                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
                                    value="@(IsPopoutRefreshing == TimeSpanPart.Seconds ? GetPopoutPart(TimeSpanPart.Seconds) + 1 : GetPopoutPart(TimeSpanPart.Seconds))"
                                    step="@StepSeconds"
-                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Seconds)">
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Seconds)"
+                                   @onkeydown="args => OnKeyDown(args, TimeSpanPart.Seconds)"
+                                   @onwheel="args => OnWheel(args, TimeSpanPart.Seconds)" />
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(-StepSeconds))'>arrow_downward</span>
                     </div>
@@ -129,13 +135,15 @@
                 {
                     <div class="timepicker-seconds timepicker-milliseconds">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(StepMilliseconds))'>arrow_upward</span>
-                        <div class="timepicker-input is-input">
+                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
                                    value="@(IsPopoutRefreshing == TimeSpanPart.Milliseconds ? GetPopoutPart(TimeSpanPart.Milliseconds) + 1 : GetPopoutPart(TimeSpanPart.Milliseconds))"
                                    step="@StepMilliseconds"
-                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Milliseconds)">
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Milliseconds)"
+                                   @onkeydown="args => OnKeyDown(args, TimeSpanPart.Milliseconds)"
+                                   @onwheel="args => OnWheel(args, TimeSpanPart.Milliseconds)" />
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(-StepMilliseconds))'>arrow_downward</span>
                     </div>

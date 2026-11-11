@@ -129,6 +129,8 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	private DateTimePart? IsPopoutRefreshing;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
 
+	private readonly string[] DefaultKeys = ["ArrowDown", "ArrowUp"];
+
 	/// <summary>
 	/// Indicates whether the main input is currently focused. Used to determine whether to apply formatting to the value.
 	/// </summary>
@@ -487,6 +489,44 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		DisplayMode = displayMode;
 	}
 
+	private void OnKeyDown(KeyboardEventArgs args, DateTimePart part)
+	{
+		if (DefaultKeys.Contains(args.Key) == false)
+			return;
+
+		var adjustment = part switch
+		{
+			DateTimePart.Hours => TimeSpan.FromHours(StepHours),
+			DateTimePart.Minutes => TimeSpan.FromMinutes(StepMinutes),
+			DateTimePart.Seconds => TimeSpan.FromSeconds(StepSeconds),
+			_ => throw new ArgumentOutOfRangeException(nameof(part), part, "Invalid DateTimePart value.")
+		};
+
+		if (args.Key == "ArrowUp")
+			UpdatePopoutValue(adjustment);
+		else if (args.Key == "ArrowDown")
+			UpdatePopoutValue(adjustment.Negate());
+	}
+
+	private void OnWheel(WheelEventArgs args, DateTimePart part)
+	{
+		if (args.DeltaY == 0)
+			return;
+
+		var adjustment = part switch
+		{
+			DateTimePart.Hours => TimeSpan.FromHours(StepHours),
+			DateTimePart.Minutes => TimeSpan.FromMinutes(StepMinutes),
+			DateTimePart.Seconds => TimeSpan.FromSeconds(StepSeconds),
+			_ => throw new ArgumentOutOfRangeException(nameof(part), part, "Invalid DateTimePart value.")
+		};
+
+		if (args.DeltaY < 0)
+			UpdatePopoutValue(adjustment);
+		else
+			UpdatePopoutValue(adjustment.Negate());
+	}
+
 	private void UpdatePopoutValue(TimeSpan adjustment)
 	{
 		PopoutValue = PopoutValue.Add(adjustment);
@@ -518,7 +558,8 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		{
 			DateTimePart.Hours => (TimeSpan.TicksPerHour, PopoutValue.Hour, 23),
 			DateTimePart.Minutes => (TimeSpan.TicksPerMinute, PopoutValue.Minute, 59),
-			_ => (TimeSpan.TicksPerSecond, PopoutValue.Second, 59)
+			DateTimePart.Seconds => (TimeSpan.TicksPerSecond, PopoutValue.Second, 59),
+			_ => throw new ArgumentOutOfRangeException(nameof(part), part, "Invalid DateTimePart value.")
 		};
 
 		if (updated >= 0 && updated <= maximum)
