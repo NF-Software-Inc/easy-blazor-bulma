@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace easy_blazor_bulma_demo.Components.Pages.Forms;
 
-public partial class TestAutocomplete : ComponentBase
+public partial class TestAutocomplete : TestComponentBase
 {
 	/// <summary>
 	/// The open generic type definition for the autocomplete input component.
@@ -18,11 +18,6 @@ public partial class TestAutocomplete : ComponentBase
     /// <summary>
     /// References the parameters section element in the rendered component. Used for scrolling to the section when "View all parameters" button is clicked.
     /// </summary>
-    private ElementReference ParametersSection;
-
-	/// <summary>
-	/// Moves focus to the parameters section.
-	/// </summary>
-	private async Task JumpToParameters() => await ParametersSection.FocusAsync();
+    protected override ElementReference ParametersSection { get; set; }
 
 }

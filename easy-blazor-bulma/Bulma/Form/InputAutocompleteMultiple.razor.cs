@@ -9,25 +9,23 @@ using System.Diagnostics.CodeAnalysis;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for selecting multiple values from a list of options.
+/// An autocomplete input component for selecting multiple items from a list of suggestions. Selected items are shown as removable tags.
 /// </summary>
-/// <typeparam name="TItem">The type of suggestion displayed and searched.</typeparam>
-/// <typeparam name="TValue">The type of value stored in the bound selection list.</typeparam>
+///
 /// <remarks>
 /// <para>
-/// There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class.
-/// Each of which apply CSS classes to the resulting elements as per their names.
+/// Works like <see cref="InputAutocomplete{TItem, TValue}"/>, including keyboard navigation and the additional styling attributes. Only the differences are listed here.
 /// </para>
-///
-/// <para>
-/// By default the <c>is-success</c> class is applied for tag-class.
-/// Providing another Bulma color class will suppress the default so it can take effect.
-/// </para>
-///
-/// <para>
-/// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
-/// </para>
+/// <list type="bullet">
+///   <item><term>Bound value</term><description>Binds to a <c>List&lt;TValue&gt;</c>. The list is modified in place when items are added or removed.</description></item>
+///   <item><term>Selecting</term><description>Selecting a suggestion (click, Enter, or Tab with <c>AutoSelectOnExit</c>) adds it to the list and clears the text input. A suggestion that is already selected is not added again unless <c>AllowSameItem</c> is set.</description></item>
+///   <item><term>Selected values</term><description>Each selected item is shown as its own tag with a remove button. The button is hidden when the input is disabled. Selected items are also marked in the suggestion list.</description></item>
+///   <item><term><c>tag-class</c></term><description>Applies to every selected tag. Defaults to <c>is-success</c> unless another Bulma color class is given.</description></item>
+/// </list>
 /// </remarks>
+///
+/// <typeparam name="TItem">The type of suggestion displayed and searched.</typeparam>
+/// <typeparam name="TValue">The type of each value in the bound list.</typeparam>
 public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
 {
 	/// <summary>

@@ -2,9 +2,15 @@
 
 @inherits ComponentBase
 
+@if (string.IsNullOrEmpty(Title) == false)
+{
+	<h3 class="title is-5">@Title</h3>
+}
+
 <div class="block">@XmlDocs.ToHtml(TypeDoc?.Element("summary"))</div>
 
-<div class="block">@XmlDocs.ToHtml(TypeDoc?.Element("remarks"))</div>
+@* Bulma only draws bullet points for lists inside .content *@
+<div class="block content">@XmlDocs.ToHtml(TypeDoc?.Element("remarks"))</div>
 
 @if (TypeParams.Count > 0)
 {
@@ -14,7 +20,7 @@
 		<ul>
 			@foreach (var tp in TypeParams)
 			{
-				<li><code>@tp.Attribute("name")?.Value</code>: @XmlDocs.ToHtml(tp)</li>
+				<li><code>@tp.Name</code>: @tp.Description</li>
 			}
 		</ul>
 	</div>

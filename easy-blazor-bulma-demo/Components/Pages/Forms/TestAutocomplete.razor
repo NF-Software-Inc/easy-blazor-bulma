@@ -1,39 +1,20 @@
 ﻿@using easy_blazor_bulma_demo.Services
 
 @page "/inputAutocomplete"
-@inherits ComponentBase
+@inherits easy_blazor_bulma_demo.Components.Pages.TestComponentBase
 
 <TitleBlock Title="Input Autocomplete Test" />
 
 <div class="columns p-3">
     <div class="column is-4 info-panel-sticky">
         <Message Title="Information" Color="BulmaColors.Cyan">
-            <ComponentInfo ComponentType="AutocompleteType">
-                <p class="block">Note that the Input Autocomplete component supports keyboard navigation using the following keys:</p>
-                <div class="content">
-                    <ul class="content">
-                        <li>Up Arrow</li>
-                        <li>Down Arrow</li>
-                        <li>Left Arrow</li>
-                        <li>Right Arrow</li>
-                        <li>Tab</li>
-                        <li>Enter</li>
-                        <li>Esc</li>
-                    </ul>
-                </div>
+            <ComponentInfo ComponentType="AutocompleteType" Title="@nameof(InputAutocomplete<,>)" />
 
-                <p class="block">There are several additional attributes that can apply customization to the component:</p>
-                <div class="content">
-                    <ul class="content">
-                        <li>dropdown-class</li>
-                        <li>dropdown-trigger-class</li>
-                        <li>dropdown-menu-class</li>
-                        <li>dropdown-item-class</li>
-                        <li>tag-class</li>
-                    </ul>
-                </div>
-            </ComponentInfo>
+            <hr class="my-4" />
 
+            <ComponentInfo ComponentType="AutocompleteMultipleType" Title="@nameof(InputAutocompleteMultiple<,>)" />
+
+            <br />
             <p class="block">
                 <b>Looking for every option?</b>
                 <a class="is-clickable" @onclick="JumpToParameters">View all parameters ↓</a>

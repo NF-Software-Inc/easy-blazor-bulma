@@ -22,6 +22,12 @@ public partial class ComponentInfo : ComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
+    /// Optional heading shown above the documentation.
+    /// </summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>
     /// XML documentation for a type (e.g. InputAutocomplete&lt;,&gt;), including summary, remarks, and type parameters.
     /// </summary>
     private XElement? TypeDoc;
@@ -29,7 +35,7 @@ public partial class ComponentInfo : ComponentBase
     /// <summary>
     /// Stores the type parameter elements from the XML documentation for the component type, if any.
     /// </summary>
-    private List<XElement> TypeParams = [];
+    private List<TypeParameterDoc> TypeParams = [];
 
     /// <summary>
     /// Loads the component type's XML documentation and collects its type parameter documentation.
@@ -37,6 +43,6 @@ public partial class ComponentInfo : ComponentBase
     protected override void OnParametersSet()
     {
         TypeDoc = XmlDocs.GetTypeDoc(ComponentType);
-        TypeParams = TypeDoc?.Elements("typeparam").ToList() ?? [];
+        TypeParams = XmlDocs.GetTypeParameters(ComponentType).ToList();
     }
 }

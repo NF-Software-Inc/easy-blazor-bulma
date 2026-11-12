@@ -78,7 +78,12 @@
 		<PackageReference Include="Easy.Blazor.Bulma" Version="10.2.*" />
 	</ItemGroup>
 
-	<!-- Embeds demo page/example source so pages can show their code -->
+	<!--
+		Bundles all .razor files under Components\Pages directly into the compiled .dll as embedded resources.
+		This allows the UI to read and display the raw source code of live demo components at runtime.
+		LogicalName flattens nested folders into a simple "Examples.<FileName>.razor" key (e.g., "Examples.ButtonDemo.razor").
+		Note: Because folder paths are stripped, every .razor file under Components\Pages must have a unique file name.
+	-->
 	<ItemGroup>
 		<EmbeddedResource Include="Components\Pages\**\*.razor" LogicalName="Examples.%(Filename)%(Extension)" />
 	</ItemGroup>

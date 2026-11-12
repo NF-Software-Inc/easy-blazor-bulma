@@ -10,21 +10,31 @@ using System.Reflection;
 
 namespace easy_blazor_bulma;
 
+// TODO: I checked OnKeyDown in the code-behind and only saw Escape, Up, Down, Enter and Tab, so I removed Left/Right Arrow which were listed on the old page.
+
 /// <summary>
-/// An input component for selecting a value from a list of options.
+/// An autocomplete input component for selecting an item from a list of suggestions. Selected item is shown as a removable tag.
 /// </summary>
 /// <typeparam name="TItem">The type of suggestion displayed and searched.</typeparam>
 /// <typeparam name="TValue">The type of value bound to the selected suggestion.</typeparam>
-/// <remarks>
-/// <para>
-/// There are 5 additional attributes that can be used: dropdown-class, dropdown-trigger-class, dropdown-menu-class, dropdown-item-class, and tag-class.
-/// Each of which apply CSS classes to the resulting elements as per their names.
-/// </para>
 ///
-/// <para>
-/// By default the <c>is-success</c> class is applied for tag-class.
-/// Providing another Bulma color class will suppress the default so it can take effect.
-/// </para>
+/// <remarks>
+/// <para><b>Keyboard navigation:</b></para>
+/// <list type="bullet">
+///   <item><term>Up / Down Arrow</term><description>Highlights the previous or next suggestion. Opens the list first when <c>TypePopout</c> is set.</description></item>
+///   <item><term>Enter</term><description>Selects the highlighted suggestion and closes the list. The key's default action is blocked, so it does not submit a surrounding form.</description></item>
+///   <item><term>Tab</term><description>Closes the list and moves focus on. When <c>AutoSelectOnExit</c> is set, the highlighted suggestion is selected first.</description></item>
+///   <item><term>Esc</term><description>Closes the suggestion list.</description></item>
+/// </list>
+///
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>dropdown-class</c></term><description>Classes added to the outer dropdown container, e.g. <c>is-fullwidth</c>.</description></item>
+///   <item><term><c>dropdown-trigger-class</c></term><description>Classes added to the wrapper around the text input.</description></item>
+///   <item><term><c>dropdown-menu-class</c></term><description>Classes added to the suggestion list container.</description></item>
+///   <item><term><c>dropdown-item-class</c></term><description>Classes added to each suggestion.</description></item>
+///   <item><term><c>tag-class</c></term><description>Classes added to the tag that shows the selected value. By default the <c>is-success</c> class is applied for tag-class. Providing another Bulma color class will suppress the default so it can take effect.</description></item>
+/// </list>
 ///
 /// <para>
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>

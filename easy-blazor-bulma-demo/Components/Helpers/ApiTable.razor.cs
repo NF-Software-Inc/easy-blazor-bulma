@@ -35,11 +35,13 @@ public partial class ApiTable : ComponentBase
     /// </summary>
     protected override void OnParametersSet()
     {
-        var name = ComponentType.Name;
-        var tick = name.IndexOf('`');
+        // Strip the generic backtick suffix if present (e.g., "MyGrid`1" -> "MyGrid")
+        var cleanName = XmlDocs.RemoveGenericSuffix(ComponentType.Name);
 
-        Heading = Title ?? $"{(tick >= 0 ? name[..tick] : name)} Parameters";
+        // Default the section heading to the component's clean name if no custom Title is provided
+        Heading = Title ?? $"{cleanName} Parameters";
 
+        // Build table rows from the component's public parameters and their XML doc comments
         Rows = XmlDocs.GetParameters(ComponentType)
             .Select(x =>
             {
