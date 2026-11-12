@@ -8,11 +8,10 @@
 <div class="columns p-3">
     <div class="column is-4 info-panel-sticky">
         <Message Title="Information" Color="BulmaColors.Cyan">
-            <ComponentInfo ComponentType="AutocompleteType" Title="@nameof(InputAutocomplete<,>)" />
-
-            <hr class="my-4" />
-
-            <ComponentInfo ComponentType="AutocompleteMultipleType" Title="@nameof(InputAutocompleteMultiple<,>)" />
+            @foreach (var type in ComponentTypes)
+            {
+                <ComponentInfo ComponentType="type" Title="@XmlDocs.RemoveGenericSuffix(type.Name)" />
+            }
 
             <br />
             <p class="block">
@@ -37,6 +36,8 @@
 
 @* Parameter Table *@
 <section @ref="ParametersSection" tabindex="-1" class="p-3">
-    <ApiTable ComponentType="AutocompleteType" />
-    <ApiTable ComponentType="AutocompleteMultipleType" />
+    @foreach (var type in ComponentTypes)
+    {
+        <ApiTable ComponentType="type" />
+    }
 </section>

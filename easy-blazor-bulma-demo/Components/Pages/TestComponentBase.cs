@@ -8,9 +8,14 @@ namespace easy_blazor_bulma_demo.Components.Pages;
 public abstract class TestComponentBase : ComponentBase
 {
     /// <summary>
+    /// The component types documented on this test page.
+    /// </summary>
+    protected abstract Type[] ComponentTypes { get; }
+
+    /// <summary>
     /// The referenced parameters section element. Used for scrolling to the section.
     /// </summary>
-    protected abstract ElementReference ParametersSection { get; set; }
+    protected ElementReference ParametersSection { get; set; }
 
     /// <summary>
     /// Moves focus to the parameters section.
