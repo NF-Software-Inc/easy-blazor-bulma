@@ -131,6 +131,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
 	private string? InputValue;
+	private readonly List<TItem> CachedItems = [];
 
 	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
@@ -235,6 +236,8 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 		if (ValueSelector == null && UsesDirectAssignment == false)
 			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
+
+		UpdateCachedItems();
 	}
 
 	/// <inheritdoc />
@@ -327,7 +330,15 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		OnBlurPreventDefault = false;
 	}
 
-	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
+	private void OnItemSelected(TItem item)
+	{
+		var value = GetValue(item);
+
+		CacheItem(item, value);
+		OnItemSelected(value, true, true, false);
+	}
+
+	private void OnItemSelected(TValue? value, bool close = true, bool success = true, bool updateCache = true)
 	{
 		var changed = false;
 
@@ -337,6 +348,9 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 			if (Options.HasFlag(InputAutocompleteOptions.AllowSameItem) || Value!.Any(x => AreEqual(x, value)) == false)
 			{
+				if (updateCache)
+					UpdateCachedItem(value);
+
 				Value!.Add(value);
 				HighlightedValue = value;
 
@@ -367,7 +381,13 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		if (Value == null || index < 0 || index >= Value.Count)
 			return;
 
+		var remove = Value[index];
+
 		Value.RemoveAt(index);
+
+		if (UsesDirectAssignment == false && Value.Any(x => AreEqual(x, remove)) == false)
+			CachedItems.RemoveAll(x => AreEqual(GetValue(x), remove));
+
 		_ = ValueChanged.InvokeAsync(Value);
 
 		EditContext.NotifyFieldChanged(FieldIdentifier);
@@ -453,7 +473,7 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		DisplayStatus &= ~InputStatus.BackgroundSuccess;
 	}
 
-	private (bool success, TValue? match) GetMatch(string? value, InputAutocompleteOptions? matchType = null)
+	private (bool success, TValue? match) GetMatch(string? display, InputAutocompleteOptions? matchType = null)
 	{
 		if (matchType == null)
 		{
@@ -470,14 +490,83 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 		if (matchType == InputAutocompleteOptions.AutoSelectCurrent && HighlightedValue != null)
 			return (true, HighlightedValue);
 		else if (matchType == InputAutocompleteOptions.AutoSelectExact)
-			match = GetDisplayItems().FirstOrDefault(x => string.Equals(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase));
+			match = GetDisplayItems().FirstOrDefault(x => string.Equals(DisplayValue(x), display, StringComparison.OrdinalIgnoreCase));
 		else if (matchType == InputAutocompleteOptions.AutoSelectClosest)
-			match = GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+			match = GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), display, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
 		if (match != null)
-			return (true, GetValue(match));
-		else
-			return (false, default);
+		{
+			var value = GetValue(match);
+
+			CacheItem(match, value);
+			return (true, value);
+		}
+
+		return (false, default);
+	}
+
+	private void CacheItem(TItem item, TValue value)
+	{
+		if (UsesDirectAssignment || CachedItems.Contains(item))
+			return;
+
+		if (CachedItems.Any(x => AreEqual(GetValue(x), value)) == false)
+			CachedItems.Add(item);
+	}
+
+	private void UpdateCachedItem(TValue? value)
+	{
+		if (UsesDirectAssignment || value == null)
+			return;
+
+		if (CachedItems.Any(x => AreEqual(GetValue(x), value)))
+			return;
+
+		foreach (var item in Items)
+		{
+			if (AreEqual(GetValue(item), value))
+			{
+				CachedItems.Add(item);
+				return;
+			}
+		}
+	}
+
+	private void UpdateCachedItems()
+	{
+		if (UsesDirectAssignment)
+			return;
+
+		if (CurrentValue == null || CurrentValue.Count == 0)
+		{
+			CachedItems.Clear();
+			return;
+		}
+
+		for (var i = CachedItems.Count - 1; i >= 0; i--)
+			if (CurrentValue.Any(x => AreEqual(GetValue(CachedItems[i]), x)) == false)
+				CachedItems.RemoveAt(i);
+
+		if (CachedItems.Count == CurrentValue.Count)
+			return;
+
+		var missing = CurrentValue.Where(x => x != null && CachedItems.Any(y => AreEqual(GetValue(y), x)) == false).ToList();
+
+		if (missing.Count == 0)
+			return;
+
+		foreach (var item in Items)
+		{
+			var value = GetValue(item);
+
+			if (missing.RemoveAll(x => AreEqual(value, x)) > 0)
+			{
+				CachedItems.Add(item);
+
+				if (missing.Count == 0)
+					return;
+			}
+		}
 	}
 
 	private string GetDropDownItemCssClass(TItem item)
@@ -513,6 +602,10 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	{
 		if (UsesDirectAssignment)
 			return DisplayValue((TItem)(object?)value!);
+
+		foreach (var item in CachedItems)
+			if (AreEqual(GetValue(item), value))
+				return DisplayValue(item);
 
 		foreach (var item in Items)
 			if (AreEqual(GetValue(item), value))

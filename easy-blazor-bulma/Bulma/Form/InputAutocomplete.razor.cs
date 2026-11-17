@@ -134,6 +134,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
 	private string? InputValue;
+	private TItem? CachedItem;
 
 	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
@@ -273,6 +274,8 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 		if (ValueSelector == null && UsesDirectAssignment == false)
 			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
+
+		UpdateCachedItem(CurrentValue);
 	}
 
 	/// <inheritdoc />
@@ -287,6 +290,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		{
 			result = match.match!;
 			HighlightedValue = result;
+			UpdateCachedItem(result);
 
 			if (Options.HasFlag(InputAutocompleteOptions.UseAutomaticStatusColors))
 				DisplayStatus |= InputStatus.BackgroundSuccess;
@@ -314,6 +318,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		{
 			if (UsesDirectAssignment)
 				return DisplayValue((TItem)(object)value);
+
+			if (CachedItem != null && AreEqual(GetValue(CachedItem), value))
+				return DisplayValue(CachedItem);
 
 			foreach (var item in Items)
 				if (AreEqual(GetValue(item), value))
@@ -355,10 +362,39 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		else if (matchType == InputAutocompleteOptions.AutoSelectClosest)
 			match = GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
+		if (match != null && UsesDirectAssignment == false)
+			CachedItem = match;
+
 		if (match != null)
 			return (true, GetValue(match));
 		else
 			return (IsNullable, default);
+	}
+
+	private void UpdateCachedItem(TValue? value)
+	{
+		if (UsesDirectAssignment)
+			return;
+
+		if (value == null)
+		{
+			CachedItem = default;
+			return;
+		}
+
+		if (CachedItem != null && AreEqual(GetValue(CachedItem), value))
+			return;
+
+		foreach (var item in Items)
+		{
+			if (AreEqual(GetValue(item), value))
+			{
+				CachedItem = item;
+				return;
+			}
+		}
+
+		CachedItem = default;
 	}
 
 	private void OnFocus(FocusEventArgs args)
@@ -445,8 +481,19 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		OnBlurPreventDefault = false;
 	}
 
-	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
+	private void OnItemSelected(TItem item)
 	{
+		if (UsesDirectAssignment == false)
+			CachedItem = item;
+
+		OnItemSelected(GetValue(item), true, true, false);
+	}
+
+	private void OnItemSelected(TValue? value, bool close = true, bool success = true, bool updateCache = true)
+	{
+		if (updateCache)
+			UpdateCachedItem(value);
+
 		CurrentValue = value;
 		InputValue = null;
 
