@@ -20,7 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
-			10.2.4 Improve formatting and input for InputDuration and InputDateTime
+			10.2.4 Fix missing display values in InputAutocomplete, improve formatting and input for InputDuration and InputDateTime
 			10.2.3 Relax ValueSelector constraint on decoupled components to allow assignable interface or base-class value types
 			10.2.2 Relax ValueSelector constraint on decoupled components to ignore nullability without ValueSelector
 			10.2.1 Add QRCode component, fix initialization issue in Masonry component

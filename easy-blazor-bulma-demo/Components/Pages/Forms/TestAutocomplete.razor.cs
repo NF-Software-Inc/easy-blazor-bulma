@@ -16,6 +16,7 @@ public partial class TestAutocomplete : ComponentBase
 	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
 	private string? Filter;
 	private string? SubmitMessage;
+	private bool IsFirstLoad = true;
 
 	private readonly InputAutocompleteOptions Options2 =
 		InputAutocompleteOptions.TypePopout |
@@ -56,12 +57,31 @@ public partial class TestAutocomplete : ComponentBase
 		new DemoAutocomplete { Id = 15, Name = "Betty Terletson", Age = 20, Position = "Janitor" }
 	];
 
+	private static readonly DemoAutocomplete NotInList = new() { Id = 999, Name = "Jenny Hideaway", Age = 99, Position = "Janitor" };
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (firstRender)
+		{
+			IsFirstLoad = false;
+			StateHasChanged();
+		}
+	}
+
 	private IEnumerable<DemoAutocomplete> GetAutocompleteItems()
 	{
 		if (string.IsNullOrWhiteSpace(Filter) == false)
 			return AllItems.Where(x => x.Position == "Accountant" && x.Name.StartsWith(Filter, StringComparison.OrdinalIgnoreCase));
 		else
 			return AllItems.Where(x => x.Position == "Accountant");
+	}
+
+	private IEnumerable<DemoAutocomplete> GetInitialItems()
+	{
+		if (IsFirstLoad)
+			return AllItems.Append(NotInList);
+		else
+			return AllItems;
 	}
 
 	private async Task OnItemsRequested(string? value)
@@ -104,10 +124,10 @@ public partial class TestAutocomplete : ComponentBase
 		public List<DemoAutocomplete> SelectedItems4 { get; set; } = [];
 
 		[Display(Name = "Applicant ID", Description = "Select an applicant while binding only their ID.")]
-		public int? SelectedItemId5 { get; set; } = AllItems[7].Id;
+		public int? SelectedItemId5 { get; set; } = NotInList.Id;
 
 		[Display(Name = "Applicant IDs", Description = "Select multiple applicants while binding only their IDs.")]
-		public List<int> SelectedItemIds6 { get; set; } = [AllItems[3].Id, AllItems[7].Id];
+		public List<int> SelectedItemIds6 { get; set; } = [AllItems[3].Id, NotInList.Id];
 
 		[Display(Name = "Field Applicant", Description = "Select an applicant using a field instead of property.")]
 		public DemoAutocomplete? FieldSelection = AllItems[1];

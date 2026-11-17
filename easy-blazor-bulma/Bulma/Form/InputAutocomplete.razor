@@ -16,7 +16,7 @@
 		<div class="dropdown-content">
 			@foreach (var item in GetDisplayItems())
 			{
-				<div @key=item class='@GetDropDownItemCssClass(item)' @onmousedown='OnMouseDown' @onmouseup='OnMouseUp' @onclick='x => OnItemSelected(GetValue(item))'>@DisplayValue(item)</div>
+				<div @key=item class='@GetDropDownItemCssClass(item)' @onmousedown='OnMouseDown' @onmouseup='OnMouseUp' @onclick='x => OnItemSelected(item)'>@DisplayValue(item)</div>
 			}
 		</div>
 	</div>
@@ -28,7 +28,7 @@
 		@FormatValueAsString(CurrentValue)
 		@if (IsNullable && AdditionalAttributes.IsDisabled() == false)
 		{
-			<button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemSelected(default)'></button>
+			<button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemSelected(default, true, true)'></button>
 		}
 	</span>
 }
