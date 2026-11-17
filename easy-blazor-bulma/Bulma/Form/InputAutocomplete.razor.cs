@@ -81,6 +81,15 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	public string? Icon { get; set; } = "search";
 
 	/// <summary>
+	/// An icon to reset the input.
+	/// </summary>
+	/// <remarks>
+	/// Only displayed when <see cref="Options"/> has the <see cref="InputAutocompleteOptions.DisplaySelectionInInput"/> flag set.
+	/// </remarks>
+	[Parameter]
+	public string? ResetIcon { get; set; } = "close";
+
+	/// <summary>
 	/// Applies styles to the input according to the selected options.
 	/// </summary>
 	[Parameter]
@@ -134,6 +143,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
 	private string? InputValue;
+	private string? DisplayedInputValue => InputValue == null && Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) ? FormatValueAsString(CurrentValue) : InputValue;
 	private TItem? CachedItem;
 
 	private bool OnKeyDownPreventDefault;
@@ -408,6 +418,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		if (OnBlurPreventDefault)
 			return;
 
+		if (Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) && IsNullable && InputValue == string.Empty)
+			OnItemSelected(default, true, true);
+
 		IsPopoutDisplayed = false;
 	}
 
@@ -479,6 +492,14 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private void OnMouseUp(MouseEventArgs args)
 	{
 		OnBlurPreventDefault = false;
+	}
+
+	private async Task OnReset()
+	{
+		OnItemSelected(default, true, true);
+
+		if (OnItemsRequested != null)
+			await OnItemsRequested.Invoke(null);
 	}
 
 	private void OnItemSelected(TItem item)

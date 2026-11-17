@@ -70,8 +70,10 @@ public partial class TestAutocomplete : ComponentBase
 
 	private IEnumerable<DemoAutocomplete> GetAutocompleteItems()
 	{
-		if (string.IsNullOrWhiteSpace(Filter) == false)
-			return AllItems.Where(x => x.Position == "Accountant" && x.Name.StartsWith(Filter, StringComparison.OrdinalIgnoreCase));
+		var filter = Filter;
+
+		if (string.IsNullOrWhiteSpace(filter) == false)
+			return AllItems.Where(x => x.Position == "Accountant" && x.Name.StartsWith(filter, StringComparison.OrdinalIgnoreCase));
 		else
 			return AllItems.Where(x => x.Position == "Accountant");
 	}
