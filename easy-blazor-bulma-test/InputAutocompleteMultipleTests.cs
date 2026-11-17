@@ -375,11 +375,55 @@ public class InputAutocompleteMultipleTests
 		return Assert.IsType<string>(Invoke(input, "GetItemDisplayValue", value!));
 	}
 
-	private static object? Invoke<TItem, TValue>(TestInput<TItem, TValue> input, string methodName, params object[] arguments)
+	private static object? Invoke<TItem, TValue>(TestInput<TItem, TValue> input, string methodName, params object?[]? arguments)
 	{
-		var method = typeof(InputAutocompleteMultiple<TItem, TValue>).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+		arguments ??= [null];
+
+		var method = typeof(InputAutocompleteMultiple<TItem, TValue>)
+			.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+			.Where(x => x.Name == methodName && CanInvoke(x.GetParameters(), arguments))
+			.OrderBy(x => x.GetParameters().Length)
+			.FirstOrDefault();
+
 		Assert.NotNull(method);
-		return method.Invoke(input, arguments);
+
+		var parameters = method.GetParameters();
+		var callArguments = new object?[parameters.Length];
+		Array.Copy(arguments, callArguments, arguments.Length);
+
+		for (var i = arguments.Length; i < parameters.Length; i++)
+			callArguments[i] = parameters[i].DefaultValue;
+
+		return method.Invoke(input, callArguments);
+	}
+
+	private static bool CanInvoke(ParameterInfo[] parameters, object?[] arguments)
+	{
+		if (parameters.Length < arguments.Length)
+			return false;
+
+		for (var i = 0; i < arguments.Length; i++)
+		{
+			var argument = arguments[i];
+			var parameterType = parameters[i].ParameterType;
+			var underlyingType = Nullable.GetUnderlyingType(parameterType);
+
+			if (argument == null)
+			{
+				if (parameterType.IsValueType && underlyingType == null)
+					return false;
+			}
+			else if ((underlyingType ?? parameterType).IsInstanceOfType(argument) == false)
+			{
+				return false;
+			}
+		}
+
+		for (var i = arguments.Length; i < parameters.Length; i++)
+			if (parameters[i].HasDefaultValue == false)
+				return false;
+
+		return true;
 	}
 
 	private static void SetPrivateField<TItem, TValue>(TestInput<TItem, TValue> input, string fieldName, object value)
