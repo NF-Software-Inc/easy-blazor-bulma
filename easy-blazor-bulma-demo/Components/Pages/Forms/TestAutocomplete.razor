@@ -44,8 +44,8 @@
             </div>
             <div class="field">
                 <Label For="() => InputModel.SelectedItem2" TooltipMode="TooltipDisplayMode" />
-                <div class="control has-icons-left is-expanded">
-                    <InputAutocomplete dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options2" />
+                <div class="control has-icons-left has-icons-right is-expanded">
+                    <InputAutocomplete dropdown-class="is-fullwidth" tag-class="is-warning" @bind-Value="InputModel.SelectedItem2" DisplayValue='x => x.Name' Items="GetAutocompleteItems()" OnItemsRequested=OnItemsRequested DisplayCount="5" Options="Options2 | InputAutocompleteOptions.DisplaySelectionInInput" />
                 </div>
             </div>
             <div class="field">

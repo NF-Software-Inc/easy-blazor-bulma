@@ -4,31 +4,38 @@
 @inherits InputBase<TValue>
 
 <div class='@DropDownCssClass'>
-	<div class='@DropDownTriggerCssClass'>
-		<input type="search" class='@MainCssClass' placeholder="Search..." autocomplete="off" value="@InputValue" @ref=Element @oninput='OnInput' @onclick='OnClick' @onfocus='OnFocus' @onblur='OnBlur' @onkeydown='OnKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+    <div class='@DropDownTriggerCssClass'>
+        <input type="text" class='@MainCssClass' placeholder="Search..." autocomplete="off" value="@DisplayedInputValue" @ref=Element @oninput='OnInput' @onclick='OnClick' @onfocus='OnFocus' @onblur='OnBlur' @onkeydown='OnKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
 
-		@if (string.IsNullOrWhiteSpace(Icon) == false)
-		{
-			<span class="material-icons icon is-left">@Icon</span>
-		}
-	</div>
-	<div class='@DropDownMenuCssClass'>
-		<div class="dropdown-content">
-			@foreach (var item in GetDisplayItems())
-			{
-				<div @key=item class='@GetDropDownItemCssClass(item)' @onmousedown='OnMouseDown' @onmouseup='OnMouseUp' @onclick='x => OnItemSelected(item)'>@DisplayValue(item)</div>
-			}
-		</div>
-	</div>
+        @if (string.IsNullOrWhiteSpace(Icon) == false)
+        {
+            <span class="material-icons icon is-left">@Icon</span>
+        }
+
+        @if (Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) && IsNullable && AdditionalAttributes.IsDisabled() == false)
+        {
+            <span class="material-icons icon is-right is-clickable" @onclick='OnReset' @onclick:stopPropagation="true">
+                @ResetIcon
+            </span>
+        }
+    </div>
+    <div class='@DropDownMenuCssClass'>
+        <div class="dropdown-content">
+            @foreach (var item in GetDisplayItems())
+            {
+                <div @key=item class='@GetDropDownItemCssClass(item)' @onmousedown='OnMouseDown' @onmouseup='OnMouseUp' @onclick='x => OnItemSelected(item)'>@DisplayValue(item)</div>
+            }
+        </div>
+    </div>
 </div>
 
-@if (CurrentValue != null)
+@if (CurrentValue != null && Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) == false)
 {
-	<span class='@TagCssClass'>
-		@FormatValueAsString(CurrentValue)
-		@if (IsNullable && AdditionalAttributes.IsDisabled() == false)
-		{
-			<button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemSelected(default, true, true)'></button>
-		}
-	</span>
+    <span class='@TagCssClass'>
+        @FormatValueAsString(CurrentValue)
+        @if (IsNullable && AdditionalAttributes.IsDisabled() == false)
+        {
+            <button type="button" class="delete is-small" tabindex="-1" @onclick='() => OnItemSelected(default, true, true)'></button>
+        }
+    </span>
 }
