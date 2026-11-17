@@ -418,7 +418,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		if (OnBlurPreventDefault)
 			return;
 
-		if (Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) && IsNullable && string.IsNullOrEmpty(InputValue))
+		if (Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) && IsNullable && InputValue == string.Empty)
 			OnItemSelected(default, true, true);
 
 		IsPopoutDisplayed = false;
