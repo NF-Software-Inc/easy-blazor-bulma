@@ -109,6 +109,8 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 
 	private static readonly Type[] SupportedTypes =
 	[
+		typeof(sbyte),
+		typeof(byte),
 		typeof(short),
 		typeof(ushort),
 		typeof(int),
