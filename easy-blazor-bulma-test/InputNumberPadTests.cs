@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Xunit;
 
@@ -136,7 +137,9 @@ public class InputNumberPadTests
 
 		await InvokeOnAfterRenderAsync(input, firstRender: true);
 		Assert.Equal(3, jsRuntime.RegisteredKeyCalls.Count);
-		Assert.All(jsRuntime.RegisteredKeyCalls, keys => Assert.Equal(["Escape", "Tab", "Enter", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"], keys));
+		Assert.Equal(["Escape", "Tab", "Enter", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "], jsRuntime.RegisteredKeyCalls["keypad"]);
+		Assert.Equal(["Escape", "Tab", "Enter", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "], jsRuntime.RegisteredKeyCalls["custom-button"]);
+		Assert.Equal(["Escape", "Tab", "Enter", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"], jsRuntime.RegisteredKeyCalls["display-input"]);
 
 		await InvokeButtonKeyDownAsync(input, "ArrowRight", row: 0, column: 0);
 		await InvokeButtonKeyDownAsync(input, "ArrowDown", row: 0, column: 0);
@@ -153,20 +156,75 @@ public class InputNumberPadTests
 		input.UseArrowKeyNavigation = true;
 		await InvokeOnAfterRenderAsync(input, firstRender: false);
 		Assert.Equal(3, jsRuntime.RegisteredKeyCalls.Count);
-		Assert.All(jsRuntime.RegisteredKeyCalls, keys => Assert.Equal(["Escape", "Tab", "Enter"], keys));
+		Assert.Equal(["Escape", "Tab", "Enter", " "], jsRuntime.RegisteredKeyCalls["keypad"]);
+		Assert.Equal(["Escape", "Tab", "Enter", " "], jsRuntime.RegisteredKeyCalls["custom-button"]);
+		Assert.Equal(["Escape", "Tab", "Enter"], jsRuntime.RegisteredKeyCalls["display-input"]);
+	}
+
+	/// <summary>
+	/// Verifies localized cultures use their decimal separator strictly for button rendering, formatting, parsing, and key entry.
+	/// </summary>
+	[Fact]
+	public async Task LocalizedCultureUsesStrictDecimalSeparatorAndFormatsValues()
+	{
+		var frCulture = CultureInfo.GetCultureInfo("fr-FR");
+		var (input, _, _) = CreateInput<decimal?>(displayInput: true, culture: frCulture);
+		input.Value = 4.5m;
+
+		Assert.Equal("4,5", input.Format(input.Value));
+		Assert.Equal(",", GetPrivateProperty<decimal?, string>(input, "DecimalSeparator"));
+
+		await InvokeButtonKeyDownAsync(input, "Backspace", row: 3, column: 2);
+		await InvokeButtonKeyDownAsync(input, "Backspace", row: 3, column: 2);
+		await InvokeButtonKeyDownAsync(input, "Backspace", row: 3, column: 2);
+		Assert.Null(input.Value);
+
+		await InvokeInputKeyDownAsync(input, "0");
+		await InvokeInputKeyDownAsync(input, ".");
+		await InvokeInputKeyDownAsync(input, "5");
+		Assert.Equal(5m, input.Value);
+		Assert.Equal("5", input.Format(input.Value));
+
+		await InvokeButtonKeyDownAsync(input, "Backspace", row: 3, column: 2);
+		await InvokeInputKeyDownAsync(input, "0");
+		await InvokeInputKeyDownAsync(input, ",");
+		await InvokeInputKeyDownAsync(input, "5");
+		Assert.Equal(0.5m, input.Value);
+		Assert.Equal("0,5", input.Format(input.Value));
+
+		Assert.False(input.TryParse("invalid", out _, out var validationErrorMessage));
+		Assert.Contains("must be a number.", validationErrorMessage);
+	}
+
+	/// <summary>
+	/// Verifies default invariant culture rejects comma key presses when entering decimals.
+	/// </summary>
+	[Fact]
+	public async Task InvariantCultureRejectsCommaDecimalSeparatorKey()
+	{
+		var (input, _, _) = CreateInput<decimal?>(displayInput: true);
+
+		await InvokeInputKeyDownAsync(input, "1");
+		await InvokeInputKeyDownAsync(input, ",");
+		await InvokeInputKeyDownAsync(input, "2");
+
+		Assert.Equal(12m, input.Value);
+		Assert.Equal("12", input.Format(input.Value));
 	}
 
 	private static (TestNumberPad<TValue> Input, RecordingJsRuntime JsRuntime, string ButtonId) CreateInput<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>(
 		bool displayInput = false,
 		Func<Task>? customButtonCallback = null,
-		Dictionary<string, object>? additionalAttributes = null)
+		Dictionary<string, object>? additionalAttributes = null,
+		CultureInfo? culture = null)
 	{
 		var jsRuntime = new RecordingJsRuntime();
 		var input = new TestNumberPad<TValue>
 		{
 			DisplayInput = displayInput,
 			OnCustomButtonClicked = customButtonCallback,
-			AdditionalAttributes = additionalAttributes
+			AdditionalAttributes = additionalAttributes,
+			Culture = culture
 		};
 
 		input.ValueChanged = EventCallback.Factory.Create<TValue>(new object(), value => input.Value = value);
@@ -220,6 +278,13 @@ public class InputNumberPadTests
 		property.SetValue(input, (ElementReference?)new ElementReference(id));
 	}
 
+	private static TProperty GetPrivateProperty<TValue, TProperty>(TestNumberPad<TValue> input, string propertyName)
+	{
+		var property = typeof(InputNumberPad<TValue>).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.NotNull(property);
+		return Assert.IsType<TProperty>(property.GetValue(input));
+	}
+
 	private sealed class RecordingJsRuntime : IJSRuntime
 	{
 		/// <summary>
@@ -228,9 +293,9 @@ public class InputNumberPadTests
 		public string? LastFocusedId { get; private set; }
 
 		/// <summary>
-		/// Stores each key array passed to <c>easyBlazorBulma.Input.RegisterKeyDownPreventDefault</c>.
+		/// Stores each key array passed to <c>easyBlazorBulma.Input.RegisterKeyDownPreventDefault</c>, keyed by element ID.
 		/// </summary>
-		public List<string[]> RegisteredKeyCalls { get; } = [];
+		public Dictionary<string, string[]> RegisteredKeyCalls { get; } = [];
 
 		/// <inheritdoc />
 		public ValueTask<TValue> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] TValue>(string identifier, object?[]? args)
@@ -243,8 +308,8 @@ public class InputNumberPadTests
 		{
 			if (identifier == "easyBlazorBulma.FocusElement" && args is { Length: > 0 } && args[0] is string focusedId)
 				LastFocusedId = focusedId;
-			else if (identifier == "easyBlazorBulma.Input.RegisterKeyDownPreventDefault" && args is { Length: > 1 } && args[1] is string[] keys)
-				RegisteredKeyCalls.Add(keys);
+			else if (identifier == "easyBlazorBulma.Input.RegisterKeyDownPreventDefault" && args is { Length: > 1 } && args[0] is ElementReference element && args[1] is string[] keys)
+				RegisteredKeyCalls[element.Id] = keys;
 
 			object? result = typeof(TValue) == typeof(bool) ? true : default(TValue);
 			return new ValueTask<TValue>((TValue)result!);
@@ -254,6 +319,16 @@ public class InputNumberPadTests
 	private sealed class TestNumberPad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputNumberPad<TValue>
 	{
 		private readonly FieldModel Model = new();
+
+		/// <summary>
+		/// Exposes <see cref="InputNumberPad{TValue}.FormatValueAsString"/> for verification.
+		/// </summary>
+		public string Format(TValue? value) => FormatValueAsString(value);
+
+		/// <summary>
+		/// Exposes <see cref="InputNumberPad{TValue}.TryParseValueFromString"/> for verification.
+		/// </summary>
+		public bool TryParse(string? value, out TValue? result, out string? validationErrorMessage) => TryParseValueFromString(value, out result, out validationErrorMessage);
 
 		/// <summary>
 		/// Configures edit context and injected services before running component initialization hooks.

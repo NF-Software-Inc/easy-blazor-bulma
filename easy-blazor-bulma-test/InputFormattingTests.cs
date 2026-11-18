@@ -15,6 +15,17 @@ public class InputFormattingTests
 	}
 
 	[Fact]
+	public void NumberFormattedUsesCultureForRawAndDisplayFormatting()
+	{
+		var frCulture = CultureInfo.GetCultureInfo("fr-FR");
+		var rawInput = new TestInputNumberFormatted<decimal>(culture: frCulture);
+		var displayInput = new TestInputNumberFormatted<decimal>("N2", frCulture);
+
+		Assert.Equal("1234,5", rawInput.Format(1234.5m));
+		Assert.Equal(1234.5m.ToString("N2", frCulture), displayInput.Format(1234.5m));
+	}
+
+	[Fact]
 	public void NumberFormattedUsesCustomFormatterWhenProvided()
 	{
 		var input = new TestInputNumberFormatted<int>("N0", formatter: x => $"{x} units");

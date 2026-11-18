@@ -343,6 +343,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
 		}
 
+		((IDisposable)this).Dispose();
 		GC.SuppressFinalize(this);
 	}
 

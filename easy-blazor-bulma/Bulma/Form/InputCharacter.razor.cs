@@ -64,6 +64,12 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	[Parameter]
 	public bool UseArrowKeyNavigation { get; set; } = true;
 
+	/// <summary>
+	/// The culture used to format and parse character values. Defaults to <see cref="CultureInfo.InvariantCulture"/>.
+	/// </summary>
+	[Parameter]
+	public CultureInfo? Culture { get; set; }
+
 	[Inject]
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
@@ -71,6 +77,9 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
+
+	private CultureInfo DisplayProvider => Culture ?? CultureInfo.CurrentCulture;
+	private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
 
 	private bool IsUpperCase = true;
 	private bool? RegisteredUseArrowKeyNavigation;
@@ -126,6 +135,7 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
 		}
 
+		((IDisposable)this).Dispose();
 		GC.SuppressFinalize(this);
 	}
 
@@ -139,16 +149,16 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
             validationErrorMessage = null;
             return true;
         }
-        else if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+		else if (BindConverter.TryConvertTo(value, FormatProvider, out result))
 		{
 			validationErrorMessage = null;
 			return true;
 		}
 		else
 		{
-            result = default;
+			result = default;
 
-            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a char.", DisplayName ?? FieldIdentifier.FieldName);
+			validationErrorMessage = string.Format(DisplayProvider, "The {0} field must be a char.", DisplayName ?? FieldIdentifier.FieldName);
 			return false;
 		}
 	}
@@ -156,7 +166,7 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	/// <inheritdoc />
 	protected override string FormatValueAsString(TValue? value) => value switch
 	{
-		char charValue => charValue.ToString(),
+		char charValue => charValue.ToString(FormatProvider),
 		_ => string.Empty
 	};
 
@@ -166,16 +176,16 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 		if (AdditionalAttributes.IsDisabled())
 			return;
-		else if (IsNullable == false && current != null && current != '\0' && char.ToUpper(character) == char.ToUpper(current.Value))
+		else if (IsNullable == false && current != null && current != '\0' && char.ToUpper(character, FormatProvider) == char.ToUpper(current.Value, FormatProvider))
 			return;
-		else if (character == '\0' || (current != null && current != '\0' && char.ToUpper(character) == char.ToUpper(current.Value)))
+		else if (character == '\0' || (current != null && current != '\0' && char.ToUpper(character, FormatProvider) == char.ToUpper(current.Value, FormatProvider)))
 			CurrentValueAsString = null;
 		else if ((IsUpperCase && char.IsUpper(character)) || (IsUpperCase == false && char.IsLower(character)))
-			CurrentValueAsString = character.ToString();
+			CurrentValueAsString = character.ToString(FormatProvider);
 		else if (IsUpperCase)
-			CurrentValueAsString = char.ToUpper(character).ToString();
+			CurrentValueAsString = char.ToUpper(character, FormatProvider).ToString(FormatProvider);
 		else
-			CurrentValueAsString = char.ToLower(character).ToString();
+			CurrentValueAsString = char.ToLower(character, FormatProvider).ToString(FormatProvider);
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
@@ -193,54 +203,54 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 			.Select((Options, IndexC) => new { IndexC, Options = Options.Select((Value, IndexR) => new { IndexR, Value }).ToList() })
 			.ToList();
 
-		var column = columns.FirstOrDefault(x => x.Options.Any(y => char.ToUpper(y.Value) == char.ToUpper(current.Value)));
+		var column = columns.FirstOrDefault(x => x.Options.Any(y => char.ToUpper(y.Value, FormatProvider) == char.ToUpper(current.Value, FormatProvider)));
 
 		if (column == null)
 			return;
 
-		var row = column.Options.Single(x => char.ToUpper(x.Value) == char.ToUpper(current.Value));
+		var row = column.Options.Single(x => char.ToUpper(x.Value, FormatProvider) == char.ToUpper(current.Value, FormatProvider));
 
 		if (args.Key == "ArrowUp" && column.Options.Count > 1)
 		{
 			if (row.IndexR == 0)
-				CurrentValueAsString = column.Options[^1].Value.ToString();
+				CurrentValueAsString = column.Options[^1].Value.ToString(FormatProvider);
 			else
-				CurrentValueAsString = column.Options[row.IndexR - 1].Value.ToString();
+				CurrentValueAsString = column.Options[row.IndexR - 1].Value.ToString(FormatProvider);
 		}
 		else if (args.Key == "ArrowDown" && column.Options.Count > 1)
 		{
 			if (row.IndexR == column.Options.Count - 1)
-				CurrentValueAsString = column.Options[0].Value.ToString();
+				CurrentValueAsString = column.Options[0].Value.ToString(FormatProvider);
 			else
-				CurrentValueAsString = column.Options[row.IndexR + 1].Value.ToString();
+				CurrentValueAsString = column.Options[row.IndexR + 1].Value.ToString(FormatProvider);
 		}
 		else if (args.Key == "ArrowLeft" && columns.Count > 1)
 		{
 			if (column.IndexC == 0 && columns[^1].Options.Count - 1 >= row.IndexR)
-				CurrentValueAsString = columns[^1].Options[row.IndexR].Value.ToString();
+				CurrentValueAsString = columns[^1].Options[row.IndexR].Value.ToString(FormatProvider);
 			else if (column.IndexC == 0)
-				CurrentValueAsString = columns[^1].Options.Last().Value.ToString();
+				CurrentValueAsString = columns[^1].Options.Last().Value.ToString(FormatProvider);
 			else if (columns[column.IndexC - 1].Options.Count - 1 >= row.IndexR)
-				CurrentValueAsString = columns[column.IndexC - 1].Options[row.IndexR].Value.ToString();
+				CurrentValueAsString = columns[column.IndexC - 1].Options[row.IndexR].Value.ToString(FormatProvider);
 			else
-				CurrentValueAsString = columns[column.IndexC - 1].Options.Last().Value.ToString();
+				CurrentValueAsString = columns[column.IndexC - 1].Options.Last().Value.ToString(FormatProvider);
 		}
 		else if (args.Key == "ArrowRight" && columns.Count > 1)
 		{
 			if (column.IndexC == columns.Count - 1 && columns[0].Options.Count - 1 >= row.IndexR)
-				CurrentValueAsString = columns[0].Options[row.IndexR].Value.ToString();
+				CurrentValueAsString = columns[0].Options[row.IndexR].Value.ToString(FormatProvider);
 			else if (column.IndexC == columns.Count - 1)
-				CurrentValueAsString = columns[0].Options.Last().Value.ToString();
+				CurrentValueAsString = columns[0].Options.Last().Value.ToString(FormatProvider);
 			else if (columns[column.IndexC + 1].Options.Count - 1 >= row.IndexR)
-				CurrentValueAsString = columns[column.IndexC + 1].Options[row.IndexR].Value.ToString();
+				CurrentValueAsString = columns[column.IndexC + 1].Options[row.IndexR].Value.ToString(FormatProvider);
 			else
-				CurrentValueAsString = columns[column.IndexC + 1].Options.Last().Value.ToString();
+				CurrentValueAsString = columns[column.IndexC + 1].Options.Last().Value.ToString(FormatProvider);
 		}
 	}
 
 	private char GetCharacterDisplay(char character)
 	{
-		return IsUpperCase ? char.ToUpper(character) : char.ToLower(character);
+		return IsUpperCase ? char.ToUpper(character, FormatProvider) : char.ToLower(character, FormatProvider);
 	}
 
 	private void OnCaseChanged()
@@ -249,14 +259,14 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 		var current = CurrentValueAsString?.FirstOrDefault();
 
-        if (AdditionalAttributes.IsDisabled())
-            return;
-        else if (current == null || current == '\0')
+		if (AdditionalAttributes.IsDisabled())
+			return;
+		else if (current == null || current == '\0')
 			return;
 		else if (IsUpperCase && char.IsLower(current.Value))
-			CurrentValueAsString = char.ToUpper(current.Value).ToString();
+			CurrentValueAsString = char.ToUpper(current.Value, FormatProvider).ToString(FormatProvider);
 		else if (IsUpperCase == false && char.IsUpper(current.Value))
-			CurrentValueAsString = char.ToLower(current.Value).ToString();
+			CurrentValueAsString = char.ToLower(current.Value, FormatProvider).ToString(FormatProvider);
 	}
 
 	private string GetButtonCssClass(char character)
@@ -267,7 +277,7 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 		if (AdditionalAttributes.IsDisabled())
 			css += " is-disabled";
 
-		if (ActiveColor != BulmaColors.Default && character != '\0' && current != null && char.ToUpper(current.Value) == char.ToUpper(character))
+		if (ActiveColor != BulmaColors.Default && character != '\0' && current != null && char.ToUpper(current.Value, FormatProvider) == char.ToUpper(character, FormatProvider))
 			css += ' ' + BulmaColorHelper.GetColorCss(ActiveColor);
 
 		if (IsRounded)

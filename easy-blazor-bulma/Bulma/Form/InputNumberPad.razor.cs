@@ -52,6 +52,12 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
     public bool UseAutomaticStatusColors { get; set; } = true;
 
     /// <summary>
+    /// The culture used to format and parse numeric values and determine the decimal separator. Defaults to <see cref="CultureInfo.InvariantCulture"/>.
+    /// </summary>
+    [Parameter]
+    public CultureInfo? Culture { get; set; }
+
+    /// <summary>
     /// Sets the text to display on a button below the number pad. Requires a value in <see cref="OnCustomButtonClicked"/>.
     /// </summary>
     [Parameter]
@@ -92,6 +98,10 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 
+	private CultureInfo DisplayProvider => Culture ?? CultureInfo.CurrentCulture;
+	private CultureInfo FormatProvider => Culture ?? CultureInfo.InvariantCulture;
+	private string DecimalSeparator => FormatProvider.NumberFormat.NumberDecimalSeparator;
+
 	private bool SupportsDecimals;
 	private bool WasDisplayInput;
 	private bool RegisterInputPreventDefault;
@@ -122,7 +132,7 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private readonly string ButtonId = Guid.NewGuid().ToHtmlId().ToString("N");
 	private string InputId => AdditionalAttributes.GetValue("id") ?? $"{ButtonId}-input";
-	private string GetButtonId(int row, int column) => $"{ButtonId}-{row}-{column}";
+	private string GetButtonId(int row, int column) => string.Create(CultureInfo.InvariantCulture, $"{ButtonId}-{row}-{column}");
 
 	private string MainCssClass
 	{
@@ -209,10 +219,12 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 		if (KeypadElement != null && KeypadElement.Value.Id != null && RegisteredUseArrowKeyNavigation != UseArrowKeyNavigation)
 		{
-			await JsRuntime.RegisterKeyDownPreventDefault(KeypadElement.Value, AllowedKeys, false, "button");
+			var allowed = AllowedKeys.Append(" ").ToArray();
+
+			await JsRuntime.RegisterKeyDownPreventDefault(KeypadElement.Value, allowed, false, "button");
 
 			if (CustomButtonElement != null && CustomButtonElement.Value.Id != null)
-				await JsRuntime.RegisterKeyDownPreventDefault(CustomButtonElement.Value, AllowedKeys, false, "button");
+				await JsRuntime.RegisterKeyDownPreventDefault(CustomButtonElement.Value, allowed, false, "button");
 
 			if (DisplayInput)
 				RegisterInputPreventDefault = true;
@@ -243,6 +255,7 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		}
 		catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
 
+		((IDisposable)this).Dispose();
 		GC.SuppressFinalize(this);
 	}
 
@@ -262,22 +275,22 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
             validationErrorMessage = null;
             return true;
         }
-        else if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+		else if (BindConverter.TryConvertTo(value, FormatProvider, out result))
 		{
-            if (UseAutomaticStatusColors)
-                DisplayStatus |= InputStatus.BackgroundSuccess;
+			if (UseAutomaticStatusColors)
+				DisplayStatus |= InputStatus.BackgroundSuccess;
 
-            validationErrorMessage = null;
+			validationErrorMessage = null;
 			return true;
 		}
 		else
 		{
 			result = default;
 
-            if (UseAutomaticStatusColors)
-                DisplayStatus |= InputStatus.BackgroundDanger;
+			if (UseAutomaticStatusColors)
+				DisplayStatus |= InputStatus.BackgroundDanger;
 
-            validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a char.", DisplayName ?? FieldIdentifier.FieldName);
+			validationErrorMessage = string.Format(DisplayProvider, "The {0} field must be a number.", DisplayName ?? FieldIdentifier.FieldName);
 			return false;
 		}
 	}
@@ -285,35 +298,60 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	/// <inheritdoc />
 	protected override string FormatValueAsString(TValue? value)
 	{
-		if (value is short shortValue)
+		if (value is sbyte sbyteValue)
 		{
-			if (string.IsNullOrWhiteSpace(InternalValueAsString) || short.TryParse(InternalValueAsString, out short displayValue) && shortValue != displayValue)
-				InternalValueAsString = shortValue.ToString();
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || sbyte.TryParse(InternalValueAsString, FormatProvider, out sbyte displayValue) == false || sbyteValue != displayValue)
+				InternalValueAsString = sbyteValue.ToString(FormatProvider);
+		}
+		else if (value is byte byteValue)
+		{
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || byte.TryParse(InternalValueAsString, FormatProvider, out byte displayValue) == false || byteValue != displayValue)
+				InternalValueAsString = byteValue.ToString(FormatProvider);
+		}
+		else if (value is short shortValue)
+		{
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || short.TryParse(InternalValueAsString, FormatProvider, out short displayValue) == false || shortValue != displayValue)
+				InternalValueAsString = shortValue.ToString(FormatProvider);
+		}
+		else if (value is ushort ushortValue)
+		{
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || ushort.TryParse(InternalValueAsString, FormatProvider, out ushort displayValue) == false || ushortValue != displayValue)
+				InternalValueAsString = ushortValue.ToString(FormatProvider);
 		}
 		else if (value is int intValue)
 		{
-			if (string.IsNullOrWhiteSpace(InternalValueAsString) || int.TryParse(InternalValueAsString, out int displayValue) && intValue != displayValue)
-				InternalValueAsString = intValue.ToString();
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || int.TryParse(InternalValueAsString, FormatProvider, out int displayValue) == false || intValue != displayValue)
+				InternalValueAsString = intValue.ToString(FormatProvider);
+		}
+		else if (value is uint uintValue)
+		{
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || uint.TryParse(InternalValueAsString, FormatProvider, out uint displayValue) == false || uintValue != displayValue)
+				InternalValueAsString = uintValue.ToString(FormatProvider);
 		}
 		else if (value is long longValue)
 		{
-			if (string.IsNullOrWhiteSpace(InternalValueAsString) || long.TryParse(InternalValueAsString, out long displayValue) && longValue != displayValue)
-				InternalValueAsString = longValue.ToString();
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || long.TryParse(InternalValueAsString, FormatProvider, out long displayValue) == false || longValue != displayValue)
+				InternalValueAsString = longValue.ToString(FormatProvider);
+		}
+		else if (value is ulong ulongValue)
+		{
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || ulong.TryParse(InternalValueAsString, FormatProvider, out ulong displayValue) == false || ulongValue != displayValue)
+				InternalValueAsString = ulongValue.ToString(FormatProvider);
 		}
 		else if (value is float floatValue)
 		{
-			if (string.IsNullOrWhiteSpace(InternalValueAsString) || float.TryParse(InternalValueAsString, out float displayValue) && floatValue != displayValue)
-				InternalValueAsString = floatValue.ToString();
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || float.TryParse(InternalValueAsString, FormatProvider, out float displayValue) == false || floatValue != displayValue)
+				InternalValueAsString = floatValue.ToString(FormatProvider);
 		}
 		else if (value is double doubleValue)
 		{
-			if (string.IsNullOrWhiteSpace(InternalValueAsString) || double.TryParse(InternalValueAsString, out double displayValue) && doubleValue != displayValue)
-				InternalValueAsString = doubleValue.ToString();
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || double.TryParse(InternalValueAsString, FormatProvider, out double displayValue) == false || doubleValue != displayValue)
+				InternalValueAsString = doubleValue.ToString(FormatProvider);
 		}
 		else if (value is decimal decimalValue)
 		{
-			if (string.IsNullOrWhiteSpace(InternalValueAsString) || decimal.TryParse(InternalValueAsString, out decimal displayValue) && decimalValue != displayValue)
-				InternalValueAsString = decimalValue.ToString();
+			if (string.IsNullOrWhiteSpace(InternalValueAsString) || decimal.TryParse(InternalValueAsString, FormatProvider, out decimal displayValue) == false || decimalValue != displayValue)
+				InternalValueAsString = decimalValue.ToString(FormatProvider);
 		}
 
 		return InternalValueAsString;
@@ -321,12 +359,12 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private void OnDigitClicked(int digit)
 	{
-        if (AdditionalAttributes.IsDisabled())
-            return;
+		if (AdditionalAttributes.IsDisabled())
+			return;
 
-        InternalValueAsString += digit.ToString();
+		InternalValueAsString += digit.ToString(CultureInfo.InvariantCulture);
 
-		if (InternalValueAsString.Length > 1 && InternalValueAsString[0] == '0' && InternalValueAsString[1] != '.')
+		if (InternalValueAsString.Length > 1 && InternalValueAsString[0] == '0' && InternalValueAsString.StartsWith($"0{DecimalSeparator}", StringComparison.Ordinal) == false)
 			InternalValueAsString = InternalValueAsString.TrimStart('0');
 
 		CurrentValueAsString = InternalValueAsString;
@@ -337,13 +375,13 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		if (AdditionalAttributes.IsDisabled())
 			return;
 
-		if (InternalValueAsString.Contains('.'))
+		if (InternalValueAsString.Contains(DecimalSeparator, StringComparison.Ordinal))
 			return;
 
 		if (InternalValueAsString.Length == 0)
-			InternalValueAsString = "0.";
+			InternalValueAsString = $"0{DecimalSeparator}";
 		else
-			InternalValueAsString += '.';
+			InternalValueAsString += DecimalSeparator;
 	}
 
 	private void OnBackspaceClicked()
@@ -469,7 +507,7 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 			OnDigitClicked(value);
 		else if (key == "Backspace")
 			OnBackspaceClicked();
-		else if (SupportsDecimals && key == ".")
+		else if (SupportsDecimals && key == DecimalSeparator)
 			OnDecimalClicked();
 	}
 

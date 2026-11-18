@@ -75,6 +75,7 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsFocused;
 
+	private CultureInfo DisplayProvider => Culture ?? CultureInfo.CurrentCulture;
 	private CultureInfo FormatProvider => Culture ?? CultureInfo.CurrentCulture;
 
 	private string MainCssClass
@@ -160,7 +161,7 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 			if (UseAutomaticStatusColors)
 				DisplayStatus |= InputStatus.BackgroundDanger;
 
-			validationErrorMessage = string.Format(CultureInfo.InvariantCulture, "The {0} field must be a number.", DisplayName ?? FieldIdentifier.FieldName);
+			validationErrorMessage = string.Format(DisplayProvider, "The {0} field must be a number.", DisplayName ?? FieldIdentifier.FieldName);
 			return false;
 		}
 	}
@@ -173,11 +174,11 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 		else if (value == null)
 			return string.Empty;
 		else if (IsFocused == false && string.IsNullOrWhiteSpace(DisplayFormat) == false && value is IFormattable formattable)
-			return formattable.ToString(DisplayFormat, FormatProvider);
+			return formattable.ToString(DisplayFormat, DisplayProvider);
 		else if (value is IFormattable raw)
 			return raw.ToString(null, FormatProvider);
 		else
-			return value.ToString() ?? string.Empty;
+			return Convert.ToString(value, FormatProvider) ?? string.Empty;
 	}
 
 	private bool TryParseNumber(string value, [MaybeNullWhen(false)] out TValue result)
@@ -185,7 +186,11 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 		const NumberStyles styles = NumberStyles.Any;
 		var trimmed = value.Trim();
 
-		if (UnderlyingType == typeof(short) && short.TryParse(trimmed, styles, FormatProvider, out var shortValue))
+		if (UnderlyingType == typeof(sbyte) && sbyte.TryParse(trimmed, styles, FormatProvider, out var sbyteValue))
+			result = (TValue)(object)sbyteValue;
+		else if (UnderlyingType == typeof(byte) && byte.TryParse(trimmed, styles, FormatProvider, out var byteValue))
+			result = (TValue)(object)byteValue;
+		else if (UnderlyingType == typeof(short) && short.TryParse(trimmed, styles, FormatProvider, out var shortValue))
 			result = (TValue)(object)shortValue;
 		else if (UnderlyingType == typeof(ushort) && ushort.TryParse(trimmed, styles, FormatProvider, out var ushortValue))
 			result = (TValue)(object)ushortValue;
@@ -231,6 +236,6 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 
 	private void OnChange(ChangeEventArgs args)
 	{
-		CurrentValueAsString = args.Value?.ToString();
+		CurrentValueAsString = Convert.ToString(args.Value, FormatProvider);
 	}
 }

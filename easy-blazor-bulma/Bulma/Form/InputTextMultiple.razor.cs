@@ -104,6 +104,7 @@ public partial class InputTextMultiple : InputBase<List<string>>, IAsyncDisposab
 			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
 		}
 
+		((IDisposable)this).Dispose();
 		GC.SuppressFinalize(this);
 	}
 

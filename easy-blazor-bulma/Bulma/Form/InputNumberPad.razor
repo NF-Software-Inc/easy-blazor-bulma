@@ -43,7 +43,7 @@ else
 		<button id="@GetButtonId(2, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 2, 2)" @onclick="() => OnDigitClicked(3)">3</button>
 		@if (SupportsDecimals)
 		{
-			<button id="@GetButtonId(3, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 3, 2)" @onclick="() => OnDecimalClicked()">.</button>
+			<button id="@GetButtonId(3, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 3, 2)" @onclick="() => OnDecimalClicked()">@DecimalSeparator</button>
 		}
 		else
 		{

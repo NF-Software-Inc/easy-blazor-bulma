@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using Xunit;
 
@@ -62,17 +63,44 @@ public class InputCharacterTests
 		Assert.Equal(["Escape", "Tab", "Enter"], jsRuntime.LastRegisteredKeys);
 	}
 
+	/// <summary>
+	/// Verifies character display, casing transitions, and parsing honor the configured culture.
+	/// </summary>
+	[Fact]
+	public void CultureControlsCasingAndFormatting()
+	{
+		var turkish = CultureInfo.GetCultureInfo("tr-TR");
+		var (input, _) = CreateInput('i', ['i', 'a'], columns: 2, culture: turkish);
+
+		var displayMethod = typeof(InputCharacter<char>).GetMethod("GetCharacterDisplay", BindingFlags.Instance | BindingFlags.NonPublic);
+		var caseMethod = typeof(InputCharacter<char>).GetMethod("OnCaseChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.NotNull(displayMethod);
+		Assert.NotNull(caseMethod);
+
+		Assert.Equal('i', Assert.IsType<char>(displayMethod.Invoke(input, ['i'])));
+
+		caseMethod.Invoke(input, null);
+		Assert.Equal('\u0130', input.Value);
+		Assert.Equal('\u0130', Assert.IsType<char>(displayMethod.Invoke(input, ['i'])));
+
+		Assert.Equal("\u0130", input.Format(input.Value));
+		Assert.True(input.TryParse("\u0130", out var parsed, out var validationErrorMessage), validationErrorMessage);
+		Assert.Equal('\u0130', parsed);
+	}
+
 	private static (TestCharacterInput<TValue> Input, RecordingJsRuntime JsRuntime) CreateInput<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>(
 		TValue initialValue,
 		char[] characters,
-		int columns)
+		int columns,
+		CultureInfo? culture = null)
 	{
 		var jsRuntime = new RecordingJsRuntime();
 		var input = new TestCharacterInput<TValue>
 		{
 			Value = initialValue,
 			Characters = characters,
-			Columns = columns
+			Columns = columns,
+			Culture = culture
 		};
 
 		input.ValueChanged = EventCallback.Factory.Create<TValue>(new object(), value => input.Value = value);
@@ -131,6 +159,16 @@ public class InputCharacterTests
 	private sealed class TestCharacterInput<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputCharacter<TValue>
 	{
 		private readonly FieldModel Model = new();
+
+		/// <summary>
+		/// Exposes <see cref="InputCharacter{TValue}.FormatValueAsString"/> for verification.
+		/// </summary>
+		public string Format(TValue? value) => FormatValueAsString(value);
+
+		/// <summary>
+		/// Exposes <see cref="InputCharacter{TValue}.TryParseValueFromString"/> for verification.
+		/// </summary>
+		public bool TryParse(string? value, out TValue? result, out string? validationErrorMessage) => TryParseValueFromString(value, out result, out validationErrorMessage);
 
 		/// <summary>
 		/// Configures edit context and injected services before running component initialization hooks.
