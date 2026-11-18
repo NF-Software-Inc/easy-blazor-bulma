@@ -4,7 +4,7 @@
 
 @if (DisplayInput)
 {
-	<input type="text" class="@MainCssClass" value='@CurrentValueAsString' @ref=Element @onkeydown='OnInputKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+	<input type="text" class="@MainCssClass" id="@InputId" value='@CurrentValueAsString' @ref=Element @onkeydown='OnInputKeyDown' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
 	@if (string.IsNullOrWhiteSpace(Icon) == false)
 	{
 		<span class="material-icons icon is-left">@Icon</span>
@@ -15,12 +15,12 @@ else
 	<input type="hidden" class="is-hidden" value='@CurrentValueAsString' />
 }
 
-<div class='@ColumnsCssClass'>
+<div class='@ColumnsCssClass' @ref="KeypadElement">
 	<div class='@ColumnCssClass'>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(7)">7</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(4)">4</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(1)">1</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnResetClicked()">
+		<button id="@GetButtonId(0, 0)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 0, 0)" @onclick="() => OnDigitClicked(7)">7</button>
+		<button id="@GetButtonId(1, 0)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 1, 0)" @onclick="() => OnDigitClicked(4)">4</button>
+		<button id="@GetButtonId(2, 0)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 2, 0)" @onclick="() => OnDigitClicked(1)">1</button>
+		<button id="@GetButtonId(3, 0)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 3, 0)" @onclick="() => OnResetClicked()">
 			@if (IsNullable)
 			{
 				@:Clear
@@ -32,31 +32,31 @@ else
 		</button>
 	</div>
 	<div class='@ColumnCssClass'>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(8)">8</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(5)">5</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(2)">2</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(0)">0</button>
+		<button id="@GetButtonId(0, 1)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 0, 1)" @onclick="() => OnDigitClicked(8)">8</button>
+		<button id="@GetButtonId(1, 1)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 1, 1)" @onclick="() => OnDigitClicked(5)">5</button>
+		<button id="@GetButtonId(2, 1)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 2, 1)" @onclick="() => OnDigitClicked(2)">2</button>
+		<button id="@GetButtonId(3, 1)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 3, 1)" @onclick="() => OnDigitClicked(0)">0</button>
 	</div>
 	<div class='@ColumnCssClass'>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(9)">9</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(6)">6</button>
-		<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDigitClicked(3)">3</button>
+		<button id="@GetButtonId(0, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 0, 2)" @onclick="() => OnDigitClicked(9)">9</button>
+		<button id="@GetButtonId(1, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 1, 2)" @onclick="() => OnDigitClicked(6)">6</button>
+		<button id="@GetButtonId(2, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 2, 2)" @onclick="() => OnDigitClicked(3)">3</button>
 		@if (SupportsDecimals)
 		{
-			<button type="button" class='@ButtonCssClass' @onkeydown="OnButtonKeyDown" @onclick="() => OnDecimalClicked()">.</button>
+			<button id="@GetButtonId(3, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 3, 2)" @onclick="() => OnDecimalClicked()">.</button>
 		}
 		else
 		{
-			<button type="button" class='@ButtonCssClass' @onclick="() => OnBackspaceClicked()">
+			<button id="@GetButtonId(3, 2)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, 3, 2)" @onclick="() => OnBackspaceClicked()">
 				<span class="material-icons icon">backspace</span>
 			</button>
 		}
 	</div>
 </div>
 
-<div>
+<div @ref="CustomButtonElement">
 	@if (OnCustomButtonClicked != null)
 	{
-		<button type="button" class='@ButtonCssClass' @onclick="() => OnCustomButtonClicked.Invoke()">@CustomButtonText</button>
+		<button id="@GetButtonId(KeypadRows, 0)" type="button" class='@ButtonCssClass' @onkeydown="(args) => OnButtonKeyDown(args, KeypadRows, 0)" @onclick="() => OnCustomButtonClicked.Invoke()">@CustomButtonText</button>
 	}
 </div>

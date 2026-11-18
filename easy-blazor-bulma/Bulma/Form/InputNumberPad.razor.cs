@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using easy_core;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
@@ -13,7 +15,7 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// There are 3 additional attributes that can be used: columns-class, column-class, and button-class. Each of which apply CSS classes to the resulting elements as per their names.
 /// </remarks>
-public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>, IAsyncDisposable
 {
     /// <summary>
     /// An icon to display within the input.
@@ -70,13 +72,24 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
-	private readonly string[] Filter = ["class", "columns-class", "column-class", "button-class"];
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
+
+	private const int KeypadRows = 4;
+	private const int KeypadColumns = 3;
+
+	private readonly string[] Filter = ["class", "id", "columns-class", "column-class", "button-class"];
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 
 	private bool SupportsDecimals;
-	private bool OnKeyDownPreventDefault;
+	private bool WasDisplayInput;
+	private bool RegisterInputPreventDefault;
+	private int LastColumnIndex;
+
+	private ElementReference? KeypadElement;
+	private ElementReference? CustomButtonElement;
 	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter"];
 	private static readonly Dictionary<string, int> NumberKeys = new()
 	{
@@ -94,6 +107,10 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private string InternalValueAsString = string.Empty;
 
+	private readonly string ButtonId = Guid.NewGuid().ToHtmlId().ToString("N");
+	private string InputId => AdditionalAttributes.GetValue("id") ?? $"{ButtonId}-input";
+	private string GetButtonId(int row, int column) => $"{ButtonId}-{row}-{column}";
+
 	private string MainCssClass
 	{
 		get
@@ -110,11 +127,8 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 			return string.Join(' ', css, CssClass);
 		}
 	}
-
 	private string ColumnsCssClass => string.Join(' ', "columns mb-0", AdditionalAttributes.GetValue("columns-class"));
-
 	private string ColumnCssClass => string.Join(' ', "column pb-0", AdditionalAttributes.GetValue("column-class"));
-
 	private string ButtonCssClass
 	{
 		get
@@ -147,6 +161,57 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		// Store initial value
 		if (string.IsNullOrWhiteSpace(InternalValueAsString) && CurrentValue != null)
 			InternalValueAsString = FormatValueAsString(CurrentValue);
+	}
+
+	/// <inheritdoc />
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (DisplayInput && WasDisplayInput == false)
+			RegisterInputPreventDefault = true;
+
+		WasDisplayInput = DisplayInput;
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender)
+		{
+			if (KeypadElement != null && KeypadElement.Value.Id != null)
+				await JsRuntime.RegisterKeyDownPreventDefault(KeypadElement.Value, DefaultKeys, false, "button");
+
+			if (CustomButtonElement != null && CustomButtonElement.Value.Id != null)
+				await JsRuntime.RegisterKeyDownPreventDefault(CustomButtonElement.Value, DefaultKeys, false, "button");
+		}
+
+		if (RegisterInputPreventDefault && DisplayInput && Element != null && Element.Value.Id != null)
+		{
+			RegisterInputPreventDefault = false;
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, DefaultKeys, false);
+		}
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		try
+		{
+			if (Element != null && Element.Value.Id != null)
+				await JsRuntime.UnregisterKeyDownPreventDefault(Element.Value);
+
+			if (KeypadElement != null && KeypadElement.Value.Id != null)
+				await JsRuntime.UnregisterKeyDownPreventDefault(KeypadElement.Value);
+
+			if (CustomButtonElement != null && CustomButtonElement.Value.Id != null)
+				await JsRuntime.UnregisterKeyDownPreventDefault(CustomButtonElement.Value);
+		}
+		catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+
+		GC.SuppressFinalize(this);
 	}
 
 	/// <inheritdoc />
@@ -291,21 +356,67 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		}
 	}
 
-	private void OnInputKeyDown(KeyboardEventArgs args)
-	{
-		OnKeyDownPreventDefault = args.Key == "ArrowLeft" || args.Key == "ArrowRight" || DefaultKeys.Contains(args.Key) == false;
-
-		if (args.Key != "ArrowDown" && args.Key != "ArrowUp" && args.Key != "ArrowLeft" && args.Key != "ArrowRight")
-			OnKeyDown(args.Key);
-	}
-
-	private void OnButtonKeyDown(KeyboardEventArgs args)
+	private async Task OnInputKeyDown(KeyboardEventArgs args)
 	{
 		if (AdditionalAttributes.IsDisabled())
 			return;
 
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key) == false;
-		OnKeyDown(args.Key);
+		if (args.Key == "ArrowDown")
+			await JsRuntime.FocusElement(GetButtonId(0, LastColumnIndex));
+		else if (args.Key == "ArrowUp")
+			await JsRuntime.FocusElement(OnCustomButtonClicked != null ? GetButtonId(KeypadRows, 0) : GetButtonId(KeypadRows - 1, LastColumnIndex));
+		else if (args.Key != "ArrowLeft" && args.Key != "ArrowRight")
+			OnKeyDown(args.Key);
+	}
+
+	private async Task OnButtonKeyDown(KeyboardEventArgs args, int row, int column)
+	{
+		if (AdditionalAttributes.IsDisabled())
+			return;
+
+		if (row < KeypadRows)
+			LastColumnIndex = column;
+
+		if (args.Key == "ArrowUp")
+		{
+			if (row == KeypadRows)
+				await JsRuntime.FocusElement(GetButtonId(KeypadRows - 1, LastColumnIndex));
+			else if (row > 0)
+				await JsRuntime.FocusElement(GetButtonId(row - 1, column));
+			else if (DisplayInput)
+				await JsRuntime.FocusElement(InputId);
+			else if (OnCustomButtonClicked != null)
+				await JsRuntime.FocusElement(GetButtonId(KeypadRows, 0));
+			else
+				await JsRuntime.FocusElement(GetButtonId(KeypadRows - 1, column));
+		}
+		else if (args.Key == "ArrowDown")
+		{
+			if (row == KeypadRows)
+				await JsRuntime.FocusElement(DisplayInput ? InputId : GetButtonId(0, LastColumnIndex));
+			else if (row < KeypadRows - 1)
+				await JsRuntime.FocusElement(GetButtonId(row + 1, column));
+			else if (OnCustomButtonClicked != null)
+				await JsRuntime.FocusElement(GetButtonId(KeypadRows, 0));
+			else if (DisplayInput)
+				await JsRuntime.FocusElement(InputId);
+			else
+				await JsRuntime.FocusElement(GetButtonId(0, column));
+		}
+		else if (args.Key == "ArrowLeft")
+		{
+			if (row < KeypadRows)
+				await JsRuntime.FocusElement(GetButtonId(row, column == 0 ? KeypadColumns - 1 : column - 1));
+		}
+		else if (args.Key == "ArrowRight")
+		{
+			if (row < KeypadRows)
+				await JsRuntime.FocusElement(GetButtonId(row, column == KeypadColumns - 1 ? 0 : column + 1));
+		}
+		else
+		{
+			OnKeyDown(args.Key);
+		}
 	}
 
 	private void OnKeyDown(string key)
