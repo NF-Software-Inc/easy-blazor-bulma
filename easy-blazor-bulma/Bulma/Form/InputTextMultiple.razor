@@ -3,7 +3,7 @@
 
 <div class="field has-addons mb-0">
 	<div class="control is-expanded">
-		<input type="text" class='@MainCssClass' value="@InputValue" @ref=Element @oninput='OnInput' @onkeydown='OnKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+		<input type="text" class='@MainCssClass' value="@InputValue" @ref=Element @oninput='OnInput' @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
 	</div>
 	<div class="control">
 		<button type="button" class='@ButtonCssClass' disabled='@(AdditionalAttributes.IsDisabled() || string.IsNullOrWhiteSpace(InputValue))' @onclick='OnAddClicked'>Add</button>

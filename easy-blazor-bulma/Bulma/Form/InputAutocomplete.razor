@@ -5,7 +5,7 @@
 
 <div class='@DropDownCssClass'>
     <div class='@DropDownTriggerCssClass'>
-        <input type="text" class='@MainCssClass' placeholder="Search..." autocomplete="off" value="@DisplayedInputValue" @ref=Element @oninput='OnInput' @onclick='OnClick' @onfocus='OnFocus' @onblur='OnBlur' @onkeydown='OnKeyDown' @onkeydown:preventDefault="OnKeyDownPreventDefault" @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
+        <input type="text" class='@MainCssClass' placeholder="Search..." autocomplete="off" value="@DisplayedInputValue" @ref=Element @oninput='OnInput' @onclick='OnClick' @onfocus='OnFocus' @onblur='OnBlur' @onkeydown='OnKeyDown' @onkeyup='OnKeyUp' @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)' />
 
         @if (string.IsNullOrWhiteSpace(Icon) == false)
         {

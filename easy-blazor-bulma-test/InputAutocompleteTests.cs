@@ -2,6 +2,7 @@ using easy_blazor_bulma;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Xunit;
@@ -90,16 +91,16 @@ public class InputAutocompleteTests
 	{
 		var input = CreateProjectedInput();
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowDown" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(10, input.Value);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowUp" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowUp" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(30, input.Value);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowDown" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(10, input.Value);
 	}
 
@@ -113,11 +114,11 @@ public class InputAutocompleteTests
 		input.Items = [new Suggestion(0, "Zero"), new Suggestion(20, "Beta")];
 
 		Invoke(input, "HighlightNext");
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(0, input.Value);
 
 		Invoke(input, "HighlightNext");
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(20, input.Value);
 	}
 
@@ -234,7 +235,7 @@ public class InputAutocompleteTests
 		var match = Assert.IsType<(bool success, int match)>(Invoke(input, "GetMatch", "Alpha", InputAutocompleteOptions.AutoSelectCurrent));
 		Assert.True(match.success);
 		Assert.Equal(10, match.match);
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(10, input.Value);
 	}
 
@@ -303,12 +304,44 @@ public class InputAutocompleteTests
 		second.ValueSelector = x => x.Id + 100;
 
 		Invoke(first, "HighlightNext");
-		Invoke(first, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(first, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Invoke(second, "HighlightPrevious");
-		Invoke(second, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(second, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 
 		Assert.Equal(10, first.Value);
 		Assert.Equal(130, second.Value);
+	}
+
+	/// <summary>
+	/// Verifies disabling arrow-key navigation suppresses popout arrow handling and excludes arrows from preventDefault registration.
+	/// </summary>
+	[Fact]
+	public async Task DisablingArrowKeyNavigationSuppressesArrowHandlingAndUpdatesPreventDefaultKeys()
+	{
+		var jsRuntime = new RecordingJsRuntime();
+		var input = CreateProjectedInput();
+		input.UseArrowKeyNavigation = false;
+		SetPrivateProperty(input, "JsRuntime", jsRuntime);
+		SetPrivateProperty(input, "Element", (ElementReference?)new ElementReference("autocomplete-input"));
+
+		await Assert.IsAssignableFrom<Task>(Invoke(input, "OnAfterRenderAsync", true));
+		Assert.Equal(["Escape", "Enter"], jsRuntime.LastRegisteredKeys);
+
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Assert.False(GetPrivateField<Suggestion, int, bool>(input, "IsPopoutDisplayed"));
+		Assert.Equal(99, GetPrivateField<Suggestion, int, int>(input, "HighlightedValue"));
+
+		SetPrivateField(input, "IsPopoutDisplayed", true);
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowUp" });
+		Assert.Equal(99, GetPrivateField<Suggestion, int, int>(input, "HighlightedValue"));
+
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Escape" });
+		Assert.False(GetPrivateField<Suggestion, int, bool>(input, "IsPopoutDisplayed"));
+
+		input.UseArrowKeyNavigation = true;
+		await Assert.IsAssignableFrom<Task>(Invoke(input, "OnAfterRenderAsync", false));
+		Assert.Equal(["Escape", "Enter", "ArrowDown", "ArrowUp"], jsRuntime.LastRegisteredKeys);
 	}
 
 	private static TestInput<Suggestion, int> CreateProjectedInput()
@@ -382,7 +415,45 @@ public class InputAutocompleteTests
 		field.SetValue(input, value);
 	}
 
+	private static TField GetPrivateField<TItem, TValue, TField>(TestInput<TItem, TValue> input, string fieldName)
+	{
+		var field = typeof(InputAutocomplete<TItem, TValue>).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.NotNull(field);
+		return Assert.IsType<TField>(field.GetValue(input));
+	}
+
+	private static void SetPrivateProperty<TItem, TValue>(TestInput<TItem, TValue> input, string propertyName, object? value)
+	{
+		var property = typeof(InputAutocomplete<TItem, TValue>).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+		Assert.NotNull(property);
+		property.SetValue(input, value);
+	}
+
 	private sealed record Suggestion(int Id, string Name);
+
+	private sealed class RecordingJsRuntime : IJSRuntime
+	{
+		/// <summary>
+		/// Stores the keys registered by the most recent <c>RegisterKeyDownPreventDefault</c> invocation.
+		/// </summary>
+		public string[]? LastRegisteredKeys { get; private set; }
+
+		/// <inheritdoc />
+		public ValueTask<TValue> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] TValue>(string identifier, object?[]? args)
+		{
+			return InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+		}
+
+		/// <inheritdoc />
+		public ValueTask<TValue> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+		{
+			if (identifier == "easyBlazorBulma.Input.RegisterKeyDownPreventDefault" && args is { Length: > 1 } && args[1] is string[] keys)
+				LastRegisteredKeys = keys;
+
+			object? result = typeof(TValue) == typeof(bool) ? true : default(TValue);
+			return new ValueTask<TValue>((TValue)result!);
+		}
+	}
 
 	private sealed class EmptyServiceProvider : IServiceProvider
 	{
