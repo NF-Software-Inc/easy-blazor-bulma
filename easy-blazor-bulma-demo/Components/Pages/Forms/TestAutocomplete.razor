@@ -1,43 +1,14 @@
-﻿@using easy_blazor_bulma_demo.Services
+﻿@page "/inputAutocomplete"
 
-@page "/inputAutocomplete"
-@inherits easy_blazor_bulma_demo.Components.Pages.TestComponentBase
-
-<TitleBlock Title="Input Autocomplete Test" />
-
-<div class="columns p-3">
-    <div class="column is-4 info-panel-sticky">
-        <Message Title="Information" Color="BulmaColors.Cyan">
-            @foreach (var type in ComponentTypes)
-            {
-                <ComponentInfo ComponentType="type" Title="@XmlDocs.RemoveGenericSuffix(type.Name)" />
-            }
-
-            <br />
-            <p class="block">
-                <b>Looking for every option?</b>
-                <a class="is-clickable" @onclick="JumpToParameters">View all parameters ↓</a>
-            </p>
-        </Message>
-    </div>
-    <div class="column is-8">
-        <ExampleSection ComponentType="typeof(AutocompleteSingleObjectExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompleteSingleItemsRequestedExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompleteSingleAutoSelectExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompleteMultipleObjectsExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompleteSingleIdExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompleteMultipleIdsExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompleteModelFieldExample)"/>
-        <ExampleSection ComponentType="typeof(AutocompletePrivatePropertyExample)"/>
-    </div>
-</div>
-
-<hr class="m-2 has-background-light" />
-
-@* Parameter Table *@
-<section @ref="ParametersSection" tabindex="-1" class="p-3">
-    @foreach (var type in ComponentTypes)
-    {
-        <ApiTable ComponentType="type" />
-    }
-</section>
+<TestPage Title="Input Autocomplete Test" ComponentTypes="@ComponentTypes" >
+    <Examples>
+        <ExampleSection ComponentType="typeof(AutocompleteSingleObjectExample)" />
+        <ExampleSection ComponentType="typeof(AutocompleteSingleItemsRequestedExample)" />
+        <ExampleSection ComponentType="typeof(AutocompleteSingleAutoSelectExample)" />
+        <ExampleSection ComponentType="typeof(AutocompleteMultipleObjectsExample)" />
+        <ExampleSection ComponentType="typeof(AutocompleteSingleIdExample)" />
+        <ExampleSection ComponentType="typeof(AutocompleteMultipleIdsExample)" />
+        <ExampleSection ComponentType="typeof(AutocompleteModelFieldExample)" />
+        <ExampleSection ComponentType="typeof(AutocompletePrivatePropertyExample)" />
+    </Examples>
+</TestPage>

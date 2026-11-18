@@ -1,0 +1,51 @@
+@using easy_blazor_bulma_demo.Services
+
+@inherits ComponentBase
+
+<TitleBlock Title="@Title" />
+
+<div class="columns p-3">
+	@* Info Panel *@
+	<div class="column is-4 info-panel-sticky">
+		<Message Title="Information" Color="BulmaColors.Cyan">
+			@if (Information != null)
+			{
+				@Information
+			}
+			else
+			{
+				@foreach (var type in ComponentTypes)
+				{
+					<ComponentInfo ComponentType="type" Title="@XmlDocs.RemoveGenericSuffix(type.Name)" />
+				}
+			}
+
+			<p class="block mt-4">
+				<b>Looking for every option?</b>
+				<button type="button" class="button is-small is-link is-light" @onclick="JumpToParameters">View all parameters ↓</button>
+			</p>
+		</Message>
+	</div>
+
+    @* Demo examples *@
+	<div class="column is-8">
+		@Examples
+	</div>
+</div>
+
+<hr class="m-2 has-background-light" />
+
+@* Parameter Table *@
+<section @ref="ParametersSection" tabindex="-1" class="p-3">
+	@if (Parameters != null)
+	{
+		@Parameters
+	}
+	else
+	{
+		@foreach (var type in ComponentTypes)
+		{
+			<ApiTable ComponentType="type" />
+		}
+	}
+</section>
