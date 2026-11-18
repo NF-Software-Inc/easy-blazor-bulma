@@ -122,6 +122,40 @@ public class InputNumberPadTests
 		Assert.Equal(0, input.Value);
 	}
 
+	/// <summary>
+	/// Verifies disabling arrow-key navigation suppresses focus movement while preserving key entry and updating allowed keys.
+	/// </summary>
+	[Fact]
+	public async Task DisablingArrowKeyNavigationSuppressesFocusChangesWhilePreservingKeyEntry()
+	{
+		var (input, jsRuntime, _) = CreateInput<decimal?>(displayInput: true);
+		input.UseArrowKeyNavigation = false;
+		SetElementReference(input, "KeypadElement", "keypad");
+		SetElementReference(input, "CustomButtonElement", "custom-button");
+		SetElementProperty(input, "Element", "display-input");
+
+		await InvokeOnAfterRenderAsync(input, firstRender: true);
+		Assert.Equal(3, jsRuntime.RegisteredKeyCalls.Count);
+		Assert.All(jsRuntime.RegisteredKeyCalls, keys => Assert.Equal(["Escape", "Tab", "Enter", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"], keys));
+
+		await InvokeButtonKeyDownAsync(input, "ArrowRight", row: 0, column: 0);
+		await InvokeButtonKeyDownAsync(input, "ArrowDown", row: 0, column: 0);
+		await InvokeInputKeyDownAsync(input, "ArrowDown");
+		await InvokeInputKeyDownAsync(input, "ArrowUp");
+		Assert.Null(jsRuntime.LastFocusedId);
+
+		await InvokeInputKeyDownAsync(input, "8");
+		await InvokeButtonKeyDownAsync(input, ".", row: 0, column: 0);
+		await InvokeButtonKeyDownAsync(input, "2", row: 0, column: 0);
+		Assert.Equal(8.2m, input.Value);
+
+		jsRuntime.RegisteredKeyCalls.Clear();
+		input.UseArrowKeyNavigation = true;
+		await InvokeOnAfterRenderAsync(input, firstRender: false);
+		Assert.Equal(3, jsRuntime.RegisteredKeyCalls.Count);
+		Assert.All(jsRuntime.RegisteredKeyCalls, keys => Assert.Equal(["Escape", "Tab", "Enter"], keys));
+	}
+
 	private static (TestNumberPad<TValue> Input, RecordingJsRuntime JsRuntime, string ButtonId) CreateInput<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue>(
 		bool displayInput = false,
 		Func<Task>? customButtonCallback = null,
@@ -163,12 +197,40 @@ public class InputNumberPadTests
 		await task;
 	}
 
+	private static async Task InvokeOnAfterRenderAsync<TValue>(TestNumberPad<TValue> input, bool firstRender)
+	{
+		var method = typeof(InputNumberPad<TValue>).GetMethod("OnAfterRenderAsync", BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.NotNull(method);
+
+		var task = Assert.IsAssignableFrom<Task>(method.Invoke(input, [firstRender]));
+		await task;
+	}
+
+	private static void SetElementReference<TValue>(TestNumberPad<TValue> input, string fieldName, string id)
+	{
+		var field = typeof(InputNumberPad<TValue>).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+		Assert.NotNull(field);
+		field.SetValue(input, (ElementReference?)new ElementReference(id));
+	}
+
+	private static void SetElementProperty<TValue>(TestNumberPad<TValue> input, string propertyName, string id)
+	{
+		var property = typeof(InputNumberPad<TValue>).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+		Assert.NotNull(property);
+		property.SetValue(input, (ElementReference?)new ElementReference(id));
+	}
+
 	private sealed class RecordingJsRuntime : IJSRuntime
 	{
 		/// <summary>
 		/// Stores the element ID from the most recent <c>easyBlazorBulma.FocusElement</c> invocation.
 		/// </summary>
 		public string? LastFocusedId { get; private set; }
+
+		/// <summary>
+		/// Stores each key array passed to <c>easyBlazorBulma.Input.RegisterKeyDownPreventDefault</c>.
+		/// </summary>
+		public List<string[]> RegisteredKeyCalls { get; } = [];
 
 		/// <inheritdoc />
 		public ValueTask<TValue> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] TValue>(string identifier, object?[]? args)
@@ -181,6 +243,8 @@ public class InputNumberPadTests
 		{
 			if (identifier == "easyBlazorBulma.FocusElement" && args is { Length: > 0 } && args[0] is string focusedId)
 				LastFocusedId = focusedId;
+			else if (identifier == "easyBlazorBulma.Input.RegisterKeyDownPreventDefault" && args is { Length: > 1 } && args[1] is string[] keys)
+				RegisteredKeyCalls.Add(keys);
 
 			object? result = typeof(TValue) == typeof(bool) ? true : default(TValue);
 			return new ValueTask<TValue>((TValue)result!);

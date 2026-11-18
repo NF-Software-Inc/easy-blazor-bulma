@@ -64,6 +64,15 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	public Func<Task>? OnCustomButtonClicked { get; set; }
 
 	/// <summary>
+	/// Specifies whether the arrow keys move focus between the display input, keypad buttons, and custom button.
+	/// </summary>
+	/// <remarks>
+	/// Set to <see langword="false"/> when embedding the component inside a container, such as a table or grid, that handles arrow-key focus navigation. Digit, decimal, and Backspace key entry remain active when disabled.
+	/// </remarks>
+	[Parameter]
+	public bool UseArrowKeyNavigation { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
 	/// May be <see langword="null"/> if accessed before the component is rendered.
@@ -86,11 +95,14 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	private bool SupportsDecimals;
 	private bool WasDisplayInput;
 	private bool RegisterInputPreventDefault;
+	private bool? RegisteredUseArrowKeyNavigation;
 	private int LastColumnIndex;
 
 	private ElementReference? KeypadElement;
 	private ElementReference? CustomButtonElement;
-	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter"];
+	private static readonly string[] PassthroughKeys = ["Escape", "Tab", "Enter"];
+	private static readonly string[] ArrowKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+	private static readonly string[] DefaultKeys = [.. PassthroughKeys, .. ArrowKeys];
 	private static readonly Dictionary<string, int> NumberKeys = new()
 	{
 		["0"] = 0,
@@ -104,6 +116,7 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		["8"] = 8,
 		["9"] = 9
 	};
+	private string[] AllowedKeys => UseArrowKeyNavigation ? PassthroughKeys : DefaultKeys;
 
 	private string InternalValueAsString = string.Empty;
 
@@ -148,6 +161,21 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		}
 	}
 
+	private static readonly Type[] SupportedTypes =
+	[
+		typeof(sbyte),
+		typeof(byte),
+		typeof(short),
+		typeof(ushort),
+		typeof(int),
+		typeof(uint),
+		typeof(long),
+		typeof(ulong),
+		typeof(float),
+		typeof(double),
+		typeof(decimal)
+	];
+
 	/// <inheritdoc />
 	protected override void OnInitialized()
 	{
@@ -155,8 +183,8 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		IsNullable = Nullable.GetUnderlyingType(typeof(TValue)) != null;
 		SupportsDecimals = UnderlyingType == typeof(float) || UnderlyingType == typeof(double) || UnderlyingType == typeof(decimal);
 
-		if (UnderlyingType != typeof(short) && UnderlyingType != typeof(int) && UnderlyingType != typeof(long) && UnderlyingType != typeof(float) && UnderlyingType != typeof(double) && UnderlyingType != typeof(decimal))
-			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type short, int, long, float, double, or decimal.");
+		if (SupportedTypes.Contains(UnderlyingType) == false)
+			throw new InvalidOperationException($"Unsupported type param '{UnderlyingType.Name}'. Must be of type short, int, long, ushort, uint, ulong, float, double, or decimal.");
 
 		// Store initial value
 		if (string.IsNullOrWhiteSpace(InternalValueAsString) && CurrentValue != null)
@@ -179,19 +207,23 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	{
 		await base.OnAfterRenderAsync(firstRender);
 
-		if (firstRender)
+		if (KeypadElement != null && KeypadElement.Value.Id != null && RegisteredUseArrowKeyNavigation != UseArrowKeyNavigation)
 		{
-			if (KeypadElement != null && KeypadElement.Value.Id != null)
-				await JsRuntime.RegisterKeyDownPreventDefault(KeypadElement.Value, DefaultKeys, false, "button");
+			await JsRuntime.RegisterKeyDownPreventDefault(KeypadElement.Value, AllowedKeys, false, "button");
 
 			if (CustomButtonElement != null && CustomButtonElement.Value.Id != null)
-				await JsRuntime.RegisterKeyDownPreventDefault(CustomButtonElement.Value, DefaultKeys, false, "button");
+				await JsRuntime.RegisterKeyDownPreventDefault(CustomButtonElement.Value, AllowedKeys, false, "button");
+
+			if (DisplayInput)
+				RegisterInputPreventDefault = true;
+
+			RegisteredUseArrowKeyNavigation = UseArrowKeyNavigation;
 		}
 
 		if (RegisterInputPreventDefault && DisplayInput && Element != null && Element.Value.Id != null)
 		{
 			RegisterInputPreventDefault = false;
-			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, DefaultKeys, false);
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, AllowedKeys, false);
 		}
 	}
 
@@ -361,6 +393,12 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 		if (AdditionalAttributes.IsDisabled())
 			return;
 
+		if (UseArrowKeyNavigation == false)
+		{
+			OnKeyDown(args.Key);
+			return;
+		}
+
 		if (args.Key == "ArrowDown")
 			await JsRuntime.FocusElement(GetButtonId(0, LastColumnIndex));
 		else if (args.Key == "ArrowUp")
@@ -376,6 +414,12 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 		if (row < KeypadRows)
 			LastColumnIndex = column;
+
+		if (UseArrowKeyNavigation == false)
+		{
+			OnKeyDown(args.Key);
+			return;
+		}
 
 		if (args.Key == "ArrowUp")
 		{

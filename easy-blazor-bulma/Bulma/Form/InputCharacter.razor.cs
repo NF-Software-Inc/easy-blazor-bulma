@@ -55,6 +55,15 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	[Parameter]
 	public char[] Characters { get; set; } = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
+	/// <summary>
+	/// Specifies whether the arrow keys change the selected character across rows and columns while a character button has focus.
+	/// </summary>
+	/// <remarks>
+	/// Set to <see langword="false"/> when embedding the component inside a container, such as a table or grid, that handles arrow-key focus navigation.
+	/// </remarks>
+	[Parameter]
+	public bool UseArrowKeyNavigation { get; set; } = true;
+
 	[Inject]
 	private IJSRuntime JsRuntime { get; init; } = default!;
 
@@ -64,9 +73,13 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	private bool IsNullable;
 
 	private bool IsUpperCase = true;
+	private bool? RegisteredUseArrowKeyNavigation;
 
 	private ElementReference? ButtonsElement;
-	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter"];
+	private static readonly string[] PassthroughKeys = ["Escape", "Tab", "Enter"];
+	private static readonly string[] ArrowKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+	private static readonly string[] DefaultKeys = [.. PassthroughKeys, .. ArrowKeys];
+	private string[] AllowedKeys => UseArrowKeyNavigation ? PassthroughKeys : DefaultKeys;
 
 	private string ColumnsCssClass => string.Join(' ', "columns mb-0", AdditionalAttributes.GetValue("columns-class"));
 
@@ -93,8 +106,12 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	{
 		await base.OnAfterRenderAsync(firstRender);
 
-		if (firstRender && ButtonsElement != null && ButtonsElement.Value.Id != null)
-			await JsRuntime.RegisterKeyDownPreventDefault(ButtonsElement.Value, DefaultKeys, false, "button");
+		if (ButtonsElement != null && ButtonsElement.Value.Id != null && RegisteredUseArrowKeyNavigation != UseArrowKeyNavigation)
+		{
+			await JsRuntime.RegisterKeyDownPreventDefault(ButtonsElement.Value, AllowedKeys, false, "button");
+
+			RegisteredUseArrowKeyNavigation = UseArrowKeyNavigation;
+		}
 	}
 
 	/// <inheritdoc />
@@ -163,9 +180,7 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		if (AdditionalAttributes.IsDisabled())
-			return;
-		else if (args.Key != "ArrowDown" && args.Key != "ArrowUp" && args.Key != "ArrowLeft" && args.Key != "ArrowRight")
+		if (AdditionalAttributes.IsDisabled() || UseArrowKeyNavigation == false || ArrowKeys.Contains(args.Key) == false)
 			return;
 
 		var current = CurrentValueAsString?.FirstOrDefault();

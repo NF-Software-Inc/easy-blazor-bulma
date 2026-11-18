@@ -103,6 +103,15 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	public Func<string?, Task>? OnItemsRequested { get; set; }
 
 	/// <summary>
+	/// Specifies whether the up and down arrow keys open the suggestion popout and navigate highlighted items.
+	/// </summary>
+	/// <remarks>
+	/// Set to <see langword="false"/> when embedding the input inside a container, such as a table or grid, that handles arrow-key focus navigation.
+	/// </remarks>
+	[Parameter]
+	public bool UseArrowKeyNavigation { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
 	/// May be <see langword="null"/> if accessed before the component is rendered.
@@ -138,7 +147,12 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	private readonly List<TItem> CachedItems = [];
 
 	private bool OnBlurPreventDefault;
-	private readonly string[] DefaultKeys = ["Escape", "ArrowDown", "ArrowUp", "Enter"];
+	private bool? RegisteredUseArrowKeyNavigation;
+	private static readonly string[] ActionKeys = ["Escape", "Enter"];
+	private static readonly string[] ArrowKeys = ["ArrowDown", "ArrowUp"];
+	private static readonly string[] DefaultKeys = [.. ActionKeys, .. ArrowKeys];
+
+	private string[] PreventDefaultKeys => UseArrowKeyNavigation ? DefaultKeys : ActionKeys;
 
 	private string MainCssClass
 	{
@@ -248,8 +262,11 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	{
 		await base.OnAfterRenderAsync(firstRender);
 
-		if (firstRender && Element != null && Element.Value.Id != null)
-			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, DefaultKeys);
+		if (Element != null && Element.Value.Id != null && RegisteredUseArrowKeyNavigation != UseArrowKeyNavigation)
+		{
+			RegisteredUseArrowKeyNavigation = UseArrowKeyNavigation;
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, PreventDefaultKeys);
+		}
 	}
 
 	/// <inheritdoc />
@@ -317,19 +334,22 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 			OnItemSelected(match.match, success: match.success);
 		}
 
-		if (args.Key == "Enter" || args.Key == "Escape")
+		if (ActionKeys.Contains(args.Key))
 			IsPopoutDisplayed = false;
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && (args.Key == "ArrowDown" || args.Key == "ArrowUp"))
-			IsPopoutDisplayed = true;
+		if (UseArrowKeyNavigation)
+		{
+			if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && ArrowKeys.Contains(args.Key))
+				IsPopoutDisplayed = true;
 
-		if (IsPopoutDisplayed && args.Key == "ArrowDown")
-			HighlightNext();
-		else if (IsPopoutDisplayed && args.Key == "ArrowUp")
-			HighlightPrevious();
+			if (IsPopoutDisplayed && args.Key == "ArrowDown")
+				HighlightNext();
+			else if (IsPopoutDisplayed && args.Key == "ArrowUp")
+				HighlightPrevious();
+		}
 
 		if (IsPopoutDisplayed && args.Key == "Tab")
 		{
