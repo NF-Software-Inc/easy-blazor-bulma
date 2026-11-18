@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -17,7 +18,7 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// There are 2 additional attributes that can be used: datetimepicker-class and icon-class. Each of which apply CSS classes to the resulting elements as per their names.
 /// </remarks>
-public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : EasyInputBase<TValue>
+public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : EasyInputBase<TValue>, IAsyncDisposable
 {
 	/// <summary>
 	/// The number of hours to adjust by when the up or down arrows are clicked.
@@ -123,12 +124,16 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
+
 	private DateTime? InitialValue;
 	private DateTime PopoutValue;
 	private bool IsPopoutDisplayed;
 	private DateTimePart? IsPopoutRefreshing;
 	private PopoutDisplayMode DisplayMode = PopoutDisplayMode.Calendar;
 
+	private ElementReference? TimePickerElement;
 	private readonly string[] DefaultKeys = ["ArrowDown", "ArrowUp"];
 
 	/// <summary>
@@ -265,6 +270,34 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 		// Set starting values
 		InitialValue = IsNullable && CurrentValue == null ? null : ValueAsDateTime;
 		PopoutValue = ValueAsDateTime;
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender && TimePickerElement != null && TimePickerElement.Value.Id != null)
+		{
+			await JsRuntime.RegisterKeyDownPreventDefault(TimePickerElement.Value, DefaultKeys, targetSelector: "input[type='number']");
+			await JsRuntime.RegisterWheelPreventDefault(TimePickerElement.Value, "input[type='number']");
+		}
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		if (TimePickerElement != null && TimePickerElement.Value.Id != null)
+		{
+			try
+			{
+				await JsRuntime.UnregisterKeyDownPreventDefault(TimePickerElement.Value);
+				await JsRuntime.UnregisterWheelPreventDefault(TimePickerElement.Value);
+			}
+			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+		}
+
+		GC.SuppressFinalize(this);
 	}
 
 	/// <inheritdoc />

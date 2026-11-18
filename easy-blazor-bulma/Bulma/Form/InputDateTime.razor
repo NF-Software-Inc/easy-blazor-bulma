@@ -129,14 +129,17 @@
                     <span class="column p-0 has-text-centered">Seconds</span>
                 }
             </div>
+        }
 
-            <div class="timepicker">
-                <div class="timepicker-start">
-                    @if (Options.HasFlag(InputDateTimeOptions.ShowHours))
+        <div class="timepicker">
+            <div class="timepicker-start" @ref="TimePickerElement">
+                @if (Options.HasAnyFlag(InputDateTimeOptions.ShowHours | InputDateTimeOptions.ShowMinutes | InputDateTimeOptions.ShowSeconds))
+                {
+                    if (Options.HasFlag(InputDateTimeOptions.ShowHours))
                     {
                         <div class="timepicker-hours">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(StepHours))'>arrow_upward</span>
-                            <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                            <div class="timepicker-input is-input">
                                 <input type="number"
                                        class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                        style="height: auto"
@@ -153,11 +156,11 @@
                             <div class="timepicker-time-divider">:</div>
                         }
                     }
-                    @if (Options.HasFlag(InputDateTimeOptions.ShowMinutes))
+                    if (Options.HasFlag(InputDateTimeOptions.ShowMinutes))
                     {
                         <div class="timepicker-minutes">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(StepMinutes))'>arrow_upward</span>
-                            <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                            <div class="timepicker-input is-input">
                                 <input type="number"
                                        class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                        style="height: auto"
@@ -174,11 +177,11 @@
                             <div class="timepicker-time-divider">:</div>
                         }
                     }
-                    @if (Options.HasFlag(InputDateTimeOptions.ShowSeconds))
+                    if (Options.HasFlag(InputDateTimeOptions.ShowSeconds))
                     {
                         <div class="timepicker-seconds">
                             <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(StepSeconds))'>arrow_upward</span>
-                            <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                            <div class="timepicker-input is-input">
                                 <input type="number"
                                        class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                        style="height: auto"
@@ -191,9 +194,9 @@
                             <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(-StepSeconds))'>arrow_downward</span>
                         </div>
                     }
-                </div>
+                }
             </div>
-        }
+        </div>
 
         <div class="datetimepicker-footer">
             @if (Options.HasFlag(InputDateTimeOptions.ShowAcceptButton) || Options.HasFlag(InputDateTimeOptions.UpdateOnPopoutChange) == false)

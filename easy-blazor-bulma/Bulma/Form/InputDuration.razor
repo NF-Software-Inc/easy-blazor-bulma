@@ -48,7 +48,7 @@
         </div>
 
         <div class="timepicker">
-            <div class="timepicker-start">
+            <div class="timepicker-start" @ref="TimePickerElement">
                 @if (Options.HasFlag(InputDurationOptions.ShowDays))
                 {
                     <div class="timepicker-days">
@@ -59,7 +59,9 @@
                                    style="height: auto"
                                    value="@(IsPopoutRefreshing == TimeSpanPart.Days ? GetPopoutPart(TimeSpanPart.Days) + 1 : GetPopoutPart(TimeSpanPart.Days))"
                                    step="@StepDays"
-                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Days)" />
+                                   @onchange="args => UpdatePopoutValue(args, TimeSpanPart.Days)"
+                                   @onkeydown="args => OnKeyDown(args, TimeSpanPart.Days)"
+                                   @onwheel="args => OnWheel(args, TimeSpanPart.Days)" />
                         </div>
                         <span class="timepicker-previous material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromDays(-StepDays))'>arrow_downward</span>
                     </div>
@@ -72,7 +74,7 @@
                 {
                     <div class="timepicker-hours">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromHours(StepHours))'>arrow_upward</span>
-                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                        <div class="timepicker-input is-input">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
@@ -93,7 +95,7 @@
                 {
                     <div class="timepicker-minutes">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMinutes(StepMinutes))'>arrow_upward</span>
-                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                        <div class="timepicker-input is-input">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
@@ -114,7 +116,7 @@
                 {
                     <div class="timepicker-seconds">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromSeconds(StepSeconds))'>arrow_upward</span>
-                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                        <div class="timepicker-input is-input">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"
@@ -135,7 +137,7 @@
                 {
                     <div class="timepicker-seconds timepicker-milliseconds">
                         <span class="timepicker-next material-icons" @onclick='() => UpdatePopoutValue(TimeSpan.FromMilliseconds(StepMilliseconds))'>arrow_upward</span>
-                        <div class="timepicker-input is-input" onkeydown="if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.target.type === 'number') event.preventDefault();" onwheel="if (event.target.type === 'number' && document.activeElement === event.target) event.preventDefault();">
+                        <div class="timepicker-input is-input">
                             <input type="number"
                                    class="input is-size-3 is-spinnerless has-text-primary has-text-centered my-2"
                                    style="height: auto"

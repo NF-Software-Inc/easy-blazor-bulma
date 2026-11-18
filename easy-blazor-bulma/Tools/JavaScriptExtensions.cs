@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.Text.Json;
 
 namespace easy_blazor_bulma;
@@ -528,6 +529,48 @@ public static class JavaScriptExtensions
 	}
 
 	/// <summary>
+	/// Registers a keydown listener on the specified element that conditionally calls <c>preventDefault()</c>.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to invoke the helper.</param>
+	/// <param name="element">The DOM element reference to attach the listener to.</param>
+	/// <param name="keys">The <c>KeyboardEvent.key</c> values to match against.</param>
+	/// <param name="preventMatched">When <see langword="true"/>, prevents default for matched keys; when <see langword="false"/>, prevents default for unmatched keys.</param>
+	/// <param name="targetSelector">Optional CSS selector that <c>event.target</c> must match.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	/// <returns><see langword="true"/> if the listener was registered; otherwise, <see langword="false"/>.</returns>
+	/// <remarks>
+	/// Modifier key combinations (<c>Ctrl</c>, <c>Alt</c>, <c>Meta</c>) are always allowed through.
+	/// Re-registering replaces any existing keydown listener on the same element.
+	/// </remarks>
+	public async static Task<bool> RegisterKeyDownPreventDefault(this IJSRuntime jsRuntime, ElementReference element, IEnumerable<string> keys, bool preventMatched = true, string? targetSelector = null, CancellationToken? token = null)
+	{
+		if (string.IsNullOrEmpty(element.Id))
+			return false;
+
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.RegisterKeyDownPreventDefault", token ?? CancellationToken.None, element, keys, preventMatched, targetSelector);
+	}
+
+	/// <summary>
+	/// Registers a non-passive wheel listener on the specified element that conditionally calls <c>preventDefault()</c>.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to invoke the helper.</param>
+	/// <param name="element">The DOM element reference to attach the listener to.</param>
+	/// <param name="targetSelector">Optional CSS selector that <c>event.target</c> must match.</param>
+	/// <param name="requireFocus">When <see langword="true"/>, only prevents default when <c>event.target</c> is the active element.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	/// <returns><see langword="true"/> if the listener was registered; otherwise, <see langword="false"/>.</returns>
+	/// <remarks>
+	/// Re-registering replaces any existing wheel listener on the same element.
+	/// </remarks>
+	public async static Task<bool> RegisterWheelPreventDefault(this IJSRuntime jsRuntime, ElementReference element, string? targetSelector = null, bool requireFocus = true, CancellationToken? token = null)
+	{
+		if (string.IsNullOrEmpty(element.Id))
+			return false;
+
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.RegisterWheelPreventDefault", token ?? CancellationToken.None, element, targetSelector, requireFocus);
+	}
+
+	/// <summary>
 	/// Refreshes the page.
 	/// </summary>
 	/// <param name="token">A cancellation token to abort the request.</param>
@@ -683,6 +726,36 @@ public static class JavaScriptExtensions
 	public async static Task UnloadBlob(this IJSRuntime jsRuntime, string id, CancellationToken? token = null)
 	{
 		await jsRuntime.InvokeVoidAsync("easyBlazorBulma.UnloadBlob", token ?? CancellationToken.None, id);
+	}
+
+	/// <summary>
+	/// Removes a previously registered keydown <c>preventDefault()</c> listener from the specified element.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to invoke the helper.</param>
+	/// <param name="element">The DOM element reference to remove the listener from.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	/// <returns><see langword="true"/> if a listener was removed; otherwise, <see langword="false"/>.</returns>
+	public async static Task<bool> UnregisterKeyDownPreventDefault(this IJSRuntime jsRuntime, ElementReference element, CancellationToken? token = null)
+	{
+		if (string.IsNullOrEmpty(element.Id))
+			return false;
+
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.UnregisterKeyDownPreventDefault", token ?? CancellationToken.None, element);
+	}
+
+	/// <summary>
+	/// Removes a previously registered wheel <c>preventDefault()</c> listener from the specified element.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to invoke the helper.</param>
+	/// <param name="element">The DOM element reference to remove the listener from.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	/// <returns><see langword="true"/> if a listener was removed; otherwise, <see langword="false"/>.</returns>
+	public async static Task<bool> UnregisterWheelPreventDefault(this IJSRuntime jsRuntime, ElementReference element, CancellationToken? token = null)
+	{
+		if (string.IsNullOrEmpty(element.Id))
+			return false;
+
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.UnregisterWheelPreventDefault", token ?? CancellationToken.None, element);
 	}
 
 	/// <summary>

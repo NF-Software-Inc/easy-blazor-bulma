@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
@@ -30,7 +31,7 @@ namespace easy_blazor_bulma;
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
 /// </para>
 /// </remarks>
-public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>, IAsyncDisposable
 {
 	/// <summary>
 	/// The collection of items to search when typing in the input.
@@ -124,6 +125,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
+
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
 	private static readonly Type UnderlyingItemType = Nullable.GetUnderlyingType(typeof(TItem)) ?? typeof(TItem);
@@ -146,7 +150,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private string? DisplayedInputValue => InputValue == null && Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) ? FormatValueAsString(CurrentValue) : InputValue;
 	private TItem? CachedItem;
 
-	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
 	private readonly string[] DefaultKeys = ["Escape", "ArrowDown", "ArrowUp", "Enter"];
 
@@ -246,6 +249,42 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		HighlightedValue = CurrentValue;
 	}
 
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender && Element != null && Element.Value.Id != null)
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, DefaultKeys);
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		if (Element != null && Element.Value.Id != null)
+		{
+			try
+			{
+				await JsRuntime.UnregisterKeyDownPreventDefault(Element.Value);
+			}
+			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+		}
+
+		GC.SuppressFinalize(this);
+	}
+
+	/// <inheritdoc />
+	/// <exception cref="InvalidOperationException">A selector is missing when items cannot be assigned to the value type, ignoring nullability.</exception>
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (ValueSelector == null && UsesDirectAssignment == false)
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
+
+		UpdateCachedItem(CurrentValue);
+	}
+
 	private static bool IsMemberNullable(Type modelType, string memberName)
 	{
 		var context = new NullabilityInfoContext();
@@ -274,18 +313,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		}
 
 		return false;
-	}
-
-	/// <inheritdoc />
-	/// <exception cref="InvalidOperationException">A selector is missing when items cannot be assigned to the value type, ignoring nullability.</exception>
-	protected override void OnParametersSet()
-	{
-		base.OnParametersSet();
-
-		if (ValueSelector == null && UsesDirectAssignment == false)
-			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
-
-		UpdateCachedItem(CurrentValue);
 	}
 
 	/// <inheritdoc />
@@ -460,8 +487,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key);
-
 		if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && (args.Key == "ArrowDown" || args.Key == "ArrowUp"))
 			IsPopoutDisplayed = true;
 

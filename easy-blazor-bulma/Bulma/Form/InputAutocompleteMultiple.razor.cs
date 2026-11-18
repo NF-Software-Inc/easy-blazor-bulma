@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 
 namespace easy_blazor_bulma;
@@ -28,7 +29,7 @@ namespace easy_blazor_bulma;
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
 /// </para>
 /// </remarks>
-public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>
+public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<List<TValue>>, IAsyncDisposable
 {
 	/// <summary>
 	/// The collection of items to search when typing in the input.
@@ -113,6 +114,9 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
 
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
+
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
 	private static readonly Type UnderlyingItemType = Nullable.GetUnderlyingType(typeof(TItem)) ?? typeof(TItem);
@@ -133,7 +137,6 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	private string? InputValue;
 	private readonly List<TItem> CachedItems = [];
 
-	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
 	private readonly string[] DefaultKeys = ["Escape", "ArrowDown", "ArrowUp", "Enter"];
 
@@ -241,6 +244,30 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 	}
 
 	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender && Element != null && Element.Value.Id != null)
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, DefaultKeys);
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		if (Element != null && Element.Value.Id != null)
+		{
+			try
+			{
+				await JsRuntime.UnregisterKeyDownPreventDefault(Element.Value);
+			}
+			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+		}
+
+		GC.SuppressFinalize(this);
+	}
+
+	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<TValue> result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
 		result = Value ?? [];
@@ -296,8 +323,6 @@ public partial class InputAutocompleteMultiple<[DynamicallyAccessedMembers(Dynam
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key);
-
 		if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && (args.Key == "ArrowDown" || args.Key == "ArrowUp"))
 			IsPopoutDisplayed = true;
 

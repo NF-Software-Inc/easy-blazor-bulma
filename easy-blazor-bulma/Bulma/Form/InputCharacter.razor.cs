@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -15,7 +16,7 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// There are 3 additional attributes that can be used: columns-class, column-class, and button-class. Each of which apply CSS classes to the resulting elements as per their names.
 /// </remarks>
-public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>, IAsyncDisposable
 {
 	/// <summary>
 	/// Specifies the number of columns to divide the character selections into.
@@ -54,13 +55,17 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	[Parameter]
 	public char[] Characters { get; set; } = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
+
 	private readonly string[] Filter = ["class", "columns-class", "column-class", "button-class"];
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 
 	private bool IsUpperCase = true;
-	private bool OnKeyDownPreventDefault;
+
+	private ElementReference? ButtonsElement;
 	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter"];
 
 	private string ColumnsCssClass => string.Join(' ', "columns mb-0", AdditionalAttributes.GetValue("columns-class"));
@@ -81,6 +86,30 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 		if (current != null && current != '\0' && char.IsUpper(current.Value) == false)
 			IsUpperCase = false;
+	}
+
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender && ButtonsElement != null && ButtonsElement.Value.Id != null)
+			await JsRuntime.RegisterKeyDownPreventDefault(ButtonsElement.Value, DefaultKeys, false, "button");
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		if (ButtonsElement != null && ButtonsElement.Value.Id != null)
+		{
+			try
+			{
+				await JsRuntime.UnregisterKeyDownPreventDefault(ButtonsElement.Value);
+			}
+			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+		}
+
+		GC.SuppressFinalize(this);
 	}
 
 	/// <inheritdoc />
@@ -134,8 +163,6 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key) == false;
-
 		if (AdditionalAttributes.IsDisabled())
 			return;
 		else if (args.Key != "ArrowDown" && args.Key != "ArrowUp" && args.Key != "ArrowLeft" && args.Key != "ArrowRight")
