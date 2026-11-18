@@ -77,7 +77,20 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private bool SupportsDecimals;
 	private bool OnKeyDownPreventDefault;
-	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter", "NumpadEnter"];
+	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter"];
+	private static readonly Dictionary<string, int> NumberKeys = new()
+	{
+		["0"] = 0,
+		["1"] = 1,
+		["2"] = 2,
+		["3"] = 3,
+		["4"] = 4,
+		["5"] = 5,
+		["6"] = 6,
+		["7"] = 7,
+		["8"] = 8,
+		["9"] = 9
+	};
 
 	private string InternalValueAsString = string.Empty;
 
@@ -280,28 +293,28 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private void OnInputKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = args.Code == "ArrowLeft" || args.Code == "ArrowRight" || DefaultKeys.Contains(args.Code) == false;
+		OnKeyDownPreventDefault = args.Key == "ArrowLeft" || args.Key == "ArrowRight" || DefaultKeys.Contains(args.Key) == false;
 
-		if (args.Code != "ArrowDown" && args.Code != "ArrowUp" && args.Code != "ArrowLeft" && args.Code != "ArrowRight")
-			OnKeyDown(args.Code);
+		if (args.Key != "ArrowDown" && args.Key != "ArrowUp" && args.Key != "ArrowLeft" && args.Key != "ArrowRight")
+			OnKeyDown(args.Key);
 	}
 
 	private void OnButtonKeyDown(KeyboardEventArgs args)
 	{
-        if (AdditionalAttributes.IsDisabled())
-            return;
+		if (AdditionalAttributes.IsDisabled())
+			return;
 
-        OnKeyDownPreventDefault = DefaultKeys.Contains(args.Code) == false;
-		OnKeyDown(args.Code);
+		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key) == false;
+		OnKeyDown(args.Key);
 	}
 
 	private void OnKeyDown(string key)
 	{
-        if (NumberKeys.TryGetValue(key, out int value))
+		if (NumberKeys.TryGetValue(key, out int value))
 			OnDigitClicked(value);
 		else if (key == "Backspace")
 			OnBackspaceClicked();
-		else if (SupportsDecimals && (key == "NumpadDecimal" || key == "Period"))
+		else if (SupportsDecimals && key == ".")
 			OnDecimalClicked();
 	}
 
@@ -311,28 +324,4 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
         DisplayStatus &= ~InputStatus.BackgroundWarning;
         DisplayStatus &= ~InputStatus.BackgroundSuccess;
     }
-
-    private static readonly Dictionary<string, int> NumberKeys = new()
-	{
-		["Digit0"] = 0,
-		["Digit1"] = 1,
-		["Digit2"] = 2,
-		["Digit3"] = 3,
-		["Digit4"] = 4,
-		["Digit5"] = 5,
-		["Digit6"] = 6,
-		["Digit7"] = 7,
-		["Digit8"] = 8,
-		["Digit9"] = 9,
-		["Numpad0"] = 0,
-		["Numpad1"] = 1,
-		["Numpad2"] = 2,
-		["Numpad3"] = 3,
-		["Numpad4"] = 4,
-		["Numpad5"] = 5,
-		["Numpad6"] = 6,
-		["Numpad7"] = 7,
-		["Numpad8"] = 8,
-		["Numpad9"] = 9
-	};
 }

@@ -148,16 +148,16 @@ public class InputAutocompleteMultipleTests
 	{
 		var input = CreateProjectedInput([99]);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowDown" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(new[] { 99, 10 }, input.Value);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowUp" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowUp" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(new[] { 99, 10, 30 }, input.Value);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowDown" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(new[] { 99, 10, 30 }, input.Value);
 	}
 
@@ -171,9 +171,9 @@ public class InputAutocompleteMultipleTests
 		input.Items = [new Suggestion(0, "Zero"), new Suggestion(20, "Beta")];
 
 		Invoke(input, "HighlightNext");
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Invoke(input, "HighlightNext");
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 
 		Assert.Equal(new[] { 99, 0, 20 }, input.Value);
 	}
@@ -191,7 +191,7 @@ public class InputAutocompleteMultipleTests
 		var match = Match(input, "Alpha", InputAutocompleteOptions.AutoSelectCurrent);
 		Assert.True(match.success);
 		Assert.Equal(10, match.match);
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(new[] { 99, 10 }, input.Value);
 	}
 
@@ -344,9 +344,9 @@ public class InputAutocompleteMultipleTests
 		second.ValueSelector = x => x.Id + 100;
 
 		Invoke(first, "HighlightNext");
-		Invoke(first, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(first, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Invoke(second, "HighlightPrevious");
-		Invoke(second, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(second, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 
 		Assert.Equal(new[] { 99, 10 }, first.Value);
 		Assert.Equal(new[] { 99, 130 }, second.Value);

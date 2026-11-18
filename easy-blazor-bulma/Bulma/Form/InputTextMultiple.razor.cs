@@ -48,7 +48,7 @@ public partial class InputTextMultiple : InputBase<List<string>>
 	public ElementReference? Element { get; private set; }
 
 	private readonly string[] Filter = ["class", "button-class", "tag-class"];
-	private readonly string[] DefaultKeys = ["Enter", "NumpadEnter"];
+	private readonly string[] DefaultKeys = ["Enter"];
 	private string? InputValue;
 	private bool OnKeyDownPreventDefault;
 
@@ -96,13 +96,13 @@ public partial class InputTextMultiple : InputBase<List<string>>
 
 	private void OnKeyUp(KeyboardEventArgs args)
 	{
-		if (args.Code == "Enter" || args.Code == "NumpadEnter")
+		if (args.Key == "Enter")
 			AddCurrentValue();
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Code);
+		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key);
 	}
 
 	private void OnAddClicked()

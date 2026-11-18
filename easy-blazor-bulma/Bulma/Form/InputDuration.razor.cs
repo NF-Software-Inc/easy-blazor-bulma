@@ -617,7 +617,7 @@ public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccess
 
 	private void CheckKeyPress(KeyboardEventArgs args)
 	{
-		if (args.Code == "Escape" || args.Code == "Tab")
+		if (args.Key == "Escape" || args.Key == "Tab")
 			ClosePopout();
 	}
 

@@ -52,16 +52,16 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	/// The set of characters to generate buttons for.
 	/// </summary>
 	[Parameter]
-	public char[] Characters { get; set; } = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+	public char[] Characters { get; set; } = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
-	private readonly string[] Filter = new[] { "class", "columns-class", "column-class", "button-class" };
+	private readonly string[] Filter = ["class", "columns-class", "column-class", "button-class"];
 
 	private readonly Type UnderlyingType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
 	private bool IsNullable;
 
 	private bool IsUpperCase = true;
 	private bool OnKeyDownPreventDefault;
-	private readonly string[] DefaultKeys = new[] { "Escape", "Tab", "Enter", "NumpadEnter" };
+	private readonly string[] DefaultKeys = ["Escape", "Tab", "Enter"];
 
 	private string ColumnsCssClass => string.Join(' ', "columns mb-0", AdditionalAttributes.GetValue("columns-class"));
 
@@ -134,11 +134,11 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Code) == false;
+		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key) == false;
 
-        if (AdditionalAttributes.IsDisabled())
-            return;
-        else if (args.Code != "ArrowDown" && args.Code != "ArrowUp" && args.Code != "ArrowLeft" && args.Code != "ArrowRight")
+		if (AdditionalAttributes.IsDisabled())
+			return;
+		else if (args.Key != "ArrowDown" && args.Key != "ArrowUp" && args.Key != "ArrowLeft" && args.Key != "ArrowRight")
 			return;
 
 		var current = CurrentValueAsString?.FirstOrDefault();
@@ -158,21 +158,21 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 
 		var row = column.Options.Single(x => char.ToUpper(x.Value) == char.ToUpper(current.Value));
 
-		if (args.Code == "ArrowUp" && column.Options.Count > 1)
+		if (args.Key == "ArrowUp" && column.Options.Count > 1)
 		{
 			if (row.IndexR == 0)
 				CurrentValueAsString = column.Options[^1].Value.ToString();
 			else
 				CurrentValueAsString = column.Options[row.IndexR - 1].Value.ToString();
 		}
-		else if (args.Code == "ArrowDown" && column.Options.Count > 1)
+		else if (args.Key == "ArrowDown" && column.Options.Count > 1)
 		{
 			if (row.IndexR == column.Options.Count - 1)
 				CurrentValueAsString = column.Options[0].Value.ToString();
 			else
 				CurrentValueAsString = column.Options[row.IndexR + 1].Value.ToString();
 		}
-		else if (args.Code == "ArrowLeft" && columns.Count > 1)
+		else if (args.Key == "ArrowLeft" && columns.Count > 1)
 		{
 			if (column.IndexC == 0 && columns[^1].Options.Count - 1 >= row.IndexR)
 				CurrentValueAsString = columns[^1].Options[row.IndexR].Value.ToString();
@@ -183,7 +183,7 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 			else
 				CurrentValueAsString = columns[column.IndexC - 1].Options.Last().Value.ToString();
 		}
-		else if (args.Code == "ArrowRight" && columns.Count > 1)
+		else if (args.Key == "ArrowRight" && columns.Count > 1)
 		{
 			if (column.IndexC == columns.Count - 1 && columns[0].Options.Count - 1 >= row.IndexR)
 				CurrentValueAsString = columns[0].Options[row.IndexR].Value.ToString();

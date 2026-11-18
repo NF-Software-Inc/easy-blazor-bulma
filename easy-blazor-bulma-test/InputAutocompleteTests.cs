@@ -90,16 +90,16 @@ public class InputAutocompleteTests
 	{
 		var input = CreateProjectedInput();
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowDown" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(10, input.Value);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowUp" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowUp" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(30, input.Value);
 
-		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Code = "ArrowDown" });
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyDown", new KeyboardEventArgs { Key = "ArrowDown" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(10, input.Value);
 	}
 
@@ -113,11 +113,11 @@ public class InputAutocompleteTests
 		input.Items = [new Suggestion(0, "Zero"), new Suggestion(20, "Beta")];
 
 		Invoke(input, "HighlightNext");
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(0, input.Value);
 
 		Invoke(input, "HighlightNext");
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(20, input.Value);
 	}
 
@@ -234,7 +234,7 @@ public class InputAutocompleteTests
 		var match = Assert.IsType<(bool success, int match)>(Invoke(input, "GetMatch", "Alpha", InputAutocompleteOptions.AutoSelectCurrent));
 		Assert.True(match.success);
 		Assert.Equal(10, match.match);
-		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(input, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Assert.Equal(10, input.Value);
 	}
 
@@ -303,9 +303,9 @@ public class InputAutocompleteTests
 		second.ValueSelector = x => x.Id + 100;
 
 		Invoke(first, "HighlightNext");
-		Invoke(first, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(first, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 		Invoke(second, "HighlightPrevious");
-		Invoke(second, "OnKeyUp", new KeyboardEventArgs { Code = "Enter" });
+		Invoke(second, "OnKeyUp", new KeyboardEventArgs { Key = "Enter" });
 
 		Assert.Equal(10, first.Value);
 		Assert.Equal(130, second.Value);

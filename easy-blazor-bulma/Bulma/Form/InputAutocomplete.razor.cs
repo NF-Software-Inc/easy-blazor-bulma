@@ -448,29 +448,29 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnKeyUp(KeyboardEventArgs args)
 	{
-		if (args.Code == "Enter")
+		if (args.Key == "Enter")
 		{
 			var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
 			OnItemSelected(match.match, success: match.success);
 		}
 
-		if (args.Code == "Enter" || args.Code == "Escape")
+		if (args.Key == "Enter" || args.Key == "Escape")
 			IsPopoutDisplayed = false;
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Code);
+		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Key);
 
-		if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && (args.Code == "ArrowDown" || args.Code == "ArrowUp"))
+		if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && (args.Key == "ArrowDown" || args.Key == "ArrowUp"))
 			IsPopoutDisplayed = true;
 
-		if (IsPopoutDisplayed && args.Code == "ArrowDown")
+		if (IsPopoutDisplayed && args.Key == "ArrowDown")
 			HighlightNext();
-		else if (IsPopoutDisplayed && args.Code == "ArrowUp")
+		else if (IsPopoutDisplayed && args.Key == "ArrowUp")
 			HighlightPrevious();
 
-		if (IsPopoutDisplayed && args.Code == "Tab")
+		if (IsPopoutDisplayed && args.Key == "Tab")
 		{
 			if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnExit))
 			{
