@@ -1,0 +1,33 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.CompositeEnumFlagTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left has-icons-right">
+            <InputFlaggedEnum @bind-Value="InputModel.CompositeEnumFlagTest" HideZeroOption="false" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Composite Flagged Enum Test", Description = "Input to test a flagged enum value with composite flags.")]
+        public TestCompositeFlags CompositeEnumFlagTest { get; set; } = TestCompositeFlags.A | TestCompositeFlags.C;
+    }
+
+    [Flags]
+    private enum TestCompositeFlags
+    {
+        A = 0b_00000000_00000000_00000000_00000001,
+        B = 0b_00000000_00000000_00000000_00000010,
+        C = 0b_00000000_00000000_00000000_00000110,
+        D = 0b_00000000_00000000_00000000_00001000
+    }
+}

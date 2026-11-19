@@ -1,0 +1,38 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.NullableEnumFlagTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left has-icons-right">
+            <InputFlaggedEnum @bind-Value="InputModel.NullableEnumFlagTest" HideZeroOption="false" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Nullable Flagged Enum Test", Description = "Input to test modifying a nullable flagged enum value.")]
+        public TestFlags? NullableEnumFlagTest { get; set; }
+    }
+
+    [Flags]
+    private enum TestFlags
+    {
+        None = 0b_00000000_00000000_00000000_00000000,
+        One = 0b_00000000_00000000_00000000_00000001,
+        Two = 0b_00000000_00000000_00000000_00000010,
+        Three = 0b_00000000_00000000_00000000_00000100,
+        Four = 0b_00000000_00000000_00000000_00001000,
+        Five = 0b_00000000_00000000_00000000_00010000,
+        Six = 0b_00000000_00000000_00000000_00100000,
+        Seven = 0b_00000000_00000000_00000000_01000000,
+        Eight = 0b_00000000_00000000_00000000_10000000
+    }
+}

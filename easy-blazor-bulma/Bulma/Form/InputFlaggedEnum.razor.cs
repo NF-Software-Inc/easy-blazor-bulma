@@ -9,10 +9,14 @@ namespace easy_blazor_bulma;
 /// <summary>
 /// Creates a checkbox list with the values of the provided flagged enum. Supported types must inherit <see cref="Enum"/>, but not <see cref="ulong"/>.
 /// </summary>
-/// <typeparam name="TEnum">The type of enum to use.</typeparam>
+/// <typeparam name="TEnum">An enum type that is not backed by <see cref="ulong"/>. Nullable enum values are supported.</typeparam>
 /// <remarks>
-/// There are 2 additional attributes that can be used: switch-class and label-class. Each of which apply CSS classes to the resulting elements as per their names.
-/// <see href="https://bulma.io/documentation/form/checkbox/">Bulma Documentation</see>
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>switch-class</c></term><description>Classes added to each checkbox input.</description></item>
+///   <item><term><c>label-class</c></term><description>Classes added to each checkbox label.</description></item>
+/// </list>
+/// <para><see href="https://bulma.io/documentation/form/checkbox/">Bulma Documentation</see></para>
 /// </remarks>
 public partial class InputFlaggedEnum<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TEnum> : InputBase<TEnum>
 {
