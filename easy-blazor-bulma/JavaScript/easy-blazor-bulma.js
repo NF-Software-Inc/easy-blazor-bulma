@@ -966,6 +966,127 @@ window.easyBlazorBulma = {
     },
 
     /**
+     * Helper functions for input DOM event handling.
+     */
+    Input: {
+        _keyDownHandlers: new WeakMap(),
+        _wheelHandlers: new WeakMap(),
+
+        /**
+         * Registers a keydown listener on the element that conditionally calls preventDefault().
+         * @param {HTMLElement} element The element to attach the listener to.
+         * @param {string[]} keys The KeyboardEvent.key values to match against.
+         * @param {boolean} preventMatched When true, prevents default for matched keys; when false, prevents default for unmatched keys.
+         * @param {string | null} targetSelector Optional CSS selector that event.target must match.
+         * @returns {boolean} true when the listener is registered, otherwise false.
+         */
+        RegisterKeyDownPreventDefault: function (element, keys, preventMatched, targetSelector) {
+            if (!element || typeof element.addEventListener !== "function" || !Array.isArray(keys))
+                return false;
+
+            this.UnregisterKeyDownPreventDefault(element);
+
+            var keySet = new Set(keys);
+            var shouldPreventMatched = preventMatched !== false;
+
+            var handler = function (event) {
+                if (event.ctrlKey || event.metaKey || event.altKey)
+                    return;
+
+                if (targetSelector) {
+                    if (!(event.target instanceof Element) || !event.target.matches(targetSelector))
+                        return;
+                }
+
+                var isMatch = keySet.has(event.key);
+
+                if (shouldPreventMatched ? isMatch : !isMatch)
+                    event.preventDefault();
+            };
+
+            element.addEventListener("keydown", handler);
+            this._keyDownHandlers.set(element, handler);
+
+            return true;
+        },
+
+        /**
+         * Removes a previously registered keydown listener from the element.
+         * @param {HTMLElement} element The element to remove the listener from.
+         * @returns {boolean} true when a listener was removed, otherwise false.
+         */
+        UnregisterKeyDownPreventDefault: function (element) {
+            if (!element)
+                return false;
+
+            var handler = this._keyDownHandlers.get(element);
+
+            if (!handler)
+                return false;
+
+            if (typeof element.removeEventListener === "function")
+                element.removeEventListener("keydown", handler);
+
+            this._keyDownHandlers.delete(element);
+            return true;
+        },
+
+        /**
+         * Registers a non-passive wheel listener on the element that conditionally calls preventDefault().
+         * @param {HTMLElement} element The element to attach the listener to.
+         * @param {string | null} targetSelector Optional CSS selector that event.target must match.
+         * @param {boolean} requireFocus When true, only prevents default when event.target is the active element.
+         * @returns {boolean} true when the listener is registered, otherwise false.
+         */
+        RegisterWheelPreventDefault: function (element, targetSelector, requireFocus) {
+            if (!element || typeof element.addEventListener !== "function")
+                return false;
+
+            this.UnregisterWheelPreventDefault(element);
+
+            var mustBeFocused = requireFocus !== false;
+
+            var handler = function (event) {
+                if (targetSelector) {
+                    if (!(event.target instanceof Element) || !event.target.matches(targetSelector))
+                        return;
+                }
+
+                if (mustBeFocused && document.activeElement !== event.target)
+                    return;
+
+                event.preventDefault();
+            };
+
+            element.addEventListener("wheel", handler, { passive: false });
+            this._wheelHandlers.set(element, handler);
+
+            return true;
+        },
+
+        /**
+         * Removes a previously registered wheel listener from the element.
+         * @param {HTMLElement} element The element to remove the listener from.
+         * @returns {boolean} true when a listener was removed, otherwise false.
+         */
+        UnregisterWheelPreventDefault: function (element) {
+            if (!element)
+                return false;
+
+            var handler = this._wheelHandlers.get(element);
+
+            if (!handler)
+                return false;
+
+            if (typeof element.removeEventListener === "function")
+                element.removeEventListener("wheel", handler);
+
+            this._wheelHandlers.delete(element);
+            return true;
+        }
+    },
+
+    /**
      * Wrapper functions around Masonry.js instances.
      */
     Masonry: {

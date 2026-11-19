@@ -2,13 +2,13 @@
 @typeparam TValue
 @inherits InputBase<TValue>
 
-<div class='@ColumnsCssClass'>
+<div class='@ColumnsCssClass' @ref="ButtonsElement">
 	@foreach (var column in Characters.Split(Columns))
 	{
 		<div class='@ColumnCssClass'>
 			@foreach (var character in column)
 			{
-				<button type="button" class="@GetButtonCssClass(character)" @onkeydown="OnKeyDown" @onkeydown:preventDefault="OnKeyDownPreventDefault" @onclick="() => OnCharacterClicked(character)">@GetCharacterDisplay(character)</button>
+				<button type="button" class="@GetButtonCssClass(character)" @onkeydown="OnKeyDown" @onclick="() => OnCharacterClicked(character)">@GetCharacterDisplay(character)</button>
 			}
 		</div>
 	}

@@ -13,7 +13,7 @@
                                                ValueSelector="x => x.Id"
                                                DisplayValue="x => x.Name"
                                                DisplayFilter="(x, y) => x.Name.StartsWith(y, StringComparison.OrdinalIgnoreCase)"
-                                               Items="AutocompleteSampleData.Applicants"
+                                               Items="AutocompleteSampleData.GetInitialItems(IsFirstLoad)"
                                                Options="Options" />
                 </div>
             </div>
@@ -55,9 +55,20 @@
         InputAutocompleteOptions.UseAutomaticStatusColors |
         InputAutocompleteOptions.AutoSelectOnExit;
 
+    private bool IsFirstLoad = true;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            IsFirstLoad = false;
+            StateHasChanged();
+        }
+    }
+
     private class ApplicantIdsExampleModel
     {
         [Display(Name = "Applicant IDs", Description = "Select multiple applicants while binding only their IDs.")]
-        public List<int> SelectedApplicantIds { get; set; } = [AutocompleteSampleData.Applicants[3].Id, AutocompleteSampleData.Applicants[7].Id];
+        public List<int> SelectedApplicantIds { get; set; } = [AutocompleteSampleData.Applicants[3].Id, AutocompleteSampleData.NotInList.Id];
     }
 }

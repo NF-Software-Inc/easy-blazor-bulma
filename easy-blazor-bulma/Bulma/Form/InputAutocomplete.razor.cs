@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
@@ -40,7 +41,7 @@ namespace easy_blazor_bulma;
 /// <see href="https://bulma.io/documentation/components/dropdown/">Bulma Documentation</see>
 /// </para>
 /// </remarks>
-public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
+public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TItem, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>, IAsyncDisposable
 {
 	/// <summary>
 	/// The collection of items to search when typing in the input.
@@ -91,6 +92,15 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	public string? Icon { get; set; } = "search";
 
 	/// <summary>
+	/// An icon to reset the input.
+	/// </summary>
+	/// <remarks>
+	/// Only displayed when <see cref="Options"/> has the <see cref="InputAutocompleteOptions.DisplaySelectionInInput"/> flag set.
+	/// </remarks>
+	[Parameter]
+	public string? ResetIcon { get; set; } = "close";
+
+	/// <summary>
 	/// Applies styles to the input according to the selected options.
 	/// </summary>
 	[Parameter]
@@ -114,6 +124,15 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	public Func<string?, Task>? OnItemsRequested { get; set; }
 
 	/// <summary>
+	/// Specifies whether the up and down arrow keys open the suggestion popout and navigate highlighted items.
+	/// </summary>
+	/// <remarks>
+	/// Set to <see langword="false"/> when embedding the input inside a container, such as a table or grid, that handles arrow-key focus navigation.
+	/// </remarks>
+	[Parameter]
+	public bool UseArrowKeyNavigation { get; set; } = true;
+
+	/// <summary>
 	/// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
 	/// May be <see langword="null"/> if accessed before the component is rendered.
@@ -124,6 +143,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	[Inject]
 	private IServiceProvider ServiceProvider { get; init; } = default!;
+
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
 
 	private readonly string[] Filter = ["class", "dropdown-class", "dropdown-trigger-class", "dropdown-menu-class", "dropdown-item-class", "tag-class"];
 
@@ -144,10 +166,16 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	private bool IsPopoutDisplayed;
 	private TValue? HighlightedValue;
 	private string? InputValue;
+	private string? DisplayedInputValue => InputValue == null && Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) ? FormatValueAsString(CurrentValue) : InputValue;
+	private TItem? CachedItem;
 
-	private bool OnKeyDownPreventDefault;
 	private bool OnBlurPreventDefault;
-	private readonly string[] DefaultKeys = ["Escape", "ArrowDown", "ArrowUp", "Enter"];
+	private bool? RegisteredUseArrowKeyNavigation;
+	private static readonly string[] ActionKeys = ["Escape", "Enter"];
+	private static readonly string[] ArrowKeys = ["ArrowDown", "ArrowUp"];
+	private static readonly string[] DefaultKeys = [.. ActionKeys, .. ArrowKeys];
+
+	private string[] PreventDefaultKeys => UseArrowKeyNavigation ? DefaultKeys : ActionKeys;
 
 	private string MainCssClass
 	{
@@ -245,6 +273,46 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		HighlightedValue = CurrentValue;
 	}
 
+	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (Element != null && Element.Value.Id != null && RegisteredUseArrowKeyNavigation != UseArrowKeyNavigation)
+		{
+			RegisteredUseArrowKeyNavigation = UseArrowKeyNavigation;
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, PreventDefaultKeys);
+		}
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		if (Element != null && Element.Value.Id != null)
+		{
+			try
+			{
+				await JsRuntime.UnregisterKeyDownPreventDefault(Element.Value);
+			}
+			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+		}
+
+		((IDisposable)this).Dispose();
+		GC.SuppressFinalize(this);
+	}
+
+	/// <inheritdoc />
+	/// <exception cref="InvalidOperationException">A selector is missing when items cannot be assigned to the value type, ignoring nullability.</exception>
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		if (ValueSelector == null && UsesDirectAssignment == false)
+			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
+
+		UpdateCachedItem(CurrentValue);
+	}
+
 	private static bool IsMemberNullable(Type modelType, string memberName)
 	{
 		var context = new NullabilityInfoContext();
@@ -276,16 +344,6 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	}
 
 	/// <inheritdoc />
-	/// <exception cref="InvalidOperationException">A selector is missing when items cannot be assigned to the value type, ignoring nullability.</exception>
-	protected override void OnParametersSet()
-	{
-		base.OnParametersSet();
-
-		if (ValueSelector == null && UsesDirectAssignment == false)
-			throw new InvalidOperationException($"{nameof(ValueSelector)} is required when {nameof(TItem)} is not assignable to {nameof(TValue)}. {nameof(TItem)} was '{typeof(TItem).AssemblyQualifiedName}' and {nameof(TValue)} was '{typeof(TValue).AssemblyQualifiedName}'.");
-	}
-
-	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
 		if (Options.HasFlag(InputAutocompleteOptions.UseAutomaticStatusColors))
@@ -297,6 +355,7 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		{
 			result = match.match!;
 			HighlightedValue = result;
+			UpdateCachedItem(result);
 
 			if (Options.HasFlag(InputAutocompleteOptions.UseAutomaticStatusColors))
 				DisplayStatus |= InputStatus.BackgroundSuccess;
@@ -324,6 +383,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		{
 			if (UsesDirectAssignment)
 				return DisplayValue((TItem)(object)value);
+
+			if (CachedItem != null && AreEqual(GetValue(CachedItem), value))
+				return DisplayValue(CachedItem);
 
 			foreach (var item in Items)
 				if (AreEqual(GetValue(item), value))
@@ -365,10 +427,39 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		else if (matchType == InputAutocompleteOptions.AutoSelectClosest)
 			match = GetDisplayItems().OrderBy(x => string.Compare(DisplayValue(x), value, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
+		if (match != null && UsesDirectAssignment == false)
+			CachedItem = match;
+
 		if (match != null)
 			return (true, GetValue(match));
 		else
 			return (IsNullable, default);
+	}
+
+	private void UpdateCachedItem(TValue? value)
+	{
+		if (UsesDirectAssignment)
+			return;
+
+		if (value == null)
+		{
+			CachedItem = default;
+			return;
+		}
+
+		if (CachedItem != null && AreEqual(GetValue(CachedItem), value))
+			return;
+
+		foreach (var item in Items)
+		{
+			if (AreEqual(GetValue(item), value))
+			{
+				CachedItem = item;
+				return;
+			}
+		}
+
+		CachedItem = default;
 	}
 
 	private void OnFocus(FocusEventArgs args)
@@ -381,6 +472,9 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 	{
 		if (OnBlurPreventDefault)
 			return;
+
+		if (Options.HasFlag(InputAutocompleteOptions.DisplaySelectionInInput) && IsNullable && InputValue == string.Empty)
+			OnItemSelected(default, true, true);
 
 		IsPopoutDisplayed = false;
 	}
@@ -409,29 +503,30 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 
 	private void OnKeyUp(KeyboardEventArgs args)
 	{
-		if (args.Code == "Enter")
+		if (args.Key == "Enter")
 		{
 			var match = GetMatch(InputValue, InputAutocompleteOptions.AutoSelectCurrent);
 			OnItemSelected(match.match, success: match.success);
 		}
 
-		if (args.Code == "Enter" || args.Code == "Escape")
+		if (ActionKeys.Contains(args.Key))
 			IsPopoutDisplayed = false;
 	}
 
 	private void OnKeyDown(KeyboardEventArgs args)
 	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Code);
+		if (UseArrowKeyNavigation)
+		{
+			if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && ArrowKeys.Contains(args.Key))
+				IsPopoutDisplayed = true;
 
-		if (Options.HasFlag(InputAutocompleteOptions.TypePopout) && Items.Any() && (args.Code == "ArrowDown" || args.Code == "ArrowUp"))
-			IsPopoutDisplayed = true;
+			if (IsPopoutDisplayed && args.Key == "ArrowDown")
+				HighlightNext();
+			else if (IsPopoutDisplayed && args.Key == "ArrowUp")
+				HighlightPrevious();
+		}
 
-		if (IsPopoutDisplayed && args.Code == "ArrowDown")
-			HighlightNext();
-		else if (IsPopoutDisplayed && args.Code == "ArrowUp")
-			HighlightPrevious();
-
-		if (IsPopoutDisplayed && args.Code == "Tab")
+		if (IsPopoutDisplayed && args.Key == "Tab")
 		{
 			if (Options.HasFlag(InputAutocompleteOptions.AutoSelectOnExit))
 			{
@@ -455,8 +550,27 @@ public partial class InputAutocomplete<[DynamicallyAccessedMembers(DynamicallyAc
 		OnBlurPreventDefault = false;
 	}
 
-	private void OnItemSelected(TValue? value, bool close = true, bool success = true)
+	private async Task OnReset()
 	{
+		OnItemSelected(default, true, true);
+
+		if (OnItemsRequested != null)
+			await OnItemsRequested.Invoke(null);
+	}
+
+	private void OnItemSelected(TItem item)
+	{
+		if (UsesDirectAssignment == false)
+			CachedItem = item;
+
+		OnItemSelected(GetValue(item), true, true, false);
+	}
+
+	private void OnItemSelected(TValue? value, bool close = true, bool success = true, bool updateCache = true)
+	{
+		if (updateCache)
+			UpdateCachedItem(value);
+
 		CurrentValue = value;
 		InputValue = null;
 

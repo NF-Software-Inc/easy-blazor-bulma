@@ -7,7 +7,7 @@
         <EditForm Model="InputModel">
             <div class="field">
                 <Label For="() => InputModel.SelectedApplicant" TooltipMode="AutocompleteSampleData.TooltipDisplayMode" />
-                <div class="control has-icons-left is-expanded">
+                <div class="control has-icons-left has-icons-right is-expanded">
                     <InputAutocomplete dropdown-class="is-fullwidth"
                                        tag-class="is-warning"
                                        @bind-Value="InputModel.SelectedApplicant"
@@ -15,7 +15,7 @@
                                        Items="GetAutocompleteItems()"
                                        OnItemsRequested="OnItemsRequested"
                                        DisplayCount="5"
-                                       Options="Options" />
+                                       Options="Options | InputAutocompleteOptions.DisplaySelectionInInput" />
                 </div>
             </div>
         </EditForm>
@@ -61,10 +61,12 @@
     /// </summary>
     private IEnumerable<DemoAutocomplete> GetAutocompleteItems()
     {
-        if (string.IsNullOrWhiteSpace(Filter) == false)
-            return AllItems.Where(x => x.Position == "Accountant" && x.Name.StartsWith(Filter, StringComparison.OrdinalIgnoreCase));
+        var filter = Filter;
 
-        return AllItems.Where(x => x.Position == "Accountant");
+        if (string.IsNullOrWhiteSpace(filter) == false)
+            return AllItems.Where(x => x.Position == "Accountant" && x.Name.StartsWith(filter, StringComparison.OrdinalIgnoreCase));
+        else
+            return AllItems.Where(x => x.Position == "Accountant");
     }
 
     /// <summary>

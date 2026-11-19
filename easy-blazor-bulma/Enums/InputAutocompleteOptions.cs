@@ -1,7 +1,7 @@
 ﻿namespace easy_blazor_bulma;
 
 /// <summary>
-/// A list of options to configure an <see cref="InputAutocomplete{TValue,TItem}"/>.
+/// A list of options to configure an <see cref="InputAutocomplete{TItem, TValue}"/> and <see cref="InputAutocompleteMultiple{TItem, TValue}"/>.
 /// </summary>
 [Flags]
 public enum InputAutocompleteOptions
@@ -77,7 +77,12 @@ public enum InputAutocompleteOptions
     AutoSelectClosest = 0b_00000000_00000000_00010000_00000000,
 
 	/// <summary>
-	/// Allows selecting the same item more than once in <see cref="InputAutocompleteMultiple{TValue,TItem}"/>.
+	/// Allows selecting the same item more than once in <see cref="InputAutocompleteMultiple{TItem, TValue}"/>.
 	/// </summary>
-	AllowSameItem = 0b_00000000_00000000_00100000_00000000
+	AllowSameItem = 0b_00000000_00000000_00100000_00000000,
+
+	/// <summary>
+	/// Displays the selected item's text inside the input instead of a tag in <see cref="InputAutocomplete{TItem, TValue}"/>.
+	/// </summary>
+	DisplaySelectionInInput = 0b_00000000_00000000_01000000_00000000
 }

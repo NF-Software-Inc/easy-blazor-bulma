@@ -30,6 +30,19 @@ namespace easy_blazor_bulma_demo.Components.Pages.Forms
             new DemoAutocomplete { Id = 14, Name = "Pat Waxoff", Age = 19, Position = "Janitor" },
             new DemoAutocomplete { Id = 15, Name = "Betty Terletson", Age = 20, Position = "Janitor" }
         ];
+
+        /// <summary>
+        /// Autocomplete item representing an entry that is not in the list.
+        /// </summary>
+        internal static readonly DemoAutocomplete NotInList = new() { Id = 999, Name = "Jenny Hideaway", Age = 99, Position = "Janitor" };
+
+        /// <summary>
+        /// Gets the initial autocomplete items.
+        /// </summary>
+        /// <param name="isFirstLoad">true to include the “not in list” item; otherwise, false.</param>
+        /// <returns>The applicant items, with the “not in list” item appended when isFirstLoad is true.</returns>
+        internal static IEnumerable<DemoAutocomplete> GetInitialItems(bool isFirstLoad)
+            => isFirstLoad ? Applicants.Append(NotInList) : Applicants;
     }
 
     /// <summary>

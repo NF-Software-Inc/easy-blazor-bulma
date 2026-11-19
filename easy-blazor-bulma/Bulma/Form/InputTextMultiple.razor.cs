@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 
 namespace easy_blazor_bulma;
@@ -24,7 +25,7 @@ namespace easy_blazor_bulma;
 /// <see href="https://bulma.io/documentation/form/general/">Bulma Documentation</see>
 /// </para>
 /// </remarks>
-public partial class InputTextMultiple : InputBase<List<string>>
+public partial class InputTextMultiple : InputBase<List<string>>, IAsyncDisposable
 {
 	/// <summary>
 	/// Specifies whether the component allows the same value to be added more than once.
@@ -47,10 +48,12 @@ public partial class InputTextMultiple : InputBase<List<string>>
 	[DisallowNull]
 	public ElementReference? Element { get; private set; }
 
+	[Inject]
+	private IJSRuntime JsRuntime { get; init; } = default!;
+
 	private readonly string[] Filter = ["class", "button-class", "tag-class"];
-	private readonly string[] DefaultKeys = ["Enter", "NumpadEnter"];
+	private readonly string[] DefaultKeys = ["Enter"];
 	private string? InputValue;
-	private bool OnKeyDownPreventDefault;
 
 	private string MainCssClass => string.Join(' ', "input", CssClass);
 
@@ -81,6 +84,31 @@ public partial class InputTextMultiple : InputBase<List<string>>
 	}
 
 	/// <inheritdoc />
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender && Element != null && Element.Value.Id != null)
+			await JsRuntime.RegisterKeyDownPreventDefault(Element.Value, DefaultKeys);
+	}
+
+	/// <inheritdoc />
+	public async ValueTask DisposeAsync()
+	{
+		if (Element != null && Element.Value.Id != null)
+		{
+			try
+			{
+				await JsRuntime.UnregisterKeyDownPreventDefault(Element.Value);
+			}
+			catch (Exception e) when (e is JSDisconnectedException or TaskCanceledException or ObjectDisposedException) { }
+		}
+
+		((IDisposable)this).Dispose();
+		GC.SuppressFinalize(this);
+	}
+
+	/// <inheritdoc />
 	protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out List<string> result, [NotNullWhen(false)] out string? validationErrorMessage)
 	{
 		result = Value ?? [];
@@ -96,13 +124,8 @@ public partial class InputTextMultiple : InputBase<List<string>>
 
 	private void OnKeyUp(KeyboardEventArgs args)
 	{
-		if (args.Code == "Enter" || args.Code == "NumpadEnter")
+		if (args.Key == "Enter")
 			AddCurrentValue();
-	}
-
-	private void OnKeyDown(KeyboardEventArgs args)
-	{
-		OnKeyDownPreventDefault = DefaultKeys.Contains(args.Code);
 	}
 
 	private void OnAddClicked()
