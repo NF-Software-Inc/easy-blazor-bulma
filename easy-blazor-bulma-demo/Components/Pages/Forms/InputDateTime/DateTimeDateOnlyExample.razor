@@ -1,0 +1,29 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.DateOnlyTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left has-icons-right">
+            <InputDateTime @bind-Value="InputModel.DateOnlyTest" Options="DateOnlyOptions" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly InputDateTimeOptions DateOnlyOptions = InputDateTimeOptions.HoverPopout |
+        InputDateTimeOptions.ShowResetButton |
+        InputDateTimeOptions.ShowDate |
+        InputDateTimeOptions.CloseOnDateClicked;
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Date Only Test", Description = "Input to test a nullable DateOnly value.")]
+        public DateOnly? DateOnlyTest { get; set; }
+    }
+}

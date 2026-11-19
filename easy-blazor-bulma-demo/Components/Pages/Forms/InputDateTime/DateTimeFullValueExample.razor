@@ -1,0 +1,38 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.FullDateTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left has-icons-right">
+            <InputDateTime @bind-Value="InputModel.FullDateTest" Options="DateBelowOptions" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly InputDateTimeOptions DateBelowOptions = InputDateTimeOptions.ClickPopout |
+        InputDateTimeOptions.PopoutBottom |
+        InputDateTimeOptions.PopoutLeft |
+        InputDateTimeOptions.ShowNowButton |
+        InputDateTimeOptions.ShowResetButton |
+        InputDateTimeOptions.UpdateOnPopoutChange |
+        InputDateTimeOptions.UseAutomaticStatusColors |
+        InputDateTimeOptions.ShowDate |
+        InputDateTimeOptions.ShowHours |
+        InputDateTimeOptions.ShowMinutes |
+        InputDateTimeOptions.CloseOnDateClicked |
+        InputDateTimeOptions.ValidateTextInput |
+        InputDateTimeOptions.ShowFullValueBelow;
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Full Date Test", Description = "Input to display the full DateTime below the input.")]
+        public DateTime? FullDateTest { get; set; }
+    }
+}

@@ -1,40 +1,19 @@
 ﻿@page "/inputDateTime"
-@inherits ComponentBase
 
-<TitleBlock Title="Input Date Time Test" />
+<TestPage Title="Input Date Time Test" ComponentTypes="@ComponentTypes">
+	<Examples>
+		<ExampleSection ComponentType="typeof(DateTimeBasicExample)" />
+		<ExampleSection ComponentType="typeof(DateTimeDateOnlyExample)" />
+		<ExampleSection ComponentType="typeof(DateTimeFullValueExample)" />
+	</Examples>
+</TestPage>
 
-<div class="columns p-3">
-	<div class="column is-4">
-		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">There are several additional attributes that can apply customization to the component:</p>
-			<div class="content">
-				<ul class="content">
-					<li>datetimepicker-class</li>
-					<li>icon-class</li>
-				</ul>
-			</div>
-		</Message>
-	</div>
-	<div class="column is-8">
-		<EditForm Model="InputModel">
-			<div class="field">
-				<Label For="() => InputModel.DateTimeTest" TooltipMode="TooltipDisplayMode" />
-				<div class="control has-icons-left has-icons-right">
-					<InputDateTime @bind-Value=InputModel.DateTimeTest StartOfWeek="DayOfWeek.Monday" />
-				</div>
-			</div>
-			<div class="field">
-				<Label For="() => InputModel.DateOnlyTest" TooltipMode="TooltipDisplayMode" />
-				<div class="control has-icons-left has-icons-right">
-					<InputDateTime @bind-Value=InputModel.DateOnlyTest Options="DateOnlyOptions" />
-				</div>
-			</div>
-			<div class="field">
-				<Label For="() => InputModel.FullDateTest" TooltipMode="TooltipDisplayMode" />
-				<div class="control has-icons-left has-icons-right">
-					<InputDateTime @bind-Value=InputModel.FullDateTest Options="DateBelowOptions" />
-				</div>
-			</div>
-		</EditForm>
-	</div>
-</div>
+@code {
+	/// <summary>
+	/// Component types documented on this test page.
+	/// </summary>
+	private static readonly Type[] ComponentTypes =
+	[
+		typeof(InputDateTime<>),
+	];
+}

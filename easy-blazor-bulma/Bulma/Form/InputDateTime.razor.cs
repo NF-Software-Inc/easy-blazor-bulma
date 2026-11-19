@@ -14,9 +14,13 @@ namespace easy_blazor_bulma;
 /// <summary>
 /// An input component for editing date and time values. Supported types are <see cref="DateTime"/>, <see cref="DateOnly"/>, <see cref="TimeSpan"/>, and <see cref="TimeOnly"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TValue">The bound value type: <see cref="DateTime"/>, <see cref="DateOnly"/>, <see cref="TimeSpan"/>, <see cref="TimeOnly"/>, or a nullable form of one of these types.</typeparam>
 /// <remarks>
-/// There are 2 additional attributes that can be used: datetimepicker-class and icon-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>datetimepicker-class</c></term><description>Classes added to the date and time popout.</description></item>
+///   <item><term><c>icon-class</c></term><description>Classes added to the icon displayed inside the input.</description></item>
+/// </list>
 /// </remarks>
 public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : EasyInputBase<TValue>, IAsyncDisposable
 {
@@ -92,10 +96,10 @@ public partial class InputDateTime<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Parameter]
 	public CultureInfo? Culture { get; set; }
 
-	/// <summary>
-	/// The configuration options to apply to the component.
-	/// </summary>
-	[Parameter]
+    /// <summary>
+    /// The configuration options to apply to the component. Used to control the popout behavior, which fields are displayed, and whether to show the full value below the input.
+    /// </summary>
+    [Parameter]
 	public InputDateTimeOptions Options { get; set; } =
 		InputDateTimeOptions.ClickPopout |
 		InputDateTimeOptions.PopoutBottom |
