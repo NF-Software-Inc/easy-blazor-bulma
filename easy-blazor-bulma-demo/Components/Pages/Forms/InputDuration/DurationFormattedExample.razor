@@ -1,0 +1,39 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.FormattedTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left has-icons-right">
+            <InputDuration @bind-Value="InputModel.FormattedTest" Options="SignedOptions" Formatter="FormatDuration" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly InputDurationOptions SignedOptions = InputDurationOptions.ClickPopout | InputDurationOptions.PopoutBottom | InputDurationOptions.PopoutLeft | InputDurationOptions.UpdateOnPopoutChange | InputDurationOptions.UseAutomaticStatusColors | InputDurationOptions.ValidateTextInput | InputDurationOptions.ShowResetButton | InputDurationOptions.ShowDays | InputDurationOptions.ShowHours | InputDurationOptions.ShowMinutes | InputDurationOptions.AllowNegative | InputDurationOptions.AllowGreaterThan24Hours;
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    /// <summary>
+    /// Formats a nullable TimeSpan value into a readable string representation, i.e. "1d 2h 30m" for 1 day, 2 hours, and 30 minutes. If the value is negative, a "-" sign is prepended.
+    /// </summary>
+    private string? FormatDuration(TimeSpan? value)
+    {
+        if (value == null)
+            return null;
+
+        var sign = value.Value < TimeSpan.Zero ? "-" : string.Empty;
+        var duration = value.Value.Duration();
+
+        return $"{sign}{duration.Days}d {duration.Hours}h {duration.Minutes}m";
+    }
+
+    private class PageModel
+    {
+        [Display(Name = "Formatted Test", Description = "Input to test the Formatter function. The value is displayed as a readable summary while the input does not have focus.")]
+        public TimeSpan? FormattedTest { get; set; } = TimeSpan.FromHours(50);
+    }
+}

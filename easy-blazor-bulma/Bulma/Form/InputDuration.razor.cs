@@ -14,9 +14,16 @@ namespace easy_blazor_bulma;
 /// <summary>
 /// An input component for editing duration values. Supported types are <see cref="TimeSpan"/> and <see cref="TimeOnly"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TValue">The bound value type, either <see cref="TimeSpan"/> or <see cref="TimeOnly"/>, with nullable forms supported.</typeparam>
 /// <remarks>
-/// There are 2 additional attributes that can be used: datetimepicker-class and icon-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para>Use <see cref="DisplayFormat"/> or <see cref="Formatter"/> to customize the unfocused input text. <see cref="Formatter"/> takes precedence when both are set.</para>
+/// <para>The largest displayed column carries the total duration and its sign. Entering a value into it replaces the current value, so entering a negative there flips the entire duration.</para>
+/// <para>Entering a value into any other column replaces that column when it falls within its natural range, otherwise the value is added to the current duration. Try entering 90 minutes, or -2 hours.</para>
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>datetimepicker-class</c></term><description>Classes added to the duration popout.</description></item>
+///   <item><term><c>icon-class</c></term><description>Classes added to the icon displayed inside the input.</description></item>
+/// </list>
 /// </remarks>
 public partial class InputDuration<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : EasyInputBase<TValue>, IAsyncDisposable
 {

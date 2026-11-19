@@ -1,0 +1,25 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.RollupTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left has-icons-right">
+            <InputDuration @bind-Value="InputModel.RollupTest" Options="RollupOptions" StepMinutes="15" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly InputDurationOptions RollupOptions = InputDurationOptions.ClickPopout | InputDurationOptions.PopoutBottom | InputDurationOptions.PopoutLeft | InputDurationOptions.UpdateOnPopoutChange | InputDurationOptions.UseAutomaticStatusColors | InputDurationOptions.ValidateTextInput | InputDurationOptions.ShowResetButton | InputDurationOptions.ShowMinutes | InputDurationOptions.ShowSeconds | InputDurationOptions.AllowGreaterThan24Hours | InputDurationOptions.DisplayHoursAsMinutes;
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Rollup Test", Description = "Input to test roll up into the largest displayed column. Minutes is the largest column shown, so it displays the total number of minutes rather than the minutes component.")]
+        public TimeSpan RollupTest { get; set; } = TimeSpan.FromMinutes(135);
+    }
+}
