@@ -1,0 +1,27 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label class="is-size-4" For="() => InputModel.NullableCharacterTest" TooltipMode="TooltipDisplayMode" />
+        <InputCharacter @bind-Value="InputModel.NullableCharacterTest" Columns="5" IsRounded="false" ShowCaseChange="false" ActiveColor="BulmaColors.Purple" Characters="Charset" />
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    /// <summary>
+    /// The set of characters that can be used in the input. Try modifying this array to see how the input changes.
+    /// </summary>
+    private readonly char[] Charset = ['!', '@', '#', '%', '^', '&', '*', '(', ')', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+
+    private class PageModel
+    {
+        [Display(Name = "Nullable Character Test", Description = "Input to test modifying a nullable char value.")]
+        public char? NullableCharacterTest { get; set; }
+    }
+}

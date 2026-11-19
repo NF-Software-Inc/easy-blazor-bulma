@@ -10,11 +10,23 @@ using System.Globalization;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for editing date and time values. Supported types are <see cref="char"/>.
+/// An input component for selecting a character from a configurable set of options.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TValue">The bound value type, either <c>char</c> or nullable <c>char</c> when clearing the selection is allowed.</typeparam>
 /// <remarks>
-/// There are 3 additional attributes that can be used: columns-class, column-class, and button-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para><b>Keyboard navigation:</b></para>
+/// <list type="bullet">
+///   <item><term>Up / Down Arrow</term><description>Changes the selected character within its column.</description></item>
+///   <item><term>Left / Right Arrow</term><description>Changes the selected character across columns.</description></item>
+///   <item><term>Tab, Enter, and Esc</term><description>Remain available for their standard keyboard behavior.</description></item>
+/// </list>
+/// <para>Arrow-key selection navigation is enabled by default. Set <see cref="UseArrowKeyNavigation"/> to <see langword="false"/> when the containing control handles arrow-key navigation.</para>
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>columns-class</c></term><description>Classes added to the outer columns container.</description></item>
+///   <item><term><c>column-class</c></term><description>Classes added to each character column.</description></item>
+///   <item><term><c>button-class</c></term><description>Classes added to each character and action button.</description></item>
+/// </list>
 /// </remarks>
 public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>, IAsyncDisposable
 {
@@ -85,7 +97,7 @@ public partial class InputCharacter<[DynamicallyAccessedMembers(DynamicallyAcces
 	private bool? RegisteredUseArrowKeyNavigation;
 
 	private ElementReference? ButtonsElement;
-	private static readonly string[] PassthroughKeys = ["Escape", "Tab", "Enter"];
+    private static readonly string[] PassthroughKeys = ["Escape", "Tab", "Enter"];
 	private static readonly string[] ArrowKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
 	private static readonly string[] DefaultKeys = [.. PassthroughKeys, .. ArrowKeys];
 	private string[] AllowedKeys => UseArrowKeyNavigation ? PassthroughKeys : DefaultKeys;

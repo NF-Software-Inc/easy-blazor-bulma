@@ -12,3 +12,14 @@
         <ExampleSection ComponentType="typeof(AutocompletePrivatePropertyExample)" />
     </Examples>
 </TestPage>
+
+@code {
+    /// <summary>
+    /// Autocomplete component types documented on this test page.
+    /// </summary>
+    private static readonly Type[] ComponentTypes =
+    [
+        typeof(InputAutocomplete<,>),
+        typeof(InputAutocompleteMultiple<,>)
+    ];
+}

@@ -1,0 +1,19 @@
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label class="is-size-4" data-tooltip="Input to test modifying a non-nullable char value." TValue="char" DisplayText="Character Test" TooltipMode="TooltipDisplayMode" />
+        <InputCharacter @bind-Value="InputModel.CharacterTest" />
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        public char CharacterTest { get; set; } = 'A';
+    }
+}

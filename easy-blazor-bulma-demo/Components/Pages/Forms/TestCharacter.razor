@@ -1,63 +1,18 @@
-﻿@using System.ComponentModel.DataAnnotations
+﻿@page "/inputCharacter"
 
-@page "/inputCharacter"
-@inherits ComponentBase
-
-<TitleBlock Title="Input Character Test" />
-
-<div class="columns p-3">
-	<div class="column is-4">
-		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">Note that the Input Character component supports keyboard navigation using the following keys:</p>
-			<div class="content">
-				<ul class="content">
-					<li>Up Arrow</li>
-					<li>Down Arrow</li>
-					<li>Left Arrow</li>
-					<li>Right Arrow</li>
-					<li>Tab</li>
-					<li>Enter</li>
-					<li>Esc</li>
-				</ul>
-			</div>
-
-			<p class="block">There are several additional attributes that can apply customization to the component:</p>
-			<div class="content">
-				<ul class="content">
-					<li>columns-class</li>
-					<li>column-class</li>
-					<li>button-class</li>
-				</ul>
-			</div>
-		</Message>
-	</div>
-	<div class="column is-8">
-		<EditForm Model="InputModel">
-			<div class="columns">
-				<div class="column field">
-					<Label class="is-size-4" data-tooltip="Input to test modifying a non-nullable char value." TValue=char DisplayText="Character Test" TooltipMode="TooltipDisplayMode" />
-					<InputCharacter @bind-Value=InputModel.CharacterTest />
-				</div>
-				<div class="column field">
-					<Label class="is-size-4" For="() => InputModel.NullableCharacterTest" TooltipMode="TooltipDisplayMode" />
-					<InputCharacter @bind-Value=InputModel.NullableCharacterTest Columns="5" IsRounded=false ShowCaseChange=false ActiveColor="BulmaColors.Purple" Characters="Charset" />
-				</div>
-			</div>
-		</EditForm>
-	</div>
-</div>
+<TestPage Title="Input Character Test" ComponentTypes="@ComponentTypes">
+	<Examples>
+		<ExampleSection ComponentType="typeof(InputCharacterBasicExample)"/>
+		<ExampleSection ComponentType="typeof(InputCharacterNullableExample)"/>
+	</Examples>
+</TestPage>
 
 @code {
-	private readonly PageModel InputModel = new();
-
-	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
-	private readonly char[] Charset = ['!', '@', '#', '%', '^', '&', '*', '(', ')', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-
-	private class PageModel
-	{
-		public char CharacterTest { get; set; } = 'A';
-
-		[Display(Name = "Nullable Character Test", Description = "Input to test modifying a nullable char value.")]
-		public char? NullableCharacterTest { get; set; }
-	}
+	/// <summary>
+	/// Component types documented on this test page.
+	/// </summary>
+	private static readonly Type[] ComponentTypes = new[]
+    {
+		typeof(InputCharacter<>),
+    };
 }
