@@ -1,0 +1,24 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.CurrencyTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left">
+            <InputNumberFormatted @bind-Value="InputModel.CurrencyTest" DisplayFormat="C2" Icon="attach_money" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Currency Test", Description = "Input to test currency formatting.")]
+        public decimal CurrencyTest { get; set; } = 1234.56m;
+    }
+}

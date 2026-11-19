@@ -6,17 +6,18 @@ using System.Globalization;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for editing numeric values with custom formatting. Supported types are <see cref="short"/>, <see cref="int"/>, <see cref="long"/>, <see cref="ushort"/>, <see cref="uint"/>, <see cref="ulong"/>, <see cref="float"/>, <see cref="double"/>, and <see cref="decimal"/>.
+/// An input component for editing numeric values with custom formatting. Supported types are <see cref="sbyte"/>, <see cref="byte"/>, <see cref="short"/>, <see cref="ushort"/>, <see cref="int"/>, <see cref="uint"/>, <see cref="long"/>, <see cref="ulong"/>, <see cref="float"/>, <see cref="double"/>, and <see cref="decimal"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
-/// <remarks>
-/// <para>
-/// The formatted value is displayed while the input does not have focus, the raw value is displayed when the input is focused to simplify editing.
-/// </para>
+/// <typeparam name="TValue">The bound numeric value type. Nullable forms of the supported numeric types are also accepted.</typeparam>
 ///
-/// <para>
-/// There is 1 additional attribute that can be used: icon-class. It applies CSS classes to the resulting element as per its name.
-/// </para>
+/// <remarks>
+/// <para>The formatted value is displayed while the input does not have focus, the raw value is displayed when the input is focused to simplify editing.</para>
+/// <para>Use <see cref="DisplayFormat"/> or <see cref="Formatter"/> to customize the unfocused input text. <see cref="Formatter"/> takes precedence when both are set.</para>
+///
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>icon-class</c></term><description>Classes added to the icon displayed inside the input.</description></item>
+/// </list>
 ///
 /// <para>
 /// <see href="https://bulma.io/documentation/form/general/">Bulma Documentation</see>
@@ -57,17 +58,19 @@ public partial class InputNumberFormatted<[DynamicallyAccessedMembers(Dynamicall
 	[Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
-	/// <inheritdoc cref="InputDateTimeOptions.UseAutomaticStatusColors"/>
-	[Parameter]
+    /// <summary>
+    /// Whether automatically sets a success or failure border on the input based on user input. Similar to <see cref="InputDateTimeOptions.UseAutomaticStatusColors"/>.
+    /// </summary>
+    [Parameter]
 	public bool UseAutomaticStatusColors { get; set; } = true;
 
-	/// <summary>
-	/// Gets or sets the associated <see cref="ElementReference"/>.
+    /// <summary>
+    /// Gets or sets the associated <see cref="ElementReference"/>.
 	/// <para>
-	/// May be <see langword="null"/> if accessed before the component is rendered.
+    /// May be <see langword="null"/> if accessed before the component is rendered.
 	/// </para>
 	/// </summary>
-	[DisallowNull]
+    [DisallowNull]
 	public ElementReference? Element { get; private set; }
 
 	private readonly string[] Filter = ["class", "icon-class"];

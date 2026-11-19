@@ -1,0 +1,29 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.CustomTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left">
+            <InputNumberFormatted @bind-Value="InputModel.CustomTest" Formatter="FormatDistance" Icon="straighten" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    /// <summary>
+    /// Formats the given distance value as a string with two decimal places followed by " km", i.e. "12.34 km". If the value is null, returns null.
+    /// </summary>
+    private string? FormatDistance(double? value) => value == null ? null : $"{value:N2} km";
+
+    private class PageModel
+    {
+        [Display(Name = "Custom Test", Description = "Input to test a custom formatting function.")]
+        public double? CustomTest { get; set; } = 12.5;
+    }
+}
