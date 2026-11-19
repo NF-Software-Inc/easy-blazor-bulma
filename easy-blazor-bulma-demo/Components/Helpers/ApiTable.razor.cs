@@ -43,13 +43,13 @@ public partial class ApiTable : ComponentBase
 
         // Build table rows from the component's public parameters and their XML doc comments
         Rows = XmlDocs.GetParameters(ComponentType)
-            .Select(x =>
+            .Select(propertyInfo =>
             {
-                var doc = XmlDocs.GetPropertyDoc(x);
+                var doc = XmlDocs.GetPropertyDoc(propertyInfo);
 
                 return new ApiRow(
-                    x.Name,
-                    XmlDocs.GetTypeName(x.PropertyType),
+                    propertyInfo.Name,
+                    XmlDocs.GetTypeName(propertyInfo),
                     XmlDocs.ToHtml(doc?.Element("summary")),
                     XmlDocs.ToHtml(doc?.Element("remarks")));
             })

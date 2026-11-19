@@ -201,6 +201,9 @@ public static class XmlDocs
     /// </summary>
     private static string GetShortName(string cref)
     {
+        // Determine if the cref represents a member (e.g., property, method) or a type.
+        var isMember = cref.Length > 1 && cref[0] != 'T' && cref[1] == ':';
+
         // 1. Remove the member type prefix (e.g., "P:", "T:", "M:")
         var name = cref[(cref.IndexOf(':') + 1)..];
 
@@ -209,8 +212,11 @@ public static class XmlDocs
         if (parenIndex >= 0)
             name = name[..parenIndex];
 
-        // 3. Keep only the final member or type segment after the last dot
-        name = name[(name.LastIndexOf('.') + 1)..];
+        // 3. Keep the last segment; for members also keep the declaring type (e.g., "InputDateTimeOptions.UseAutomaticStatusColors")
+        var parts = name.Split('.');
+        name = isMember && parts.Length > 1
+            ? $"{RemoveGenericSuffix(parts[^2])}.{parts[^1]}"
+            : parts[^1];
 
         // 4. Remove any generic suffix (e.g., "InputAutocomplete`2" -> "InputAutocomplete")
         return RemoveGenericSuffix(name);
@@ -232,41 +238,62 @@ public static class XmlDocs
     }
 
     /// <summary>
-    /// Converts a <see cref="Type"/> object into a clean, human-readable C# type string (like int? or Func&lt;TItem, string&gt;) rather than using .NET's raw reflection names (like Int32, Nullable'1, or Func'2)
+    /// Gets a readable C# type name for a property, including nullable annotations (e.g. int?, string?).
     /// </summary>
-    public static string GetTypeName(Type type)
+    public static string GetTypeName(PropertyInfo property) =>
+        GetTypeName(new NullabilityInfoContext().Create(property));
+
+    /// <summary>
+    /// Builds the type name recursively, keeping ? on nullable value and reference types, including inside generics and arrays.
+    /// </summary>
+    private static string GetTypeName(NullabilityInfo info)
     {
-        // 1. Handle nullable types, e.g. int? instead of Nullable`1.
-        var underlying = Nullable.GetUnderlyingType(type);
-        if (underlying != null)
-            return GetTypeName(underlying) + "?";
+        // 1. Unwrap nullable value types, e.g., Nullable<int> -> int. NullabilityInfo doesn't provide type arguments for Nullable<T>, so use the Type directly.
+        var underlying = Nullable.GetUnderlyingType(info.Type);
+        var type = underlying ?? info.Type;
+
+        string name;
 
         // 2. Handle arrays, e.g., string[] or int[,] instead of String[]
         if (type.IsArray)
         {
-            var elementType = GetTypeName(type.GetElementType()!);
+            var elementType = GetTypeName(info.ElementType!);
             // Get the rank of the array (number of dimensions) and create a string of commas to represent it, e.g., [,] for a 2D array.
             var rank = new string(',', type.GetArrayRank() - 1);
-            return $"{elementType}[{rank}]";
+            name = $"{elementType}[{rank}]";
         }
 
         // 3. Use the C# keyword alias if it exists, e.g., "int" instead of "Int32"
-        if (Aliases.TryGetValue(type, out var alias))
-            return alias;
-
-        // 4. Handle generic types (e.g., convert "Dictionary`2" to "Dictionary<string, int>")
-        if (type.IsGenericType)
+        else if (Aliases.TryGetValue(type, out var alias))
         {
-            // Strip the backtick and parameter count from the metadata name (e.g., "List`1" -> "List")
-            var name = RemoveGenericSuffix(type.Name);
-
-            // Recursively format each generic type argument (e.g., [String, Int32] -> "string, int")
-            var args = string.Join(", ", type.GetGenericArguments().Select(GetTypeName));
-
-            return $"{name}<{args}>";
+            name = alias;
         }
 
-        return type.Name;
+        // 4. Handle generic types, e.g., convert "Dictionary`2" to "Dictionary<string, int>"
+        else if (type.IsGenericType)
+        {
+            // Strip the backtick and parameter count from the metadata name (e.g., "List`1" -> "List")
+            var cleanName = RemoveGenericSuffix(type.Name);
+
+            // so fall back to the plain type arguments.
+            var args = info.GenericTypeArguments.Length > 0
+                ? info.GenericTypeArguments.Select(GetTypeName)
+                : type.GetGenericArguments().Select(t => Aliases.TryGetValue(t, out var a) ? a : RemoveGenericSuffix(t.Name));
+
+            name = $"{cleanName}<{string.Join(", ", args)}>";
+        }
+
+        // 5. For non-generic, non-array types, use the simple name
+        else
+        {
+            name = type.Name;
+        }
+
+        // 6. Add ? for nullable value types (int?) and nullable reference types (e.g., string?). Type parameters (TItem, TValue) are skipped because unconstrained ones are reported as nullable even without ?.
+        var isNullable = underlying != null
+            || (!type.IsValueType && !type.IsGenericParameter && info.ReadState == NullabilityState.Nullable);
+
+        return isNullable ? name + "?" : name;
     }
 
     /// <summary>
