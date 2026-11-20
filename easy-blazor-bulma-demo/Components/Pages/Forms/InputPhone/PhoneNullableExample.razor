@@ -1,0 +1,24 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.NullablePhoneTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left">
+            <InputPhone @bind-Value="InputModel.NullablePhoneTest" Icon="smartphone" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Nullable Phone Test", Description = "Input to test a phone number with no formatting and a nullable value.")]
+        public string? NullablePhoneTest { get; set; }
+    }
+}

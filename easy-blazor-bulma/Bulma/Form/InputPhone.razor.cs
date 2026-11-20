@@ -10,15 +10,15 @@ namespace easy_blazor_bulma;
 /// <summary>
 /// An input component for editing phone number values. Supported types are <see cref="string"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TValue">The bound value type, <see cref="string"/>. Nullable strings are supported.</typeparam>
 /// <remarks>
-/// <para>
-/// There is 1 additional attribute that can be used: icon-class. It applies CSS classes to the resulting element as per its name.
-/// </para>
-///
-/// <para>
-/// <see href="https://bulma.io/documentation/form/general/">Bulma Documentation</see>
-/// </para>
+/// <para>The <see cref="DisplayFormat"/> mask replaces each <c>#</c> with a digit. Multiple masks can be provided and separated with a pipe <c>|</c> character. A mask is applied only when the value contains the same number of digits as the mask.</para>
+/// <para>Set <see cref="ValidationExpression"/> to validate the value after formatting with a regular expression.</para>
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>icon-class</c></term><description>Classes added to the icon displayed inside the input.</description></item>
+/// </list>
+/// <para><see href="https://bulma.io/documentation/form/general/">Bulma Documentation</see></para>
 /// </remarks>
 public partial class InputPhone<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
 {
@@ -63,8 +63,10 @@ public partial class InputPhone<[DynamicallyAccessedMembers(DynamicallyAccessedM
 	[Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
-	/// <inheritdoc cref="InputDateTimeOptions.UseAutomaticStatusColors"/>
-	[Parameter]
+    /// <summary>
+    /// Whether automatically sets a success or failure border on the input based on user input. Similar to <see cref="InputDateTimeOptions.UseAutomaticStatusColors"/>.
+    /// </summary>
+    [Parameter]
 	public bool UseAutomaticStatusColors { get; set; } = true;
 
 	/// <summary>

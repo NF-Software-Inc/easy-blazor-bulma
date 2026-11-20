@@ -1,0 +1,27 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label For="() => InputModel.ValidatedPhoneTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left">
+            <InputPhone @bind-Value="InputModel.ValidatedPhoneTest" DisplayFormat="###-###-####" ValidationExpression='@(@"^\d{3}-\d{3}-\d{4}$")' ValidationErrorMessage="Please enter a 10 digit phone number." />
+            <div class="help is-danger">
+                <ValidationMessage For="() => InputModel.ValidatedPhoneTest" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Validated Phone Test", Description = "Input to test a phone number with regular expression validation.")]
+        public string ValidatedPhoneTest { get; set; } = string.Empty;
+    }
+}
