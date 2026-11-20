@@ -8,11 +8,16 @@ using System.Reflection;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for editing password values. Supported types are <see cref="string"/>.
+/// An input component for editing password values. The supported bound value type is <see cref="string"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TValue">The bound value type. Use <see cref="string"/> or nullable <see cref="string"/>.</typeparam>
 /// <remarks>
-/// There are 2 additional attributes that can be used: icon-class and message-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para>Set <see cref="PasswordValidator"/> to validate the current password after each change and display its status message.</para>
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>icon-class</c></term><description>Classes added to the icon displayed inside the input.</description></item>
+///   <item><term><c>message-class</c></term><description>Classes added to the validation message.</description></item>
+/// </list>
 /// </remarks>
 public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>
 {
@@ -28,8 +33,10 @@ public partial class InputPassword<[DynamicallyAccessedMembers(DynamicallyAccess
 	[Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
-	/// <inheritdoc cref="InputDateTimeOptions.UseAutomaticStatusColors"/>
-	[Parameter]
+    /// <summary>
+    /// Whether automatically sets a success or failure border on the input based on user input. Similar to <see cref="InputDateTimeOptions.UseAutomaticStatusColors"/>.
+    /// </summary>
+    [Parameter]
 	public bool UseAutomaticStatusColors { get; set; } = true;
 
 	/// <summary>
