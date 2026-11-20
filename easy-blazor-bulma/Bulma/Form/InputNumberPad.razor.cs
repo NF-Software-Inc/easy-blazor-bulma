@@ -9,11 +9,16 @@ using System.Globalization;
 namespace easy_blazor_bulma;
 
 /// <summary>
-/// An input component for entering numeric values. Supported types are <see cref="short"/>, <see cref="int"/>, <see cref="long"/>, <see cref="float"/>, <see cref="double"/>, and <see cref="decimal"/>.
+/// An input component for entering numeric values. Supported types are <see cref="sbyte"/>, <see cref="byte"/>, <see cref="short"/>, <see cref="ushort"/>, <see cref="int"/>, <see cref="uint"/>, <see cref="long"/>, <see cref="ulong"/>, <see cref="float"/>, <see cref="double"/>, and <see cref="decimal"/>.
 /// </summary>
-/// <typeparam name="TValue"></typeparam>
+/// <typeparam name="TValue">The bound numeric value type. Nullable forms of the supported numeric types are also accepted.</typeparam>
 /// <remarks>
-/// There are 3 additional attributes that can be used: columns-class, column-class, and button-class. Each of which apply CSS classes to the resulting elements as per their names.
+/// <para><b>Additional attributes for custom styling:</b></para>
+/// <list type="bullet">
+///   <item><term><c>columns-class</c></term><description>Classes added to the outer keypad columns container.</description></item>
+///   <item><term><c>column-class</c></term><description>Classes added to each keypad column.</description></item>
+///   <item><term><c>button-class</c></term><description>Classes added to each keypad and custom-action button.</description></item>
+/// </list>
 /// </remarks>
 public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] TValue> : InputBase<TValue>, IAsyncDisposable
 {

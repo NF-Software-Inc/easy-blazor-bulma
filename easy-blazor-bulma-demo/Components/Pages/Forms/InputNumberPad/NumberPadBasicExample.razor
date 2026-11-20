@@ -1,0 +1,29 @@
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label class="is-size-4" data-tooltip="Input to test modifying a non-nullable int value." TValue="int" DisplayText="Int Test" TooltipMode="TooltipDisplayMode" />
+        <div class="control">
+            <InputNumberPad @bind-Value="InputModel.IntTest" CustomButtonText="Add 5" OnCustomButtonClicked="AddFive" />
+        </div>
+        <p class="block">Current value is: @InputModel.IntTest</p>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private async Task AddFive()
+    {
+        InputModel.IntTest += 5;
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private class PageModel
+    {
+        public int IntTest { get; set; } = 5;
+    }
+}

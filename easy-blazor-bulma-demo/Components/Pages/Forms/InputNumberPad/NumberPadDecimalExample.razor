@@ -1,0 +1,24 @@
+@using System.ComponentModel.DataAnnotations
+
+@namespace easy_blazor_bulma_demo.Components.Pages.Forms
+
+<EditForm Model="InputModel">
+    <div class="field">
+        <Label class="is-size-4" For="() => InputModel.DecimalTest" TooltipMode="TooltipDisplayMode" />
+        <div class="control has-icons-left">
+            <InputNumberPad class="is-secondary" button-class="is-primary" @bind-Value="InputModel.DecimalTest" IsRounded="false" DisplayInput="true" />
+        </div>
+        <p class="block">Current value is: @InputModel.DecimalTest</p>
+    </div>
+</EditForm>
+
+@code {
+    private readonly PageModel InputModel = new();
+    private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
+
+    private class PageModel
+    {
+        [Display(Name = "Nullable Decimal Test", Description = "Input to test modifying a nullable decimal value.")]
+        public decimal? DecimalTest { get; set; }
+    }
+}

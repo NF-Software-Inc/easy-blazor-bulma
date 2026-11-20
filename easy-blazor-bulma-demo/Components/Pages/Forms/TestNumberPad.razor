@@ -1,62 +1,17 @@
-﻿@using System.ComponentModel.DataAnnotations
-
-@page "/inputNumberPad"
-@inherits ComponentBase
-
-<TitleBlock Title="Input Number Pad Test" />
-
-<div class="columns p-3">
-	<div class="column is-4">
-		<Message Title="Information" Color="BulmaColors.Cyan">
-			<p class="block">There are several additional attributes that can apply customization to the component:</p>
-			<div class="content">
-				<ul class="content">
-					<li>columns-class</li>
-					<li>column-class</li>
-					<li>button-class</li>
-				</ul>
-			</div>
-		</Message>
-	</div>
-	<div class="column is-8">
-		<EditForm Model="InputModel">
-			<div class="columns">
-				<div class="column field">
-					<Label class="is-size-4" data-tooltip="Input to test modifying a non-nullable int value." TValue=int DisplayText="Int Test" TooltipMode="TooltipDisplayMode" />
-					<div class="control">
-						<InputNumberPad @bind-Value=InputModel.IntTest CustomButtonText="Add 5" OnCustomButtonClicked="AddFive" />
-					</div>
-					<p class="block">Current value is: @InputModel.IntTest</p>
-				</div>
-				<div class="column field">
-					<Label class="is-size-4" For="() => InputModel.DecimalTest" TooltipMode="TooltipDisplayMode" />
-					<div class="control has-icons-left">
-						<InputNumberPad class="is-secondary" button-class="is-primary" @bind-Value=InputModel.DecimalTest IsRounded=false DisplayInput=true />
-					</div>
-					<p class="block">Current value is: @InputModel.DecimalTest</p>
-				</div>
-			</div>
-		</EditForm>
-	</div>
-</div>
+﻿@page "/inputNumberPad"
+<TestPage Title="Input Number Pad Test" ComponentTypes="@ComponentTypes">
+	<Examples>
+		<ExampleSection ComponentType="typeof(NumberPadBasicExample)" />
+		<ExampleSection ComponentType="typeof(NumberPadDecimalExample)" />
+	</Examples>
+</TestPage>
 
 @code {
-	private readonly PageModel InputModel = new();
-
-	private readonly TooltipOptions TooltipDisplayMode = TooltipOptions.Right | TooltipOptions.HasArrow | TooltipOptions.Multiline;
-
-	private async Task AddFive()
-	{
-		InputModel.IntTest += 5;
-		StateHasChanged();
-		await Task.CompletedTask;
-	}
-
-	private class PageModel
-	{
-		public int IntTest { get; set; } = 5;
-
-		[Display(Name = "Nullable Decimal Test", Description = "Input to test modifying a nullable decimal value.")]
-		public decimal? DecimalTest { get; set; }
-	}
+	/// <summary>
+	/// Component types documented on this test page.
+	/// </summary>
+	private static readonly Type[] ComponentTypes =
+	[
+		typeof(InputNumberPad<>),
+	];
 }
