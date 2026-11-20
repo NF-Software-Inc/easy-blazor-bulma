@@ -22,9 +22,9 @@ namespace easy_blazor_bulma;
 /// <remarks>
 /// <para><b>Keyboard navigation:</b></para>
 /// <list type="bullet">
-///   <item><term>Up / Down Arrow</term><description>Highlights the previous or next suggestion. Opens the list first when <c>TypePopout</c> is set.</description></item>
+///   <item><term>Up / Down Arrow</term><description>Highlights the previous or next suggestion. Opens the list first when <see cref="InputAutocompleteOptions.TypePopout"/> is set.</description></item>
 ///   <item><term>Enter</term><description>Selects the highlighted suggestion and closes the list. The key's default action is blocked, so it does not submit a surrounding form.</description></item>
-///   <item><term>Tab</term><description>Closes the list and moves focus on. When <c>AutoSelectOnExit</c> is set, the highlighted suggestion is selected first.</description></item>
+///   <item><term>Tab</term><description>Closes the list and moves focus on. When <see cref="InputAutocompleteOptions.AutoSelectOnExit"/> is set, the highlighted suggestion is selected first.</description></item>
 ///   <item><term>Esc</term><description>Closes the suggestion list.</description></item>
 /// </list>
 ///

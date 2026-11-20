@@ -196,16 +196,26 @@ public static class XmlDocs
 
     /// <summary>
     /// Extracts a clean, short display name from an XML documentation cref ID.
-    /// e.g., <c>"P:easy_blazor_bulma.InputAutocomplete`2.Items"</c> becomes <c>"Items"</c>,
-    /// and <c>"T:easy_blazor_bulma.InputAutocomplete`2"</c> becomes <c>"InputAutocomplete"</c>.
+    /// For example, <c>"P:easy_blazor_bulma.InputAutocomplete`2.Items"</c> becomes <c>"InputAutocomplete.Items"</c>,
+    /// <c>"T:easy_blazor_bulma.InputAutocomplete`2"</c> becomes <c>"InputAutocomplete"</c>,
+    /// and <c>"T:System.String"</c> becomes <c>"string"</c>.
     /// </summary>
     private static string GetShortName(string cref)
     {
         // Determine if the cref represents a member (e.g., property, method) or a type.
         var isMember = cref.Length > 1 && cref[0] != 'T' && cref[1] == ':';
 
-        // 1. Remove the member type prefix (e.g., "P:", "T:", "M:")
+        // 1. Remove the cref prefix (e.g., "P:", "T:", "M:")
         var name = cref[(cref.IndexOf(':') + 1)..];
+
+        // Return the C# alias for known types (e.g., "System.String" -> "string")
+        if (isMember == false)
+        {
+            var alias = Aliases.FirstOrDefault(x => x.Key.FullName == name);
+
+            if (alias.Key != null)
+                return alias.Value;
+        }
 
         // 2. Remove method parameter lists if present (e.g., "MyMethod(System.String)" -> "MyMethod")
         var parenIndex = name.IndexOf('(');

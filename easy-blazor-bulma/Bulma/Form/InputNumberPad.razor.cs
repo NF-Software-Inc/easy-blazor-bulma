@@ -52,7 +52,9 @@ public partial class InputNumberPad<[DynamicallyAccessedMembers(DynamicallyAcces
 	[Parameter]
 	public InputStatus DisplayStatus { get; set; }
 
-    /// <inheritdoc cref="InputDateTimeOptions.UseAutomaticStatusColors"/>
+    /// <summary>
+    /// Whether automatically sets a success or failure border on the input based on user input. Similar to <see cref="InputDateTimeOptions.UseAutomaticStatusColors"/>.
+    /// </summary>
     [Parameter]
     public bool UseAutomaticStatusColors { get; set; } = true;
 

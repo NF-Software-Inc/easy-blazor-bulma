@@ -19,7 +19,7 @@ namespace easy_blazor_bulma;
 /// </para>
 /// <list type="bullet">
 ///   <item><term>Bound value</term><description>Binds to a <c>List&lt;TValue&gt;</c>. The list is modified in place when items are added or removed.</description></item>
-///   <item><term>Selecting</term><description>Selecting a suggestion (click, Enter, or Tab with <c>AutoSelectOnExit</c>) adds it to the list and clears the text input. A suggestion that is already selected is not added again unless <c>AllowSameItem</c> is set.</description></item>
+///   <item><term>Selecting</term><description>Selecting a suggestion (click, Enter, or Tab with <see cref="InputAutocompleteOptions.AutoSelectOnExit"/>) adds it to the list and clears the text input. A suggestion that is already selected is not added again unless <see cref="InputAutocompleteOptions.AllowSameItem"/> is set.</description></item>
 ///   <item><term>Selected values</term><description>Each selected item is shown as its own tag with a remove button. The button is hidden when the input is disabled. Selected items are also marked in the suggestion list.</description></item>
 ///   <item><term><c>tag-class</c></term><description>Applies to every selected tag. Defaults to <c>is-success</c> unless another Bulma color class is given.</description></item>
 /// </list>
