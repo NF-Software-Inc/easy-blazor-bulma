@@ -163,6 +163,31 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 	}
 
 	/// <summary>
+	/// Downloads the currently rendered QR code as an SVG or PNG image matching <see cref="UseSvg"/>.
+	/// </summary>
+	/// <param name="fileName">Optional file name for the downloaded image. Defaults to <c>qrcode</c> with a <c>.svg</c> or <c>.png</c> extension matching <see cref="UseSvg"/>.</param>
+	/// <param name="token">An optional cancellation token to abort the request.</param>
+	/// <remarks>
+	/// The file extension is automatically normalized to <c>.svg</c> when <see cref="UseSvg"/> is <see langword="true"/>, or <c>.png</c> otherwise.
+	/// </remarks>
+	public async Task<bool> Download(string? fileName = null, CancellationToken? token = null)
+	{
+		if (IsInitialized == false || string.IsNullOrEmpty(Value))
+			return false;
+
+		await LayoutGate.WaitAsync(token ?? CancellationToken.None);
+
+		try
+		{
+			return await JsRuntime.QrCodeDownload(ContainerId, ResolveFileName(fileName), token);
+		}
+		finally
+		{
+			LayoutGate.Release();
+		}
+	}
+
+	/// <summary>
 	/// Applies a value-only change or recreates the instance when drawing options changed.
 	/// </summary>
 	private async Task<bool> Update()
@@ -227,6 +252,26 @@ public partial class QrCode : ComponentBase, IAsyncDisposable
 		var value2 = string.Join('|', fingerprint2.Split('|').Where(x => x.StartsWith("text=") == false));
 
 		return string.Equals(value1, value2, StringComparison.Ordinal) == false;
+	}
+
+	/// <summary>
+	/// Resolves the download file name and ensures its extension matches the active <see cref="UseSvg"/> format.
+	/// </summary>
+	private string ResolveFileName(string? fileName)
+	{
+		var extension = UseSvg ? ".svg" : ".png";
+		var trimmed = fileName?.Trim();
+
+		if (string.IsNullOrWhiteSpace(trimmed))
+			return $"qrcode{extension}";
+
+		if (trimmed.EndsWith(".svg", StringComparison.OrdinalIgnoreCase) || trimmed.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+		{
+			var stem = trimmed[..^4].Trim();
+			return string.IsNullOrEmpty(stem) ? $"qrcode{extension}" : $"{stem}{extension}";
+		}
+
+		return $"{trimmed}{extension}";
 	}
 
 	/// <inheritdoc />
