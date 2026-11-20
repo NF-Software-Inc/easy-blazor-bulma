@@ -784,12 +784,12 @@ window.easyBlazorBulma = {
             },
             audio: false
         })
-        .then(stream => {
-            video.srcObject = stream;
-            video.play();
-            return true;
-        })
-        .catch(() => false);
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+                return true;
+            })
+            .catch(() => false);
     },
 
     /**
@@ -1332,6 +1332,69 @@ window.easyBlazorBulma = {
 
             instance.clear();
             return true;
+        },
+
+        /**
+         * Downloads the currently rendered QR code as an SVG or PNG image.
+         * @param {any} id The identity value of the instance to download.
+         * @param {string} fileName The file name to assign to the downloaded image.
+         * @returns {boolean} true when a download was triggered, otherwise false.
+         */
+        Download: function (id, fileName) {
+            var instance = this._instances.get(id);
+            var element = document.getElementById(id);
+
+            if (!instance || element === null)
+                return false;
+
+            try {
+                var svg = element.querySelector("svg");
+
+                if (svg !== null) {
+                    var clone = svg.cloneNode(true);
+
+                    if (!clone.hasAttribute("xmlns"))
+                        clone.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", "http://www.w3.org/2000/svg");
+
+                    if (!clone.hasAttribute("xmlns:xlink"))
+                        clone.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+
+                    var markup = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(clone);
+                    var blob = new Blob([markup], { type: "image/svg+xml;charset=utf-8" });
+                    var url = URL.createObjectURL(blob);
+
+                    window.easyBlazorBulma.DownloadFileFromUrl(fileName || "qrcode.svg", url);
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+                    return true;
+                }
+
+                if (instance._oDrawing && typeof instance._oDrawing.isPainted === "function" && instance._oDrawing.isPainted() === false)
+                    return false;
+
+                var canvas = element.querySelector("canvas");
+
+                if (canvas !== null && canvas.width > 0 && canvas.height > 0) {
+                    var dataUrl = canvas.toDataURL("image/png");
+
+                    if (dataUrl && dataUrl.startsWith("data:image/")) {
+                        window.easyBlazorBulma.DownloadFileFromUrl(fileName || "qrcode.png", dataUrl);
+                        return true;
+                    }
+                }
+
+                var image = element.querySelector("img");
+
+                if (image !== null && image.src && image.src.length > 0 && image.style.display !== "none") {
+                    window.easyBlazorBulma.DownloadFileFromUrl(fileName || "qrcode.png", image.src);
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                console.error("Failed to download QR code.", error);
+                return false;
+            }
         },
 
         /**

@@ -42,7 +42,15 @@
                 </div>
             </div>
             <div class="column is-12-mobile is-5-tablet has-text-centered">
-                <QrCode style="display:inline-block" Value="@Text" Width="Width" Height="Height" ColorDark="@ColorDark" ColorLight="@ColorLight" CorrectLevel="CorrectLevel" UseSvg="UseSvg" />
+                <div>
+                    <QrCode @ref="QrCodeElement" style="display:inline-block" Value="@Text" Width="Width" Height="Height" ColorDark="@ColorDark" ColorLight="@ColorLight" CorrectLevel="CorrectLevel" UseSvg="UseSvg" />
+                </div>
+                <div class="mt-4">
+                    <button type="button" class="button is-info" disabled="@IsDownloadDisabled" @onclick="OnDownloadClicked">
+                        <span class="material-icons icon">download</span>
+                        <span>@DownloadButtonText</span>
+                    </button>
+                </div>
             </div>
         </div>
     </Panel>

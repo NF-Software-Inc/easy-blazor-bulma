@@ -1,5 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using easy_blazor_bulma;
+using Microsoft.JSInterop;
 using Xunit;
 
 namespace easy_blazor_bulma_test;
@@ -98,6 +100,107 @@ public class QrCodeTests
 		Assert.NotEqual(original.Fingerprint, updated.Fingerprint);
 	}
 
+	[Theory]
+	[InlineData(null, false, "qrcode.png")]
+	[InlineData("", false, "qrcode.png")]
+	[InlineData("   ", false, "qrcode.png")]
+	[InlineData(null, true, "qrcode.svg")]
+	[InlineData("my-code", false, "my-code.png")]
+	[InlineData("my-code", true, "my-code.svg")]
+	[InlineData("my-code.png", false, "my-code.png")]
+	[InlineData("my-code.png", true, "my-code.svg")]
+	[InlineData("my-code.SVG", false, "my-code.png")]
+	[InlineData(".png", false, "qrcode.png")]
+	[InlineData(".svg", true, "qrcode.svg")]
+	[InlineData("release-v1.2", false, "release-v1.2.png")]
+	[InlineData("  custom.svg  ", true, "custom.svg")]
+	public void ResolveFileNameNormalizesExtensionToActiveFormat(string? fileName, bool useSvg, string expected)
+	{
+		var component = new TestQrCode("https://example.test", useSvg: useSvg);
+
+		Assert.Equal(expected, component.ResolveDownloadFileName(fileName));
+	}
+
+	[Fact]
+	public async Task DownloadReturnsFalseWhenNotInitialized()
+	{
+		var js = new RecordingJsRuntime();
+		var component = new TestQrCode("https://example.test", jsRuntime: js);
+
+		var result = await component.Download();
+
+		Assert.False(result);
+		Assert.Empty(js.Invocations);
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	public async Task DownloadReturnsFalseWhenValueIsEmpty(string? value)
+	{
+		var js = new RecordingJsRuntime();
+		var component = new TestQrCode(value, jsRuntime: js);
+		await component.Initialize();
+		js.Invocations.Clear();
+
+		var result = await component.Download();
+
+		Assert.False(result);
+		Assert.Empty(js.Invocations);
+	}
+
+	[Fact]
+	public async Task DownloadInvokesJsWithPngExtensionWhenUseSvgIsFalse()
+	{
+		var js = new RecordingJsRuntime();
+		var component = new TestQrCode("https://example.test", useSvg: false, jsRuntime: js);
+		await component.Initialize();
+		js.Invocations.Clear();
+
+		var result = await component.Download();
+
+		Assert.True(result);
+		var call = Assert.Single(js.Invocations);
+		Assert.Equal("easyBlazorBulma.QrCode.Download", call.Identifier);
+		Assert.Equal(component.ElementId, call.Args?[0]);
+		Assert.Equal("qrcode.png", call.Args?[1]);
+	}
+
+	[Fact]
+	public async Task DownloadInvokesJsWithSvgExtensionWhenUseSvgIsTrue()
+	{
+		var js = new RecordingJsRuntime();
+		var component = new TestQrCode("https://example.test", useSvg: true, jsRuntime: js);
+		await component.Initialize();
+		js.Invocations.Clear();
+
+		var result = await component.Download("badge.png");
+
+		Assert.True(result);
+		var call = Assert.Single(js.Invocations);
+		Assert.Equal("easyBlazorBulma.QrCode.Download", call.Identifier);
+		Assert.Equal(component.ElementId, call.Args?[0]);
+		Assert.Equal("badge.svg", call.Args?[1]);
+	}
+
+	private sealed class RecordingJsRuntime : IJSRuntime
+	{
+		public List<(string Identifier, object?[]? Args)> Invocations { get; } = [];
+
+		public ValueTask<TValue> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] TValue>(string identifier, object?[]? args)
+		{
+			return InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+		}
+
+		public ValueTask<TValue> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+		{
+			Invocations.Add((identifier, args));
+
+			object? result = typeof(TValue) == typeof(bool) ? true : default(TValue);
+			return new ValueTask<TValue>((TValue)result!);
+		}
+	}
+
 	private sealed class TestQrCode : QrCode
 	{
 		public TestQrCode(
@@ -108,7 +211,8 @@ public class QrCodeTests
 			string? colorLight = "#ffffff",
 			QrCodeCorrectLevel correctLevel = QrCodeCorrectLevel.H,
 			bool useSvg = false,
-			string? cssClass = null)
+			string? cssClass = null,
+			IJSRuntime? jsRuntime = null)
 		{
 			Value = value;
 			Width = width;
@@ -120,13 +224,29 @@ public class QrCodeTests
 
 			if (cssClass != null)
 				AdditionalAttributes = new Dictionary<string, object> { { "class", cssClass } };
+
+			if (jsRuntime != null)
+			{
+				var jsProperty = typeof(QrCode).GetProperty("JsRuntime", BindingFlags.Instance | BindingFlags.NonPublic);
+				Assert.NotNull(jsProperty);
+				jsProperty.SetValue(this, jsRuntime);
+			}
 		}
+
+		public string ElementId => (string)GetField("ContainerId")!;
 
 		public string CssClass => (string)Get("MainCssClass")!;
 
 		public Dictionary<string, object?> Options => Invoke<Dictionary<string, object?>>("BuildOptions");
 
 		public string Fingerprint => Invoke<string>("BuildOptionsFingerprint");
+
+		public string ResolveDownloadFileName(string? fileName)
+		{
+			var method = typeof(QrCode).GetMethod("ResolveFileName", BindingFlags.Instance | BindingFlags.NonPublic);
+
+			return (string)method!.Invoke(this, [fileName])!;
+		}
 
 		private T Invoke<T>(string name)
 		{
@@ -140,6 +260,13 @@ public class QrCodeTests
 			var property = typeof(QrCode).GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic);
 
 			return property!.GetValue(this);
+		}
+
+		private object? GetField(string name)
+		{
+			var field = typeof(QrCode).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+
+			return field!.GetValue(this);
 		}
 	}
 }

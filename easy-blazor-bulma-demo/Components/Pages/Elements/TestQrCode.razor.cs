@@ -6,6 +6,8 @@ namespace easy_blazor_bulma_demo.Components.Pages.Elements;
 
 public partial class TestQrCode : ComponentBase
 {
+	private QrCode? QrCodeElement;
+
 	private string Text = "https://github.com/NF-Software-Inc/easy-blazor-bulma";
 
 	private int Width = 256;
@@ -22,5 +24,15 @@ public partial class TestQrCode : ComponentBase
 
 	private readonly List<QrCodeCorrectLevel> Levels = Enum.GetValues<QrCodeCorrectLevel>().ToList();
 
+	private bool IsDownloadDisabled => string.IsNullOrEmpty(Text);
+
+	private string DownloadButtonText => UseSvg ? "Download SVG" : "Download PNG";
+
 	private string FormatLevel(QrCodeCorrectLevel level) => level.GetValueDisplayName();
+
+	private async Task OnDownloadClicked()
+	{
+		if (QrCodeElement != null)
+			_ = await QrCodeElement.Download();
+	}
 }

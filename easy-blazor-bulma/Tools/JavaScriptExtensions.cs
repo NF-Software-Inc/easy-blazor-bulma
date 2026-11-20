@@ -994,6 +994,18 @@ public static class JavaScriptExtensions
 	}
 
 	/// <summary>
+	/// Downloads the currently rendered QR code as an SVG or PNG image.
+	/// </summary>
+	/// <param name="jsRuntime">The JavaScript runtime used to trigger the download.</param>
+	/// <param name="id">The id of the QR code container element.</param>
+	/// <param name="fileName">The file name to assign to the downloaded image.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	internal async static Task<bool> QrCodeDownload(this IJSRuntime jsRuntime, string id, string fileName, CancellationToken? token = null)
+	{
+		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.QrCode.Download", token ?? CancellationToken.None, id, fileName);
+	}
+
+	/// <summary>
 	/// Creates a qrcode.js instance for the specified element id.
 	/// </summary>
 	/// <param name="jsRuntime">The JavaScript runtime used to call qrcode.js.</param>
