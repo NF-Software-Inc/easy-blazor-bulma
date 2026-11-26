@@ -1,7 +1,7 @@
 ﻿using easy_core;
 using Microsoft.AspNetCore.Components;
 
-namespace easy_blazor_bulma_demo.Components.Pages.Components;
+namespace easy_blazor_bulma_demo.Components.Pages.Elements;
 
 public partial class TestCalendar : ComponentBase
 {

@@ -114,6 +114,8 @@ public sealed partial class ScrollToTopButton : EasyComponentBase, IAsyncDisposa
 	public async ValueTask DisposeAsync()
 	{
 		await JsRuntime.UnregisterScrollListener(ListenerId);
+
+		JavaScriptInterop?.Dispose();
 	}
 
 	internal class Interop : IDisposable

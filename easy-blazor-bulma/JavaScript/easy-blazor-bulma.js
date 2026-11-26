@@ -1096,6 +1096,7 @@ window.easyBlazorBulma = {
             if (listenerId === null || listenerId === undefined || callbackReference === null || callbackReference === undefined || callbackMethod === null || callbackMethod === undefined)
                 return false;
 
+            this.scrollListeners ??= {};
             this.UnregisterScrollListener(listenerId);
 
             var previousVisible = null;
