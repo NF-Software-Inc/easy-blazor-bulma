@@ -9,9 +9,9 @@
 		<Authors>NF Software Inc.</Authors>
 		<Company>NF Software Inc.</Company>
 		<Copyright>Copyright 2023 $(Company)</Copyright>
-		<Version>10.2.4</Version>
+		<Version>10.2.5</Version>
 		<AssemblyVersion>10.2.0.0</AssemblyVersion>
-		<FileVersion>10.2.4.0</FileVersion>
+		<FileVersion>10.2.5.0</FileVersion>
 		<PackageId>Easy.Blazor.Bulma</PackageId>
 		<PackageTags>blazor bulma components inputs layout forms icons</PackageTags>
 		<RepositoryUrl>https://github.com/NF-Software-Inc/easy-blazor-bulma</RepositoryUrl>
@@ -20,7 +20,7 @@
 			This project was created to provide a standard implementation of Bulma with Blazor components.
 		</Description>
 		<PackageReleaseNotes>
-			10.2.5 Enable downloading QR codes
+			10.2.5 Enable downloading QR codes, add ScrollToTopButton component, add HttpRequestError component
 			10.2.4 Fix missing display values in InputAutocomplete, add InputAutocompleteOptions.DisplaySelectionInInput, improve formatting and input for InputDuration and InputDateTime, enhance keyboard binding in input components
 			10.2.3 Relax ValueSelector constraint on decoupled components to allow assignable interface or base-class value types
 			10.2.2 Relax ValueSelector constraint on decoupled components to ignore nullability without ValueSelector

@@ -1083,6 +1083,60 @@ window.easyBlazorBulma = {
 
             this._wheelHandlers.delete(element);
             return true;
+        },
+
+        /**
+         * Registers a listener to detect when scroll position crosses the threshold.
+         * @param {string} listenerId The unique identifier for this listener.
+         * @param {any} callbackReference The .NET callback reference.
+         * @param {string} callbackMethod The callback method to invoke.
+         * @param {number} threshold The threshold used to toggle visibility.
+         */
+        RegisterScrollListener: function (listenerId, callbackReference, callbackMethod, threshold) {
+            if (listenerId === null || listenerId === undefined || callbackReference === null || callbackReference === undefined || callbackMethod === null || callbackMethod === undefined)
+                return false;
+
+            this.scrollListeners ??= {};
+            this.UnregisterScrollListener(listenerId);
+
+            var previousVisible = null;
+            var listener = () => {
+                var y = window.scrollY || document.documentElement.scrollTop || 0;
+                var isVisible = y > threshold;
+
+                if (previousVisible === isVisible)
+                    return false;
+
+                previousVisible = isVisible;
+                callbackReference.invokeMethodAsync(callbackMethod, isVisible)
+                    .catch(() => {
+                        this.UnregisterScrollListener(listenerId);
+                        return false;
+                    });
+
+                return true;
+            };
+
+            this.scrollListeners[listenerId] = listener;
+            window.addEventListener('scroll', listener, { passive: true });
+
+            return listener();
+        },
+
+        /**
+         * Removes a scroll listener.
+         * @param {string} listenerId The unique identifier for this listener.
+         */
+        UnregisterScrollListener: function (listenerId) {
+            var listener = this.scrollListeners[listenerId];
+
+            if (listener === null || listener === undefined)
+                return false;
+
+            window.removeEventListener('scroll', listener);
+            delete this.scrollListeners[listenerId];
+
+            return true;
         }
     },
 

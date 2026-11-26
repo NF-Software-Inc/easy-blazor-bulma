@@ -118,5 +118,10 @@ jobs:
         run: gh release upload ${{ inputs.version }} ${{ env.PackageName }} --repo NF-Software-Inc/easy-blazor-bulma
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: NuGet Login
+        uses: NuGet/login@v1.2.0
+        id: login
+        with:
+          user: ${{ vars.NUGET_USER }}
       - name: Deploy NuGet package
-        run: dotnet nuget push ${{ env.PackageName }} --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push ${{ env.PackageName }} --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

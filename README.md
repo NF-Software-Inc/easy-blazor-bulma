@@ -5,19 +5,11 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/build.yml)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/build.yml)
 [![Publish](https://img.shields.io/github/actions/workflow/status/NF-Software-Inc/easy-blazor-bulma/publish.yml?label=publish)](https://github.com/NF-Software-Inc/easy-blazor-bulma/actions/workflows/publish.yml)
 
-## Versioning Notice
-
-As of version 10.0.0, Easy Blazor Bulma has adopted a new versioning scheme that aligns its major version with the .NET major version it targets. This change is intended to provide better clarity and consistency with regard to supported frameworks.
-
-Going forward, the major version of Easy Blazor Bulma will correspond to the major version of .NET it targets (e.g., Easy Blazor Bulma 10.x.x targets .NET 10). The minor and patch versions are used for library-specific updates and do not map to .NET's minor or SDK versions.
-
 ## Getting Started
 
-This library provides an easy to use, out of the box implementation of the Bulma CSS framework for use with Blazor. It uses the latest version of Bulma, so you do not need to worry about updating it yourself. There are also several extensions to Bulma that are included and integrated here. Additionally, the Google Material Symbols font is packaged here also. All of this is takes just a single line in your index.html or single using statement in your CS files to start using.
+This library provides an easy to use, out of the box implementation of the Bulma CSS framework for use with Blazor. It uses the version 0.9.4 of Bulma. There are also several extensions to Bulma that are included and integrated here. Additionally, the Google Material Symbols font is packaged here also. All of this is takes just a single line in your index.html or single using statement in your CS files to start using.
 
-After install, you can use all of the Bulma styles, along with those of the extension packages on your own components. You may want to store a copy of the pre-compiled CSS files somewhere in your solution so that Visual Studio can use Intellisense to give you CSS class recommendations. You will also be able to use the `.material-icons` CSS class to use any of the Material Symbols. The icon font will also be updated regularly, just let me know if there are any missing and I can do an update.
-
-Finally, you can use any of the pre-built components here to simplify use of the Bulma framework. Items such as `<Tabs />`, `<Panel />`, or	`<ProgressBar />` will all be available. There is a list below, eventually all items in the Bulma documentation will be added. If you need one of the missing ones either do a Pull Request or let me know and I may have time.
+After install, you can use all of the Bulma styles, along with those of the extension packages on your own components. You may want to store a copy of the pre-compiled CSS files somewhere in your solution so that Visual Studio can use Intellisense to give you CSS class recommendations. You will also be able to use the `.material-icons` CSS class to use any of the Material Symbols. The icon font will also be updated regularly, let us know if there are any missing and we will update it.
 
 ### Installation
 
@@ -41,38 +33,28 @@ To use this library:
 
 The following components are currently available for use. All of them are documented and you can hover over them in Visual Studio to get details for the components and their parameters.
 
-**Components**
-
-* `<BreadCrumb />` and `<BreadCrumbItem />`, creates a simple breadcrumb component to improve your navigation experience
-* `<Card />`, creates an all-around flexible and composable component
-* `<Clock />`, creates a live updating clock display
-* `<Message />`, creates a styled block containing a note to display
-* `<Modal />`, creates an overlay that can display additional content
-* `<Navbar />`, creates a navigation menu to use at the top of the screen
-* `<NavbarDropdown />`, creates a dropdown to use in a Navbar menu
-* `<NavbarItem />`, creates a link to use in a Navbar menu
-* `<NavigationButtons />`, creates Previous and Next buttons for navigating between pages
-* `<Panel />`, creates a styled block containing content to display
-* `<Steps />` and `<Step />`, creates a progress tracker with visual indicators
-* `<Tabs />` and `<Tab />`, creates a tab bar and content panels
-* `<ZoomSelector />`, creates a drop-down list of zoom levels to select from and apply to a target element
-
 **Elements**
 
 * `<BooleanIcon />`, creates an icon with either a check or 'X'
 * `<ButtonBase />`, allows easily creating standard buttons
 * `<Calendar />`, creates a grid style calendar to display dates and schedule items
+* `<Card />`, creates an all-around flexible and composable component
 * `<DeleteButton />`, creates a button to delete a record with a confirmation modal
+* `<Message />`, creates a styled block containing a note to display
+* `<Modal />`, creates an overlay that can display additional content
 * `<Notification />`, creates a bold notification block, to alert your users of something
+* `<Panel />`, creates a styled block containing content to display
 * `<ProgressBar />`, creates a meter to display completion or loading status
 * `<QrCode />`, creates a QR code image from text
 * `<ResetButton />`, creates a button to reset contents of a form
+* `<Steps />` and `<Step />`, creates a progress tracker with visual indicators
 * `<SubmitButton />`, creates a button to submit contents of a form
 * `<Table />`, creates an HTML table
 * `<TableCellBase />`, allows easily creating table cells
 * `<TableData />`, creates a td element within a table
 * `<TableHeader />`, creates a th element within a table
 * `<TableRow />`, creates a tr element within a table
+* `<Tabs />` and `<Tab />`, creates a tab bar and content panels
 * `<WeekScheduler />`, creates a weekly scheduler to display events
 
 **Errors**
@@ -93,6 +75,7 @@ The following components are currently available for use. All of them are docume
 * `<_503 />`, displays a message with 503: Service Unavailable
 * `<_504 />`, displays a message with 504: Gateway Timeout
 * `<ExtendedErrorBoundary />`, provides additional details on exceptions
+* `<HttpRequestError />`, displays the error component corresponding to the HTTP status code of a failed request
 * `<Unknown />`, displays a message with generic error details
 
 **Form**
@@ -113,22 +96,30 @@ The following components are currently available for use. All of them are docume
 * `<InputSwitch \>`, creates a sliding on off switch with an underlying checkbox
 * `<Label />`, creates a label to display with form inputs
 
-**Helpers**
-
-* `<Loader />`, displays a loading screen with a progress meter and message
-* `<ThemeSelector />`, toggles between dark and light CSS themes (requires JavaScript file and both CSS stylesheets in index.html)
-* `<TitleBlock />`, displays a banner accross the top of the screen with some text
-
 **Layout**
 
 * `<Hero />`, creates an imposing hero banner to showcase something
 * `<Level />` and `<LevelItem />`, displays a multi-purpose horizontal level
+* `<Loader />`, displays a loading screen with a progress meter and message
 * `<MarkupViewer />`, creates a viewer for displaying HTML markup safely
 * `<Masonry />`, `<MasonryItem />`, and `<MasonryInfiniteScroll />`, creates a masonry layout for displaying items in a grid
 * `<MediaObject />`, creates a media object prevalent in social media interfaces
 * `<ThreeColumns />`, creates a simple three column layout
 * `<TruncatedText />`, creates a block of text that is truncated after a set number of characters
 * `<TwoColumns />`, creates a simple two column layout
+
+**Navigation**
+
+* `<BreadCrumb />` and `<BreadCrumbItem />`, creates a simple breadcrumb component to improve your navigation experience
+* `<Clock />`, creates a live updating clock display
+* `<Navbar />`, creates a navigation menu to use at the top of the screen
+* `<NavbarDropdown />`, creates a dropdown to use in a Navbar menu
+* `<NavbarItem />`, creates a link to use in a Navbar menu
+* `<NavigationButtons />`, creates Previous and Next buttons for navigating between pages
+* `<ScrollToTopButton />`, creates a button that will scroll the page to the top when clicked
+* `<ThemeSelector />`, toggles between dark and light CSS themes (requires JavaScript file and both CSS stylesheets in index.html)
+* `<TitleBlock />`, displays a banner accross the top of the screen with some text
+* `<ZoomSelector />`, creates a drop-down list of zoom levels to select from and apply to a target element
 
 ### Usage
 
