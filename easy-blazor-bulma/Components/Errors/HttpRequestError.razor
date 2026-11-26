@@ -1,0 +1,69 @@
+﻿@using System.Net
+
+@namespace easy_blazor_bulma
+@inherits ComponentBase
+
+@if (StatusCode == HttpStatusCode.BadRequest)
+{
+	<_400 />
+}
+else if (StatusCode == HttpStatusCode.Unauthorized)
+{
+	<_401 />
+}
+else if (StatusCode == HttpStatusCode.Forbidden)
+{
+	<_403 />
+}
+else if (StatusCode == HttpStatusCode.NotFound)
+{
+	<_404 />
+}
+else if (StatusCode == HttpStatusCode.MethodNotAllowed)
+{
+	<_405 />
+}
+else if (StatusCode == HttpStatusCode.RequestTimeout)
+{
+	<_408 />
+}
+else if (StatusCode == HttpStatusCode.Conflict)
+{
+	<_409 />
+}
+else if (StatusCode == HttpStatusCode.UnprocessableContent)
+{
+	<_422 />
+}
+else if (StatusCode == HttpStatusCode.Locked)
+{
+	<_423 />
+}
+else if (StatusCode == HttpStatusCode.UpgradeRequired)
+{
+	<_426 />
+}
+else if (StatusCode == HttpStatusCode.TooManyRequests)
+{
+	<_429 />
+}
+else if (StatusCode == HttpStatusCode.InternalServerError)
+{
+	<_500 />
+}
+else if (StatusCode == HttpStatusCode.NotImplemented)
+{
+	<_501 />
+}
+else if (StatusCode == HttpStatusCode.BadGateway)
+{
+	<_502 />
+}
+else if (StatusCode == HttpStatusCode.ServiceUnavailable)
+{
+	<_503 />
+}
+else if (StatusCode == HttpStatusCode.GatewayTimeout)
+{
+	<_504 />
+}
