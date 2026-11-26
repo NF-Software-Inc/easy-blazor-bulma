@@ -87,6 +87,7 @@ jobs:
     if: ${{ inputs.deploy }}
     permissions:
       contents: write
+      id-token: write
     defaults:
       run:
         shell: pwsh
