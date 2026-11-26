@@ -551,6 +551,21 @@ public static class JavaScriptExtensions
 	}
 
 	/// <summary>
+	/// Registers a callback that is triggered when the page scroll position crosses a threshold.
+	/// </summary>
+	/// <typeparam name="TReference">The callback reference type.</typeparam>
+	/// <param name="jSRuntime">The JS runtime instance.</param>
+	/// <param name="listenerId">The unique identifier for this listener.</param>
+	/// <param name="dotNetReference">The .NET callback reference to invoke.</param>
+	/// <param name="callbackMethod">The callback method to invoke.</param>
+	/// <param name="threshold">The threshold used to determine visibility.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	public async static Task<bool> RegisterScrollListener<TReference>(this IJSRuntime jSRuntime, string listenerId, DotNetObjectReference<TReference> dotNetReference, string callbackMethod, int threshold, CancellationToken? token = null) where TReference : class
+	{
+		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.RegisterScrollListener", token ?? CancellationToken.None, listenerId, dotNetReference, callbackMethod, threshold);
+	}
+
+	/// <summary>
 	/// Registers a non-passive wheel listener on the specified element that conditionally calls <c>preventDefault()</c>.
 	/// </summary>
 	/// <param name="jsRuntime">The JavaScript runtime used to invoke the helper.</param>
@@ -741,6 +756,17 @@ public static class JavaScriptExtensions
 			return false;
 
 		return await jsRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.UnregisterKeyDownPreventDefault", token ?? CancellationToken.None, element);
+	}
+
+	/// <summary>
+	/// Removes a previously registered scroll listener.
+	/// </summary>
+	/// <param name="jSRuntime">The JS runtime instance.</param>
+	/// <param name="listenerId">The unique identifier for this listener.</param>
+	/// <param name="token">A cancellation token to abort the request.</param>
+	public async static Task<bool> UnregisterScrollListener(this IJSRuntime jSRuntime, string listenerId, CancellationToken? token = null)
+	{
+		return await jSRuntime.InvokeAsync<bool>("easyBlazorBulma.Input.UnregisterScrollListener", token ?? CancellationToken.None, listenerId);
 	}
 
 	/// <summary>

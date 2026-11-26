@@ -1,0 +1,6 @@
+@namespace easy_blazor_bulma
+@inherits EasyComponentBase
+
+<button type="button" class="@ButtonCssClass" style="@ButtonCssStyle" title="Jump to top" aria-label="Jump to top" @onclick="OnScrollToTop" @attributes='AdditionalAttributes.GetFilteredAttributes(Filter)'>
+    <span class="material-icons icon" aria-hidden="true">@Icon</span>
+</button>

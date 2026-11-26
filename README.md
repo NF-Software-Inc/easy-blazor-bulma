@@ -75,6 +75,7 @@ The following components are currently available for use. All of them are docume
 * `<_503 />`, displays a message with 503: Service Unavailable
 * `<_504 />`, displays a message with 504: Gateway Timeout
 * `<ExtendedErrorBoundary />`, provides additional details on exceptions
+* `<HttpRequestError />`, displays the error component corresponding to the HTTP status code of a failed request
 * `<Unknown />`, displays a message with generic error details
 
 **Form**
@@ -115,6 +116,7 @@ The following components are currently available for use. All of them are docume
 * `<NavbarDropdown />`, creates a dropdown to use in a Navbar menu
 * `<NavbarItem />`, creates a link to use in a Navbar menu
 * `<NavigationButtons />`, creates Previous and Next buttons for navigating between pages
+* `<ScrollToTopButton />`, creates a button that will scroll the page to the top when clicked
 * `<ThemeSelector />`, toggles between dark and light CSS themes (requires JavaScript file and both CSS stylesheets in index.html)
 * `<TitleBlock />`, displays a banner accross the top of the screen with some text
 * `<ZoomSelector />`, creates a drop-down list of zoom levels to select from and apply to a target element
